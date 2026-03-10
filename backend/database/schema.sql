@@ -1,7 +1,11 @@
 CREATE DATABASE farmers_conekt;
 USE farmers_conekt;
 
--- Base users table for all user types
+CREATE TABLE districts (
+    district_id INT AUTO_INCREMENT PRIMARY KEY,
+    district_name VARCHAR(100) NOT NULL UNIQUE
+);
+
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
@@ -12,26 +16,34 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Farmers table - extended profile for farmers
 CREATE TABLE farmers (
     farmer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
-    musanze VARCHAR(100),
     rating DECIMAL(2,1),
+    bio TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Buyers table - extended profile for buyers
 CREATE TABLE buyers (
     buyer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Products table - products listed by farmers
+CREATE TABLE transporters (
+    transporter_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    plate_number VARCHAR(20) UNIQUE,
+    capacity_kg INT NOT NULL,
+    availability_status ENUM('available','busy','offline') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 CREATE TABLE products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
+    district_id INT NOT NULL,
     product_name VARCHAR(100) NOT NULL,
     product_category VARCHAR(50),
     harvest_date DATE,
@@ -44,16 +56,28 @@ CREATE TABLE products (
     image_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE
+    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
+    FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
 );
 
--- Orders table - orders placed by buyers
+CREATE TABLE planting_plans (
+    plan_id INT AUTO_INCREMENT PRIMARY KEY,
+    farmer_id INT NOT NULL,
+    product_id INT NOT NULL,
+    district_id INT NOT NULL,
+    planted_quantity INT NOT NULL,
+    expected_harvest_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
+);
+
 CREATE TABLE orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
-    buyer_id INT NOT NULL,
+    buyer_id INT,
     status ENUM('pending','confirmed','shipped','delivered','cancelled') DEFAULT 'pending',
     total_payment DECIMAL(10,2),
-    delivery_location VARCHAR(255),
     payment_status ENUM('pending','paid','failed') DEFAULT 'pending',
     payment_reference VARCHAR(100),
     Phone_paid_with VARCHAR(20),
@@ -62,7 +86,6 @@ CREATE TABLE orders (
     FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE SET NULL
 );
 
--- Order details table - line items in each order
 CREATE TABLE order_details (
     order_detail_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -73,16 +96,19 @@ CREATE TABLE order_details (
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
--- Deliveries table - delivery tracking
 CREATE TABLE deliveries (
     delivery_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
+    transporter_id INT,
+    pickup_location VARCHAR(255),
+    dropoff_location VARCHAR(255),
+    delivery_fee DECIMAL(10,2),
     status ENUM('pending','in_transit','delivered','returned') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id) ON DELETE SET NULL
 );
 
--- Reviews table - buyer reviews of farmers
 CREATE TABLE reviews (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
@@ -93,3 +119,26 @@ CREATE TABLE reviews (
     FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
     FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE CASCADE
 );
+
+CREATE TABLE demand_analytics (
+    analytics_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    district_id INT NOT NULL,
+    year INT,
+    month INT,
+    total_sold INT,
+    average_price DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
+);
+
+
+CREATE INDEX idx_products_district_id ON products(district_id);
+CREATE INDEX idx_products_name ON products(product_name);
+CREATE INDEX idx_orders_created_at ON orders(created_at);
+CREATE INDEX idx_order_details_product ON order_details(product_id);
+CREATE INDEX idx_demand_district_id ON demand_analytics(district_id);
+CREATE INDEX idx_products_district_name ON products(district_id, product_name);
+CREATE INDEX idx_planting_plans_farmer ON planting_plans(farmer_id);
+CREATE INDEX idx_planting_plans_product ON planting_plans(product_id);
