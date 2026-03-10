@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database.db import get_db_connection
+import uuid
+import os
 
 farmer_routes = Blueprint("farmer_routes", __name__)
 
@@ -51,10 +53,30 @@ def get_farmer_profile(user_id):
 
 # API to upload product
 
-@farmer_routes.route("/upload", methods=["POST"])
+@product_routes.route("/upload", methods=["POST"])
 def upload_product():
 
-    data = request.json
+    farmer_id = request.form.get("farmer_id")
+    district_id = request.form.get("district_id")
+    product_name = request.form.get("product_name")
+    category = request.form.get("category")
+    harvest_date = request.form.get("harvest_date")
+    expiration_date = request.form.get("expiration_date")
+    price = request.form.get("price")
+    unit = request.form.get("unit")
+    quantity = request.form.get("quantity")
+    description = request.form.get("description")
+
+    image = request.files.get("image")
+
+    image_path = None
+
+    if image:
+        filename = str(uuid.uuid4()) + "_" + image.filename
+        filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        image.save(filepath)
+
+        image_path = f"/uploads/crop_images/{filename}"
 
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -62,30 +84,36 @@ def upload_product():
     query = """
     INSERT INTO products
     (farmer_id, district_id, product_name, product_category,
-    harvest_date, expiration_date, status, price_per_unit,
-    unit, quantity_available, description, image_url, created_at)
-    
+     harvest_date, expiration_date, status, price_per_unit,
+     unit, quantity_available, description, image_url, created_at)
+
     VALUES (%s,%s,%s,%s,%s,%s,'available',%s,%s,%s,%s,%s,NOW())
     """
 
     cursor.execute(query, (
-        data["farmer_id"],
-        data["district_id"],
-        data["product_name"],
-        data["category"],
-        data["harvest_date"],
-        data["expiration_date"],
-        data["price"],
-        data["unit"],
-        data["quantity"],
-        data["description"],
-        data["image_url"]
+        farmer_id,
+        district_id,
+        product_name,
+        category,
+        harvest_date,
+        expiration_date,
+        price,
+        unit,
+        quantity,
+        description,
+        image_path
     ))
 
     connection.commit()
+
+    product_id = cursor.lastrowid
+
     connection.close()
 
-    return jsonify({"message": "Product uploaded successfully"})
+    return jsonify({
+        "message": "Product uploaded successfully",
+        "product_id": product_id
+    })
 
 # allowing farmer to view their product
 
