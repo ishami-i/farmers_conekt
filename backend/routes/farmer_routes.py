@@ -76,3 +76,100 @@ def farmer_dashboard(farmer_id):
     connection.close()
 
     return jsonify(stats)
+
+# getting farmers product
+
+@farmer_routes.route("/products/<int:farmer_id>", methods=["GET"])
+def get_farmer_products(farmer_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+    SELECT
+        product_id,
+        product_name,
+        product_category,
+        price_per_unit,
+        unit,
+        quantity_available,
+        harvest_date,
+        expiration_date
+    FROM products
+    WHERE farmer_id = %s
+    """
+
+    cursor.execute(query, (farmer_id,))
+    rows = cursor.fetchall()
+
+    products = []
+
+    for r in rows:
+        products.append({
+            "id": r[0],
+            "name": r[1],
+            "category": r[2],
+            "price": r[3],
+            "unit": r[4],
+            "qty": r[5],
+            "harvest": str(r[6]),
+            "expiry": str(r[7])
+        })
+
+    connection.close()
+
+    return jsonify(products)
+
+# allowing farmer to delete their product
+
+@farmer_routes.route("/product/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM products WHERE product_id=%s", (product_id,))
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Product deleted"})
+
+# allowing farmer to update product
+
+@farmer_routes.route("/product/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+
+    data = request.json
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+    UPDATE products
+    SET product_name=%s,
+        product_category=%s,
+        price_per_unit=%s,
+        unit=%s,
+        quantity_available=%s,
+        harvest_date=%s,
+        expiration_date=%s,
+        description=%s
+    WHERE product_id=%s
+    """
+
+    cursor.execute(query, (
+        data["name"],
+        data["category"],
+        data["price"],
+        data["unit"],
+        data["qty"],
+        data["harvest"],
+        data["expiry"],
+        data["desc"],
+        product_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Product updated"})
