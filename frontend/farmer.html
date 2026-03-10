@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FarmerConekt – Farmer Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+
+    /* Remove all default spacing that browsers add automatically to every element */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --green-deep:   #1a3c2e;
+      --green-mid:    #2d6a4f;
+      --green-bright: #52b788;
+      --green-light:  #95d5b2;
+      --cream:        #f8f4ed;
+      --cream-dark:   #ede8df;
+      --brown:        #8b5e3c;
+      --yellow:       #f4a940;
+      --red:          #e05c5c;
+      --white:        #ffffff;
+      --text-dark:    #1a2e1f;
+      --text-mid:     #4a6358;
+      --text-light:   #7a9487;
+      --shadow-sm:    0 2px 8px rgba(26,60,46,0.08);
+      --shadow-md:    0 6px 24px rgba(26,60,46,0.12);
+      --shadow-lg:    0 16px 48px rgba(26,60,46,0.18);
+      --radius:       16px;
+      --radius-sm:    10px;
+    }
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+    }
+/* the dark green panel on the left*/
+    .sidebar {
+      width: 260px;           /* sidebar is 260px wide */
+      min-height: 100vh;      /* stretch to full screen height */
+      background: var(--green-deep); /* dark green background */
+      display: flex;
+      flex-direction: column; /* stack children top to bottom */
+      position: fixed;        /* stays in place even when you scroll */
+      left:0; top:0; bottom:0;
+      z-index:100;            /* sits on top of other elements so nothing covers it */
+    }
+/* the FarmerConekt logo area at the top of the sidebar */
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08); /* very faint white line below logo */
+    }
+/* the app name text next to the logo box */
+    .logo-text { font-size:17px; font-weight:700; color:var(--white); line-height:1.2; }
+/* the profile section below the logo (photo + name) */
+    .farmer-profile {
+      padding:20px 24px;
+      border-bottom:1px solid rgba(255,255,255,0.08); /* faint line separating profile from nav */
+    }
+/* The profile photo circle*/
+    .farmer-avatar {
+      width:64px; height:64px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08); /* very faint white background */
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:10px;
+      border:2px dashed rgba(255,255,255,0.25); /* dashed circle border */
+      cursor:pointer;
+      overflow:hidden;
+      position:relative;
+      transition:border-color 0.2s; /* border colour animates over 0.2 seconds */
+    }
+    /* when farmer hovers over the circle, the border turns bright green */
+    .farmer-avatar:hover { border-color:var(--green-bright); }
+ /* once a photo is uploaded, it fills the circle perfectly */
+    .farmer-avatar img {
+      width:100%; height:100%;
+      object-fit:cover;   /* crop the image to fill without stretching */
+      border-radius:50%;  /* keep the circle shape */
+    }
+/* the small "Upload Photo" text shown before a photo is chosen */
+    .avatar-upload-hint {
+      font-size:10px;
+      color:rgba(255,255,255,0.4); /* very faint white text */
+      text-align:center;
+      line-height:1.4;
+      padding:4px;
+    }
+/* the actual file input — hidden because we use the circle as the click target instead */
+    #avatar-input { display:none; }
+
+    .farmer-name     { font-size:14px; font-weight:600; color:var(--white); }
+    .farmer-location { font-size:12px; color:var(--green-light); margin-top:2px; }
+    .farmer-rating   { display:flex; align-items:center; gap:4px; margin-top:6px; }
+    .stars           { color:var(--yellow); font-size:12px; }
+    .rating-num      { font-size:12px; color:var(--green-light); }
+/* the navigation links area — flex:1 means it expands to fill available space */
+    .nav-section { padding:20px 0; flex:1; }
+/* small section heading like "MAIN MENU"*/
+    .nav-label {
+      font-size:10px; font-weight:600; color:var(--text-light);
+      letter-spacing:1.5px;    /* extra space between letters */
+      text-transform:uppercase; /* make it all capitals automatically */
+      padding:0 24px 8px;
+    }
+/*Navigation links*/
+    .nav-item {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 24px;
+      color:rgba(255,255,255,0.6); /* 60% white — slightly see-through */
+      font-size:14px; font-weight:500;
+      cursor:pointer;
+      transition:all 0.2s;
+      text-decoration:none;        /* remove the default underline on links */
+      border-left:3px solid transparent;
+    }
+    /* when you hover over a link, it brightens */
+    .nav-item:hover  { color:var(--white); background:rgba(255,255,255,0.05); }
+    /* the currently active page gets a green left bar and green text */
+    .nav-item.active { color:var(--green-bright); background:rgba(82,183,136,0.1); border-left-color:var(--green-bright); }
+    .nav-icon        { font-size:18px; width:20px; text-align:center; }
+
+    /* small yellow number badge — e.g. shows how many products you have */
+    .nav-badge {
+      margin-left:auto; /* push it to the far right of the nav item */
+      background:var(--yellow); color:var(--green-deep);
+      font-size:10px; font-weight:700;
+      padding:2px 7px; border-radius:20px; /* pill shape */
+    }
+/* logout button at the very bottom of the sidebar */
+    .sidebar-footer { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.08); }
+    .logout-btn {
+      display:flex; align-items:center; gap:10px;
+      color:rgba(255,255,255,0.5); /* faded white */
+      font-size:14px; cursor:pointer;
+      background:none; border:none; /* looks like text, not a button box */
+      font-family:inherit; width:100%;
+      transition:color 0.2s;
+    }
+/* turns red when you hover — warning that you are about to log out */
+    .logout-btn:hover { color:var(--red); }
+
+    /*Main content where everything is to the right of the sidebar*/
+    .main {
+      margin-left:260px; /* push right by exactly the sidebar width so they don't overlap */
+      flex:1;
+      display:flex; flex-direction:column;
+      min-height:100vh;
+    }
+/*the white bar at the very top of the main content*/
+    .topbar {
+      background:var(--white);
+      padding:16px 36px;
+      display:flex; align-items:center; justify-content:space-between; /* title left, button right */
+      border-bottom:1px solid var(--cream-dark);
+      position:sticky; top:0; z-index:50;}
+    .topbar-left h2 { font-size:20px; font-weight:700; color:var(--text-dark); }
+    .topbar-left p  { font-size:13px; color:var(--text-light); margin-top:2px; }
+ /* the area below the topbar showing all main content*/
+    .page-body { padding:32px 36px; flex:1; }
+ /*the white box that holds the product table*/
+    .section-card {
+      background:var(--white);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-sm);
+      border:1px solid var(--cream-dark);
+      overflow:hidden; /* so the table corners stay inside the rounded card */
+    }
+    .section-header {
+      padding:20px 24px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid var(--cream-dark);
+    }
+    .section-title    { font-size:15px; font-weight:700; color:var(--text-dark); }
+    .section-subtitle { font-size:12px; color:var(--text-light); margin-top:2px; }
+/*Add New Product" button inside the table card header */
+    .section-add-btn {
+      display:flex; align-items:center; gap:6px;
+      background:rgba(82,183,136,0.1); /* faint green background */
+      color:var(--green-mid);
+      border:1px solid rgba(82,183,136,0.25);
+      border-radius:var(--radius-sm);
+      padding:8px 14px; font-size:13px; font-weight:600;
+      cursor:pointer; font-family:inherit; transition:all 0.2s;
+    }
+    /* becomes fully green whenyou try to add something*/
+    .section-add-btn:hover { background:var(--green-mid); color:var(--white); }
+/*the row of All/Available/Low Stock/Expired buttons*/
+    .filter-bar {
+      padding:14px 24px;
+      display:flex; gap:10px; align-items:center;
+      border-bottom:1px solid var(--cream-dark);
+      background:var(--cream);
+      flex-wrap:wrap; /* buttons wrap to next line on small screens */
+    }
+    .filter-label { font-size:12px; color:var(--text-light); font-weight:600; margin-right:4px; }
+/* each filter button*/
+    .filter-btn {
+      padding:6px 14px; border-radius:20px; /* pill shape */
+      border:1px solid var(--cream-dark);
+      background:var(--white); font-size:12px; font-weight:600;
+      color:var(--text-mid); cursor:pointer;
+      font-family:inherit; transition:all 0.2s;
+    }
+    .filter-btn:hover { border-color:var(--green-bright); color:var(--green-mid); }
+    /* the currently selected filter button becomes filled green */
+    .filter-btn.active-filter { background:var(--green-mid); color:var(--white); border-color:var(--green-mid); }
+
+    /* the search box on the right of the filter bar */
+    .search-input {
+      margin-left:auto; /* push search box to the far right */
+      padding:7px 14px;
+      border:1px solid var(--cream-dark); border-radius:20px;
+      font-size:13px; font-family:inherit; outline:none;
+      background:var(--white); color:var(--text-dark);
+      width:200px; transition:all 0.2s;
+    }
+    /* when farmer clicks into search box: border turns green + soft green glow appears */
+    .search-input:focus {
+      border-color:var(--green-bright);
+      box-shadow:0 0 0 3px rgba(82,183,136,0.12); /* the glow is a blurred shadow with no offset */
+    }
+
+    /*the rows of crop listings*/
+    .product-table { width:100%; border-collapse:collapse; } /* collapse removes double borders */
+
+    /* table header row (PRODUCT, PRICE/UNIT, QTY, STATUS...) */
+    .product-table th {
+      padding:12px 20px; text-align:left;
+      font-size:11px; font-weight:600; color:var(--text-light);
+      text-transform:uppercase; letter-spacing:0.8px;
+      background:var(--cream); border-bottom:1px solid var(--cream-dark);
+    }
+
+    /* each data cell in the table */
+    .product-table td {
+      padding:15px 20px; font-size:14px; color:var(--text-dark);
+      border-bottom:1px solid var(--cream-dark);
+      vertical-align:middle; /* keeps content centred vertically in the row */
+    }
+    .product-table tr:last-child td { border-bottom:none; } /* no line after the last row */
+    .product-table tr:hover td { background:#fafaf8; }      /* very faint highlight when you hover a row */
+
+    /* the product name + letter icon side by side in the first column */
+    .product-info  { display:flex; align-items:center; gap:14px; }
+
+    .product-name     { font-weight:600; font-size:14px; }
+    .product-category { font-size:12px; color:var(--text-light); margin-top:2px; }
+
+    /* the coloured pill that shows Available / Low Stock / Expired*/
+    .status-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 11px; border-radius:20px; /* pill shape */
+      font-size:12px; font-weight:600;
+    }
+    .status-badge::before { content:''; width:6px; height:6px; border-radius:50%; } /* the small dot */
+
+    /* Available = green */
+    .badge-available        { background:rgba(82,183,136,0.12); color:var(--green-mid); }
+    .badge-available::before{ background:var(--green-bright); }
+
+    /* Low Stock = yellow/brown */
+    .badge-low              { background:rgba(244,169,64,0.12); color:var(--brown); }
+    .badge-low::before      { background:var(--yellow); }
+
+    /* Expired = red */
+    .badge-expired          { background:rgba(224,92,92,0.12); color:var(--red); }
+    .badge-expired::before  { background:var(--red); }
+
+    /* price shown in monospace font so numbers line up neatly */
+    .price-tag { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--green-mid); }
+    .qty-tag   { font-family:'DM Mono',monospace; font-size:14px; }
+
+    /* expiry date turns red and bold when the product is expiring soon */
+    .date-normal { font-size:13px; color:var(--text-mid); }
+    .date-soon   { font-size:13px; color:var(--red); font-weight:600; }
+
+    /* the Edit and Delete buttons in the last column */
+    .table-actions { display:flex; gap:6px; }
+    .btn-icon {
+      width:32px; height:32px; border-radius:8px;
+      border:1px solid var(--cream-dark); background:var(--white);
+      display:flex; align-items:center; justify-content:center;
+      font-size:15px; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-icon:hover        { background:var(--cream); border-color:var(--green-light); }
+    /* Delete button specifically turns red when hovered — warning colour */
+    .btn-icon.danger:hover { background:rgba(224,92,92,0.1); border-color:var(--red); }
+
+    /*shown when there are no products yet*/
+    .empty-state { padding:64px 24px; text-align:center; color:var(--text-light); }
+    .empty-icon  { font-size:56px; margin-bottom:16px; opacity:0.4; } /* faded out */
+    .empty-text  { font-size:16px; font-weight:700; color:var(--text-mid); }
+    .empty-sub   { font-size:13px; margin-top:8px; line-height:1.5; }
+
+    /* the call-to-action button shown when no products exist yet */
+    .empty-cta {
+      display:inline-flex; align-items:center; gap:8px; margin-top:20px;
+      background:var(--green-mid); color:var(--white); border:none;
+      border-radius:var(--radius-sm); padding:11px 22px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      font-family:inherit; transition:background 0.2s;
+    }
+    .empty-cta:hover { background:var(--green-deep); }
+
+    /*the popup form for adding/editing a product*/
+    .modal-overlay {
+      position:fixed; inset:0;
+      background:rgba(26,60,46,0.5); /* dark green, 50% see-through */
+      backdrop-filter:blur(4px);     /* blurs the background content */
+      z-index:200;                   /* sits above everything else */
+      display:none; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .modal-overlay.open { display:flex; } /* JavaScript adds "open" to show the popup */
+
+    /* the white popup box*/
+    .modal {
+      background:var(--white);
+      border-radius:20px; width:100%; max-width:540px;
+      box-shadow:var(--shadow-lg); /* large shadow makes it float above the overlay */
+      overflow:hidden;
+      animation:slideUp 0.3s ease; /* plays the slide-up animation when it appears */
+    }
+
+    /*the popup slides up from below when it opens*/
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .modal-header {
+      padding:24px 28px 18px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid var(--cream-dark);
+    }
+    .modal-title { font-size:18px; font-weight:700; color:var(--text-dark); }
+
+    /*the X close button in the top right of the popup */
+    .modal-close {
+      width:32px; height:32px; border-radius:8px;
+      background:var(--cream); border:none; font-size:16px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      color:var(--text-mid); transition:background 0.2s;
+    }
+    .modal-close:hover { background:var(--cream-dark); }
+
+    /* the form inside the popup */
+    .modal-body { padding:24px 28px; }
+
+    /* puts two form fields side by side in one row */
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+    .form-group { margin-bottom:18px; }
+    .form-group:last-child { margin-bottom:0; } /* no extra space after the last field */
+
+    .form-label { display:block; font-size:13px; font-weight:600; color:var(--text-mid); margin-bottom:7px; }
+    .required   { color:var(--red); margin-left:2px; } /* the red * on required fields */
+
+    /* styling for text inputs, dropdowns, and text areas */
+    .form-input, .form-select, .form-textarea {
+      width:100%; padding:11px 14px;
+      border:1px solid var(--cream-dark);
+      border-radius:var(--radius-sm);
+      font-size:14px; font-family:inherit;
+      color:var(--text-dark); background:var(--white);
+      outline:none; /* removes the default ugly blue outline browsers add */
+      transition:all 0.2s;
+    }
+    /* when farmer clicks into a field: green border + soft green glow */
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color:var(--green-bright);
+      box-shadow:0 0 0 3px rgba(82,183,136,0.15);
+    }
+    .form-textarea { resize:vertical; min-height:80px; } /* farmer can only resize vertically */
+    .form-hint     { font-size:12px; color:var(--text-light); margin-top:5px; } /* small grey helper text */
+
+    /* the Cancel and Save buttons at the bottom of the popup */
+    .modal-footer {
+      padding:16px 28px 24px;
+      display:flex; gap:12px; justify-content:flex-end; /* buttons align to the right */
+      border-top:1px solid var(--cream-dark);
+    }
+
+    /* Cancel button plain white button */
+    .btn-cancel {
+      padding:10px 20px; border-radius:var(--radius-sm);
+      border:1px solid var(--cream-dark); background:var(--white);
+      font-size:14px; font-weight:600; font-family:inherit;
+      color:var(--text-mid); cursor:pointer; transition:background 0.2s;
+    }
+    .btn-cancel:hover { background:var(--cream); }
+
+    /* Save button solid green button */
+    .btn-save {
+      padding:10px 26px; border-radius:var(--radius-sm); border:none;
+      background:var(--green-mid); color:var(--white);
+      font-size:14px; font-weight:600; font-family:inherit;
+      cursor:pointer; transition:background 0.2s, transform 0.1s;
+    }
+    .btn-save:hover  { background:var(--green-deep); }
+    /* button shrinks very slightly when clicked*/
+    .btn-save:active { transform:scale(0.98); }
+
+    /* the small notification message that pops up at the bottom-right corner of the screen*/
+    .toast {
+      position:fixed;          /* always stays at the bottom-right even if you scroll */
+      bottom:30px; right:30px;
+      background:var(--green-deep); color:var(--white);
+      padding:14px 20px; border-radius:var(--radius);
+      font-size:14px; font-weight:500;
+      box-shadow:var(--shadow-lg); /* floats above everything */
+      display:flex; align-items:center; gap:10px;
+      z-index:300;              /* highest z-index — sits on top of the modal too */
+      transform:translateY(80px); opacity:0; /* starts hidden and 80px below final position */
+      max-width:320px;
+      /* cubic-bezier is a custom animation curve — gives the toast a slight bounce as it rises */
+      transition:all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+
+    @media (max-width:768px) {
+      .sidebar    { display:none; }        /* hide sidebar on small screens — no room for it */
+      .main       { margin-left:0; }       /* content takes full width since sidebar is hidden */
+      .page-body  { padding:20px 16px; }   /* less padding on small screens */
+      .topbar     { padding:14px 16px; }
+      .form-row   { grid-template-columns:1fr; } /* form fields stack vertically on phones */
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-text">FarmerConekt</div>
+    </div>
+  </div>
+
+  <div class="farmer-profile">
+    <div class="farmer-avatar" onclick="document.getElementById('avatar-input').click()" title="Click to upload photo">
+      <div class="avatar-upload-hint" id="avatar-hint">Upload<br>Photo</div>
+      <img id="avatar-preview" src="" style="display:none;"/>
+    </div>
+    <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)"/>
+    <div class="farmer-name">My Profile</div>
+    <div class="farmer-location" style="font-size:11px;color:var(--green-light);margin-top:4px;font-style:italic;">Name set after login</div>
+  </div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Main Menu</div>
+    <a class="nav-item active" href="#">
+      <span class="nav-icon">⊟</span> Dashboard
+    </a>
+    <a class="nav-item" href="#" onclick="comingSoon(event,'Orders')">
+      <span class="nav-icon">◱</span> Orders
+    </a>
+    <a class="nav-item" href="#" onclick="comingSoon(event,'Payments')">
+      <span class="nav-icon">◈</span> Payments
+    </a>
+    <div class="nav-label" style="margin-top:16px;">Account</div>
+    <a class="nav-item" href="#" onclick="comingSoon(event,'Profile')">
+      <span class="nav-icon">👤</span> My Profile
+    </a>
+
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="confirmLogout()">
+      Log Out
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>Farmer Dashboard</h2>
+      <p>Manage your product listings</p>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+
+
+
+
+    <!-- Products Table -->
+    <div class="section-card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">My Products</div>
+          <div class="section-subtitle">All your crop listings visible to buyers</div>
+        </div>
+        <button class="section-add-btn" onclick="openModal()">＋ Add New Product</button>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-btn active-filter" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('available',this)">Available</button>
+        <button class="filter-btn" onclick="setFilter('low',this)">Low Stock</button>
+        <button class="filter-btn" onclick="setFilter('expired',this)">Expired</button>
+        <input class="search-input" id="search-input" type="text"
+          placeholder="🔍  Search products..." oninput="render()"/>
+      </div>
+
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price / Unit</th>
+            <th>Qty Available</th>
+            <th>Status</th>
+            <th>Harvest Date</th>
+            <th>Expiry Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="products-tbody"></tbody>
+      </table>
+
+
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add New Product</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product Name <span class="required">*</span></label>
+          <input class="form-input" id="inp-name" type="text" placeholder="e.g. Tomatoes"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category <span class="required">*</span></label>
+          <select class="form-select" id="inp-category">
+            <option value="">Select category</option>
+            <option>Vegetables</option><option>Fruits</option>
+            <option>Grains</option><option>Legumes</option>
+            <option>Tubers</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Price per Unit (RWF) <span class="required">*</span></label>
+          <input class="form-input" id="inp-price" type="number" placeholder="e.g. 500" min="1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit <span class="required">*</span></label>
+          <select class="form-select" id="inp-unit">
+            <option value="">Select unit</option>
+            <option>kg</option><option>g</option><option>litre</option>
+            <option>piece</option><option>bunch</option><option>bag</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Quantity Available <span class="required">*</span></label>
+          <input class="form-input" id="inp-qty" type="number" placeholder="e.g. 200" min="1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Harvest Date <span class="required">*</span></label>
+          <input class="form-input" id="inp-harvest" type="date"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiration Date <span class="required">*</span></label>
+        <input class="form-input" id="inp-expiry" type="date"/>
+        <div class="form-hint">The date this product is no longer fresh</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="inp-desc"
+          placeholder="e.g. Fresh organic tomatoes from Musanze, harvested this morning..."></textarea>
+        <div class="form-hint">Help buyers understand the quality of your product</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   id="btn-save" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+  let products      = [];
+  let activeFilter  = 'all';
+  let editingId     = null;
+  function formatDate(s) {
+    if (!s) return '—';
+    return new Date(s).toLocaleDateString('en-RW', { day:'numeric', month:'short', year:'numeric' });
+  }
+  function isExpiringSoon(s) {
+    if (!s) return false;
+    const diff = (new Date(s) - new Date()) / 86400000; // convert milliseconds to days
+    return diff >= 0 && diff <= 7;
+  }
+  function calcStatus(qty, expiry) {
+    if (new Date(expiry) < new Date()) return 'expired';
+    if (qty <= 20)                      return 'low';
+    return 'available';
+  }
+  function render() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const filtered = products.filter(p => {
+      const matchF = activeFilter === 'all' || p.status === activeFilter; // matches filter tab
+      const matchS = p.name.toLowerCase().includes(search) ||
+                     p.category.toLowerCase().includes(search);           // matches search text
+      return matchF && matchS;
+    });
+
+    const tbody = document.getElementById('products-tbody'); // the table body in HTML
+
+    if (!filtered.length) {
+      const isEmpty = !products.length; // true if farmer has added nothing at all
+      tbody.innerHTML = `<tr><td colspan="7">
+        <div class="empty-state">
+          <div class="empty-icon" style="font-size:40px;opacity:0.3;">[ ]</div>
+          <div class="empty-text">${isEmpty ? 'No products listed yet' : 'No products match your filter'}</div>
+          <div class="empty-sub">${isEmpty
+            ? 'Click the button below to add your first crop listing'
+            : 'Try a different filter or clear your search'}</div>
+          ${isEmpty ? `<button class="empty-cta" onclick="openModal()">+ Add Your First Product</button>` : ''}
+        </div>
+      </td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(p => {
+        const bc = p.status==='available' ? 'badge-available' : p.status==='low' ? 'badge-low' : 'badge-expired';
+        const bl = p.status==='available' ? 'Available' : p.status==='low' ? 'Low Stock' : 'Expired';
+        // If expiry is within 7 days, make the date turn red
+        const dc = isExpiringSoon(p.expiry) ? 'date-soon' : 'date-normal';
+
+        return `<tr>
+          <td>
+            <div class="product-info">
+              <div>
+                <div class="product-name">${p.name}</div>
+                <div class="product-category">${p.category}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="price-tag">${Number(p.price).toLocaleString()} RWF / ${p.unit}</span></td>
+          <td><span class="qty-tag">${p.qty} ${p.unit}</span></td>
+          <td><span class="status-badge ${bc}">${bl}</span></td>
+          <td><span class="date-normal">${formatDate(p.harvest)}</span></td>
+          <td><span class="${dc}">${formatDate(p.expiry)}</span></td>
+          <td>
+            <div class="table-actions">
+              <!-- Edit button: opens the form with this product's data already filled in -->
+              <button class="btn-icon"        title="Edit"   onclick="openEdit(${p.id})">Edit</button>
+              <!-- Delete button: removes this product from the list -->
+              <button class="btn-icon danger" title="Delete" onclick="deleteProduct(${p.id})">✕</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join(''); // join all rows into one HTML string
+    }
+
+    updateStats(); // kept for future use
+  }
+  function updateStats() {
+  }
+  // Called when farmer clicks All / Available / Low Stock / Expired
+  function setFilter(f, btn) {
+    activeFilter = f; // save which filter is now active
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+    btn.classList.add('active-filter'); // highlight the clicked button
+    render(); // redraw the table with the new filter applied
+  }
+  function openModal() {
+    editingId = null; // make sure we are in "add new" mode, not edit mode
+    document.getElementById('modal-title').textContent = 'Add New Product';
+    document.getElementById('btn-save').textContent    = 'Save Product';
+    clearForm(); // empty all input fields before showing
+    document.getElementById('modal-overlay').classList.add('open'); // show the popup
+    setTimeout(() => document.getElementById('inp-name').focus(), 100); // auto-focus name field
+  }
+  function openEdit(id) {
+    const p = products.find(x => x.id === id); // find the product by its id
+    if (!p) return;
+    editingId = id; // remember which product we are editing
+    document.getElementById('modal-title').textContent = 'Edit Product';
+    document.getElementById('btn-save').textContent    = 'Update Product';
+    document.getElementById('inp-name').value     = p.name;
+    document.getElementById('inp-category').value = p.category;
+    document.getElementById('inp-price').value    = p.price;
+    document.getElementById('inp-unit').value     = p.unit;
+    document.getElementById('inp-qty').value      = p.qty;
+    document.getElementById('inp-harvest').value  = p.harvest;
+    document.getElementById('inp-expiry').value   = p.expiry;
+    document.getElementById('inp-desc').value     = p.desc || '';
+    document.getElementById('modal-overlay').classList.add('open'); // show the popup
+  }
+
+  // Closes the popup form
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    clearForm();
+    editingId = null;
+  }
+  function closeOnOverlay(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  function clearForm() {
+    ['inp-name','inp-category','inp-price','inp-unit','inp-qty','inp-harvest','inp-expiry','inp-desc']
+      .forEach(id => document.getElementById(id).value = '');
+  }
+  function saveProduct() {
+    // Read all the values the farmer typed into the form
+    const name     = document.getElementById('inp-name').value.trim();
+    const category = document.getElementById('inp-category').value;
+    const price    = parseFloat(document.getElementById('inp-price').value);
+    const unit     = document.getElementById('inp-unit').value;
+    const qty      = parseInt(document.getElementById('inp-qty').value);
+    const harvest  = document.getElementById('inp-harvest').value;
+    const expiry   = document.getElementById('inp-expiry').value;
+    const desc     = document.getElementById('inp-desc').value.trim();
+
+    // Check that all required fields are filled 
+    if (!name || !category || !price || !unit || !qty || !harvest || !expiry) {
+      showToast('Please fill in all required fields.'); return;
+    }
+    // Check that expiry date is after harvest date 
+    if (new Date(expiry) <= new Date(harvest)) {
+      showToast('Expiry date must be after harvest date.'); return;
+    }
+
+    if (editingId !== null) {
+      //find the existing product and update its values
+      const idx = products.findIndex(p => p.id === editingId);
+      products[idx] = { ...products[idx], name, category, price, unit, qty,
+        harvest, expiry, desc, status: calcStatus(qty, expiry) };
+      showToast('Product updated successfully!');
+    } else {
+      products.push({ id: Date.now(), name, category, price, unit, qty,
+        harvest, expiry, desc, status: calcStatus(qty, expiry) });
+      showToast(`${name} listed successfully!`);
+    }
+
+    closeModal(); // close the form
+    render();     // redraw the table to show the new/updated product
+  }
+  function deleteProduct(id) {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    // Ask the farmer to confirm before deleting
+    if (confirm(`Remove "${p.name}" from your listings?`)) {
+      products = products.filter(x => x.id !== id); // keep everything except this product
+      render();
+      showToast(`${p.name} removed.`);
+    }
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');                              // make toast visible
+    setTimeout(() => t.classList.remove('show'), 3200);  // hide after 3.2 seconds
+  }
+  function comingSoon(e, name) {
+    e.preventDefault(); // stop the link from navigating away
+    showToast(`${name} — coming soon!`);
+  }
+  // Asks farmer to confirm, then sends them to the login page
+  function confirmLogout() {
+    if (confirm('Are you sure you want to log out?')) {
+      showToast('Logging out...');
+      setTimeout(() => { window.location.href = 'login.html'; }, 1500); // wait 1.5s then redirect
+    }
+  }
+  function previewAvatar(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = document.getElementById('avatar-preview');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      document.getElementById('avatar-hint').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+  document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>
