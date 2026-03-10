@@ -1,0 +1,98 @@
+<!--
+this is the home page of the whole project, 
+it will be showing like home page everyone visiting 
+the website will be seeing this page at the start and can navigate to the agricultural products available but can't 
+place an order until they sign up or log in, after log in this will the home page the buyers and farmers but will change as 
+the farmer goes on his or her dashboard.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Conekt</title>
+</head>
+<body>
+    <!-- header section with nav links and also button for small screens and also button for dark/light mode toggle -->
+    <header>
+        <h1 class="header-title">Farmer Conekt</h1>
+        <p class="sub-header">where every product is saved from damages</p>
+        <nav>
+            <ul class="nav-links" aria-label="Main navigation">
+                <li class="home-navigation"><a href="./home.html">Home</a></li>
+                <li class="login-navigation"><a href="./login.html">Log in</a></li>
+                <li class="signup-navigation"><a href="./signup.html">Sign up</a></li>
+            </ul>
+        </nav>
+        <button class="toggle-button" aria-label="toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <button class="light/dark-toggle" aria-label="toggle light and dark mode" aria-pressed="false">
+            <span class="light-mode">Light</span>
+            <span class="dark-mode">Dark</span>
+        </button>
+    </header>
+
+    <section class="filters-section" id="filters-section">
+        <div class="product-filters">
+            <label for="category-filter">Filter by category:</label>
+            <select id="category-filter" name="category">
+                <option value="all">All</option>
+                <option value="fruits">Fruits</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="grains">Grains</option>
+                <option value="animal-products">Animal products</option>
+                <option value="meat">Meat</option>
+            </select>
+
+            <label for="harvest-time">Filter by Harvest time:</label>
+            <select id="harvest-time" name="harvest-time">
+                <option value="all">All</option>
+                <option value="pre-harvest">Preharvest</option>
+                <option value="post-harvest">Postharvest</option>
+                <option value="harvested">Harvested(week)</option>
+            </select>
+
+            <label for="price-filter">Filter by price:</label>
+            <select id="price-filter" name="price">
+                <option value="all">All</option>
+                <option value="low-to-high">Low to High</option>
+                <option value="high-to-low">High to Low</option>
+            </select>
+
+            <label for="province-filter">Filter by province:</label>
+            <select id="province-filter" name="province">
+                <option value="all">Select province:</option>
+            </select>
+
+            <label for="district-filter">Filter by District</label>
+            <select id="district-filter" name="district">
+                <option value="all">Select district:</option>
+            </select>
+
+            <label for="quantity-filter">Filter by quantity:</label>
+            <select id="quantity-filter" name="quantity">
+                <option value="all">select quantity size:</option>
+                <option value="small">Small (1-100kg)</option>
+                <option value="medium">Medium (100-500kg)</option>
+                <option value="large">Large (500-1000kg)</option>
+                <option value="extra-large">Extra Large (1000kg+)</option>
+            </select>
+            <button class="apply-filters" id="apply-filters">Apply Filters</button>
+        </div>
+    </section>
+    <!-- the section for products that was listed -->
+     <section class="products-section" id="products-section">
+        <div class="products-container" id="products-container">
+            <!-- products will be dynamically loaded here -->
+        </div>
+     </section>
+
+     <!-- footer section with contact information and social media links -->
+    <footer>
+        
+    </footer>
+</body>
+</html>
