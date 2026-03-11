@@ -11,32 +11,33 @@ the farmer goes on his or her dashboard.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmer Conekt</title>
+    <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
     <!-- header section with nav links and also button for small screens and also button for dark/light mode toggle -->
-    <header>
-        <h1 class="header-title">Farmer Conekt</h1>
-        <p class="sub-header">where every product is saved from damages</p>
-        <nav>
-            <ul class="nav-links" aria-label="Main navigation">
-                <li class="home-navigation"><a href="./home.html">Home</a></li>
-                <li class="login-navigation"><a href="./login.html">Log in</a></li>
-                <li class="signup-navigation"><a href="./signup.html">Sign up</a></li>
+    <header id="header">
+        <h1 class="header-title" id="header-title">Farmer Conekt</h1>
+        <p class="sub-header" id="sub-header">where every product is saved from damages</p>
+        <nav id="nav">
+            <ul class="nav-links" id="nav-links" aria-label="Main navigation">
+                <li class="home-navigation" id="home-navigation"><a href="./home.html">Home</a></li>
+                <li class="login-navigation" id="login-navigation"><a href="./login.html">Log in</a></li>
+                <li class="signup-navigation" id="signup-navigation"><a href="./signup.html">Sign up</a></li>
             </ul>
         </nav>
-        <button class="toggle-button" aria-label="toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <button class="toggle-button" id="toggle-button" aria-label="toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
             <span class="bar"></span>
             <span class="bar"></span>
             <span class="bar"></span>
         </button>
-        <button class="light/dark-toggle" aria-label="toggle light and dark mode" aria-pressed="false">
+        <button class="light/dark-toggle" id="light-dark-toggle" aria-label="toggle light and dark mode" aria-pressed="false">
             <span class="light-mode">Light</span>
             <span class="dark-mode">Dark</span>
         </button>
     </header>
 
     <section class="filters-section" id="filters-section">
-        <div class="product-filters">
+        <div class="product-filters" id="product-filters">
             <label for="category-filter">Filter by category:</label>
             <select id="category-filter" name="category">
                 <option value="all">All</option>
@@ -91,7 +92,7 @@ the farmer goes on his or her dashboard.
      </section>
 
      <!-- footer section with contact information and social media links -->
-    <footer>
+    <footer id="footer">
         
     </footer>
 </body>
