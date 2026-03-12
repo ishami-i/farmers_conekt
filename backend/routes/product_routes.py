@@ -10,19 +10,25 @@ product_routes = Blueprint("product_routes", __name__)
 @product_routes.route("/upload", methods=["POST"])
 def upload_product():
 
-    farmer_id = request.form.get("farmer_id")
-    district_id = request.form.get("district_id")
-    product_name = request.form.get("product_name")
-    category = request.form.get("category")
-    harvest_date = request.form.get("harvest_date")
-    expiration_date = request.form.get("expiration_date")
-    price = request.form.get("price")
-    unit = request.form.get("unit")
-    quantity = request.form.get("quantity")
-    description = request.form.get("description")
+    data = request.form.to_dict()
+    farmer_id = data.get("farmer_id")
+    district_id = data.get("district_id")
+    product_name = data.get("product_name")
+    category = data.get("category")
+    harvest_date = data.get("harvest_date")
+    expiration_date = data.get("expiration_date")
+    price = data.get("price")
+    unit = data.get("unit")
+    quantity = data.get("quantity")
+    description = data.get("description")
+
+    # Validate required fields
+    required = ['farmer_id', 'district_id', 'product_name', 'category', 'price', 'unit', 'quantity']
+    missing = [field for field in required if not data.get(field)]
+    if missing:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
     image = request.files.get("image")
-
     image_path = None
 
     if image:
@@ -32,37 +38,60 @@ def upload_product():
 
         image_path = f"/uploads/crop_images/{filename}"
 
-    connection = get_db_connection()
-    cursor = connection.cursor()
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
 
-    query = """
-    INSERT INTO products
-    (farmer_id, district_id, product_name, product_category,
-     harvest_date, expiration_date, status, price_per_unit,
-     unit, quantity_available, description, image_url, created_at)
+        # Validate farmer_id exists
+        cursor.execute("SELECT COUNT(*) as count FROM farmers WHERE farmer_id = %s", (farmer_id,))
+        farmer_count = cursor.fetchone()['count']
+        if farmer_count == 0:
+            connection.close()
+            return jsonify({"error": "Invalid farmer_id: Farmer not found"}), 400
 
-    VALUES (%s,%s,%s,%s,%s,%s,'available',%s,%s,%s,%s,%s,NOW())
-    """
+        # Validate district_id exists
+        cursor.execute("SELECT COUNT(*) as count FROM districts WHERE district_id = %s", (district_id,))
+        district_count = cursor.fetchone()['count']
+        if district_count == 0:
+            connection.close()
+            return jsonify({"error": "Invalid district_id: District not found"}), 400
 
-    cursor.execute(query, (
-        farmer_id,
-        district_id,
-        product_name,
-        category,
-        harvest_date,
-        expiration_date,
-        price,
-        unit,
-        quantity,
-        description,
-        image_path
-    ))
+        query = """
+        INSERT INTO products
+        (farmer_id, district_id, product_name, product_category,
+         harvest_date, expiration_date, status, price_per_unit,
+         unit, quantity_available, description, image_url, created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,'available',%s,%s,%s,%s,%s,NOW())
+        """
 
-    connection.commit()
+        cursor.execute(query, (
+            farmer_id,
+            district_id,
+            product_name,
+            category,
+            harvest_date,
+            expiration_date,
+            float(price) if price else 0,
+            unit,
+            int(quantity) if quantity else 0,
+            description,
+            image_path
+        ))
 
-    product_id = cursor.lastrowid
+        connection.commit()
+        product_id = cursor.lastrowid
+        connection.close()
 
-    connection.close()
+        return jsonify({
+            "message": "Product uploaded successfully",
+            "product_id": product_id
+        })
+
+    except Exception as e:
+        if 'connection' in locals():
+            connection.rollback()
+            connection.close()
+        return jsonify({"error": f"Failed to upload product: {str(e)}"}), 500
 
     return jsonify({
         "message": "Product uploaded successfully",

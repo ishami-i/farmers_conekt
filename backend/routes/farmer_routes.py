@@ -77,6 +77,44 @@ def farmer_dashboard(farmer_id):
 
     return jsonify(stats)
 
+# adding a new product for a farmer
+
+@farmer_routes.route("/products", methods=["POST"])
+def add_product():
+
+    data = request.json
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+    INSERT INTO products
+        (farmer_id, district_id, product_name, product_category,
+         harvest_date, expiration_date, price_per_unit,
+         unit, quantity_available, description, status, created_at)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'available', NOW())
+    """
+
+    cursor.execute(query, (
+        data["farmer_id"],
+        data.get("district_id", 1),
+        data["name"],
+        data["category"],
+        data["harvest"],
+        data["expiry"],
+        data["price"],
+        data["unit"],
+        data["qty"],
+        data.get("desc", "")
+    ))
+
+    connection.commit()
+    product_id = cursor.lastrowid
+    connection.close()
+
+    return jsonify({"message": "Product added", "product_id": product_id}), 201
+
+
 # getting farmers product
 
 @farmer_routes.route("/products/<int:farmer_id>", methods=["GET"])
