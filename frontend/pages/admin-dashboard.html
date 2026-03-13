@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmer Connect - Admin Dashboard</title>
+
+<!-- Styles -->
+<style>
+:root {
+  --green-deep: #1a3c2e;
+  --green-mid: #2d6a4f;
+  --green-bright: #52b788;
+  --green-light: #95d5b2;
+  --cream: #f8f4ed;
+  --cream-dark: #ede8df;
+  --brown: #8b5e3c;
+  --yellow: #f4a940;
+  --red: #e05c5c;
+  --white: #ffffff;
+  --text-dark: #1a2e1f;
+  --text-mid: #4a6358;
+  --text-light: #7a9487;
+  --shadow-sm: 0 2px 8px rgba(26,60,46,0.08);
+  --shadow-md: 0 6px 24px rgba(26,60,46,0.12);
+  --shadow-lg: 0 16px 48px rgba(26,60,46,0.18);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  background: var(--cream);
+  color: var(--text-dark);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: var(--green-deep);
+  color: var(--white);
+  padding: 20px;
+  position: fixed;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+  color: var(--green-bright);
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar ul li {
+  margin-bottom: 12px;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: var(--white);
+  display: block;
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar ul li a:hover {
+  background: var(--green-mid);
+  transform: translateX(4px);
+}
+
+/* Main Content */
+.main {
+  margin-left: 240px;
+  padding: 30px;
+  width: 100%;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.topbar h1 {
+  color: var(--green-deep);
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: var(--white);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.card h3 {
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--green-bright);
+}
+
+/* Table */
+.table-container {
+  background: var(--white);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--cream-dark);
+  text-align: left;
+}
+
+table th {
+  background: var(--cream-dark);
+  color: var(--text-mid);
+}
+
+table tr:hover {
+  background: var(--green-light);
+  color: var(--green-deep);
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.active {
+  background: var(--green-light);
+  color: var(--green-deep);
+}
+
+.pending {
+  background: var(--yellow);
+  color: var(--brown);
+}
+
+.suspended {
+  background: var(--red);
+  color: var(--white);
+}
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2>🌾 Farmer Connect</h2>
+  <ul>
+    <li><a href="#">Dashboard</a></li>
+    <li><a href="#">Users</a></li>
+    <li><a href="#">Products</a></li>
+    <li><a href="#">Orders</a></li>
+    <li><a href="#">Reports</a></li>
+    <li><a href="#">Messages</a></li>
+    <li><a href="#">Settings</a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome Admin</p>
+  </div>
+
+  <!-- Statistic Cards -->
+  <div class="cards">
+    <div class="card">
+      <h3>Total Farmers</h3>
+      <p id="farmers">0</p>
+    </div>
+    <div class="card">
+      <h3>Total Buyers</h3>
+      <p id="buyers">0</p>
+    </div>
+    <div class="card">
+      <h3>Products Listed</h3>
+      <p id="products">0</p>
+    </div>
+    <div class="card">
+      <h3>Orders Today</h3>
+      <p id="orders">0</p>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="table-container">
+    <h3>Community Stats</h3>
+    <canvas id="statusChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Recent Activity Table -->
+  <div class="table-container">
+    <h3>Recent Users</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Location</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jean Claude</td>
+          <td>Farmer</td>
+          <td>Musanze</td>
+          <td><span class="status active">Active</span></td>
+        </tr>
+        <tr>
+          <td>Alice Uwimana</td>
+          <td>Buyer</td>
+          <td>Kigali</td>
+          <td><span class="status active">Active</span></td>
+        </tr>
+        <tr>
+          <td>Eric Ndayisaba</td>
+          <td>Farmer</td>
+          <td>Huye</td>
+          <td><span class="status pending">Pending</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Animated counters
+const counters = {
+  farmers: 120,
+  buyers: 80,
+  products: 340,
+  orders: 15
+};
+
+for (let id in counters) {
+  let count = 0;
+  const target = counters[id];
+  const speed = 20;
+  const el = document.getElementById(id);
+  
+  function updateCounter() {
+    if (count < target) {
+      count++;
+      el.innerText = count;
+      setTimeout(updateCounter, speed);
+    }
+  }
+  updateCounter();
+}
+
+// Chart.js
+const ctx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Farmers', 'Buyers', 'Products', 'Orders'],
+    datasets: [{
+      label: 'Count',
+      data: [120, 80, 340, 15],
+      backgroundColor: ['#52b788','#2d6a4f','#f4a940','#1a3c2e']
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+</script>
+
+</body>
+</html>
