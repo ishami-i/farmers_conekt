@@ -77,66 +77,124 @@ def farmer_dashboard(farmer_id):
 
     return jsonify(stats)
 
-# getting farmers product
+# API to upload product
 
-@farmer_routes.route("/products/<int:farmer_id>", methods=["GET"])
+@farmer_routes.route("/upload", methods=["POST"])
+def upload_product():
+
+    data = request.form.to_dict()
+    farmer_id = data.get("farmer_id")
+    district_id = data.get("district_id")
+    product_name = data.get("product_name")
+    category = data.get("category")
+    harvest_date = data.get("harvest_date")
+    expiration_date = data.get("expiration_date")
+    price = data.get("price")
+    unit = data.get("unit")
+    quantity = data.get("quantity")
+    description = data.get("description")
+
+    # Validate required fields
+    required = ['farmer_id', 'district_id', 'product_name', 'category', 'price', 'unit', 'quantity']
+    missing = [field for field in required if not data.get(field)]
+    if missing:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+
+    image = request.files.get("image")
+    image_path = None
+
+    if image:
+        filename = str(uuid.uuid4()) + "_" + image.filename
+        filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        image.save(filepath)
+
+        image_path = f"/uploads/crop_images/{filename}"
+
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Validate farmer_id exists
+        cursor.execute("SELECT COUNT(*) as count FROM farmers WHERE farmer_id = %s", (farmer_id,))
+        farmer_count = cursor.fetchone()['count']
+        if farmer_count == 0:
+            connection.close()
+            return jsonify({"error": "Invalid farmer_id: Farmer not found"}), 400
+
+        # Validate district_id exists
+        cursor.execute("SELECT COUNT(*) as count FROM districts WHERE district_id = %s", (district_id,))
+        district_count = cursor.fetchone()['count']
+        if district_count == 0:
+            connection.close()
+            return jsonify({"error": "Invalid district_id: District not found"}), 400
+
+        query = """
+        INSERT INTO products
+        (farmer_id, district_id, product_name, product_category,
+         harvest_date, expiration_date, status, price_per_unit,
+         unit, quantity_available, description, image_url, created_at)
+        VALUES (%s,%s,%s,%s,%s,%s,'available',%s,%s,%s,%s,%s,NOW())
+        """
+
+        cursor.execute(query, (
+            farmer_id,
+            district_id,
+            product_name,
+            category,
+            harvest_date,
+            expiration_date,
+            float(price) if price else 0,
+            unit,
+            int(quantity) if quantity else 0,
+            description,
+            image_path
+        ))
+
+        connection.commit()
+        product_id = cursor.lastrowid
+        connection.close()
+
+        return jsonify({
+            "message": "Product uploaded successfully",
+            "product_id": product_id
+        })
+
+    except Exception as e:
+        if 'connection' in locals():
+            connection.rollback()
+            connection.close()
+        return jsonify({"error": f"Failed to upload product: {str(e)}"}), 500
+
+    return jsonify({
+        "message": "Product uploaded successfully",
+        "product_id": product_id
+    })
+
+# allowing farmer to view their product
+
+@farmer_routes.route("/farmer/<int:farmer_id>", methods=["GET"])
 def get_farmer_products(farmer_id):
 
     connection = get_db_connection()
     cursor = connection.cursor()
 
     query = """
-    SELECT
-        product_id,
-        product_name,
-        product_category,
-        price_per_unit,
-        unit,
-        quantity_available,
-        harvest_date,
-        expiration_date
+    SELECT *
     FROM products
     WHERE farmer_id = %s
+    ORDER BY created_at DESC
     """
 
     cursor.execute(query, (farmer_id,))
-    rows = cursor.fetchall()
-
-    products = []
-
-    for r in rows:
-        products.append({
-            "id": r[0],
-            "name": r[1],
-            "category": r[2],
-            "price": r[3],
-            "unit": r[4],
-            "qty": r[5],
-            "harvest": str(r[6]),
-            "expiry": str(r[7])
-        })
+    products = cursor.fetchall()
 
     connection.close()
 
     return jsonify(products)
 
-# allowing farmer to delete their product
-
-@farmer_routes.route("/product/<int:product_id>", methods=["DELETE"])
-def delete_product(product_id):
-
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("DELETE FROM products WHERE product_id=%s", (product_id,))
-    connection.commit()
-    connection.close()
-
-    return jsonify({"message": "Product deleted"})
-
 # allowing farmer to update product
 
-@farmer_routes.route("/product/<int:product_id>", methods=["PUT"])
+@farmer_routes.route("/update/<int:product_id>", methods=["PUT"])
 def update_product(product_id):
 
     data = request.json
@@ -146,26 +204,16 @@ def update_product(product_id):
 
     query = """
     UPDATE products
-    SET product_name=%s,
-        product_category=%s,
-        price_per_unit=%s,
-        unit=%s,
+    SET price_per_unit=%s,
         quantity_available=%s,
-        harvest_date=%s,
-        expiration_date=%s,
         description=%s
     WHERE product_id=%s
     """
 
     cursor.execute(query, (
-        data["name"],
-        data["category"],
         data["price"],
-        data["unit"],
-        data["qty"],
-        data["harvest"],
-        data["expiry"],
-        data["desc"],
+        data["quantity"],
+        data["description"],
         product_id
     ))
 
@@ -173,3 +221,20 @@ def update_product(product_id):
     connection.close()
 
     return jsonify({"message": "Product updated"})
+
+# allowing farmer to delete their product
+
+@farmer_routes.route("/delete/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = "DELETE FROM products WHERE product_id=%s"
+
+    cursor.execute(query, (product_id,))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Product deleted"})
