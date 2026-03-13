@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard - Farmer Conekt</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buyer Dashboard</h1>
+  <p>Welcome to the buyer page. This page is under development.</p>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (user) {
+        document.querySelector('h1').textContent = 'Welcome, ' + user.first + ' ' + user.last;
+      }
+    });
+  </script>
+</body>
+</html></content>
+<parameter name="filePath">/home/kevin/repos/farmers_conekt/frontend/pages/buyer.html
