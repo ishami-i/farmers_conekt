@@ -19,15 +19,19 @@ CREATE TABLE users (
 CREATE TABLE farmers (
     farmer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
+    district_id INT,
     rating DECIMAL(2,1),
     bio TEXT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE SET NULL
 );
 
 CREATE TABLE buyers (
     buyer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    district_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE SET NULL
 );
 
 CREATE TABLE transporters (

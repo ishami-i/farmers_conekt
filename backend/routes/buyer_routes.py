@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from middleware.role_required import role_required
 from database.db import get_db_connection
 
 buyer_routes = Blueprint("buyer_routes", __name__)
@@ -14,11 +16,11 @@ def create_buyer_profile():
     cursor = connection.cursor()
 
     query = """
-    INSERT INTO buyers (user_id)
-    VALUES (%s)
+    INSERT INTO buyers (user_id, district_id)
+    VALUES (%s, %s)
     """
 
-    cursor.execute(query, (data["user_id"],))
+    cursor.execute(query, (data["user_id"], data.get("district_id")))
 
     connection.commit()
     connection.close()
@@ -104,6 +106,8 @@ def product_details(product_id):
 # buyers making order
 
 @buyer_routes.route("/place-order", methods=["POST"])
+@jwt_required()
+@role_required("buyer")
 def place_order():
 
     data = request.json
@@ -152,6 +156,8 @@ def place_order():
 # order history
 
 @buyer_routes.route("/orders/<int:buyer_id>", methods=["GET"])
+@jwt_required()
+@role_required("buyer")
 def get_buyer_orders(buyer_id):
 
     connection = get_db_connection()
@@ -175,6 +181,8 @@ def get_buyer_orders(buyer_id):
 # buyer leave a review
 
 @buyer_routes.route("/review", methods=["POST"])
+@jwt_required()
+@role_required("buyer")
 def leave_review():
 
     data = request.json

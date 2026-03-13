@@ -1,5 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from database.db import get_db_connection
+from flask_jwt_extended import jwt_required
+from middleware.role_required import role_required
 import uuid
 import os
 
@@ -16,13 +18,14 @@ def create_farmer_profile():
     cursor = connection.cursor()
 
     query = """
-    INSERT INTO farmers (user_id, rating, bio)
-    VALUES (%s, 0, %s)
+    INSERT INTO farmers (user_id, district_id, rating, bio)
+    VALUES (%s, %s, 0, %s)
     """
 
     cursor.execute(query, (
         data["user_id"],
-        data["bio"]
+        data.get("district_id"),
+        data.get("bio")
     ))
 
     connection.commit()
@@ -33,6 +36,8 @@ def create_farmer_profile():
 # getting farmer profile
 
 @farmer_routes.route("/profile/<int:user_id>",methods=["GET"])
+@jwt_required()
+@role_required("farmer")
 def get_farmer_profile(user_id):
 
     connection = get_db_connection()
@@ -54,6 +59,8 @@ def get_farmer_profile(user_id):
 # farmer dsahboard stats
 
 @farmer_routes.route("/dashboard/<int:farmer_id>", methods=["GET"])
+@jwt_required()
+@role_required("farmer")
 def farmer_dashboard(farmer_id):
 
     connection = get_db_connection()
@@ -80,6 +87,8 @@ def farmer_dashboard(farmer_id):
 # API to upload product
 
 @farmer_routes.route("/upload", methods=["POST"])
+@jwt_required()
+@role_required("farmer")
 def upload_product():
 
     data = request.form.to_dict()
@@ -173,6 +182,8 @@ def upload_product():
 # allowing farmer to view their product
 
 @farmer_routes.route("/farmer/<int:farmer_id>", methods=["GET"])
+@jwt_required()
+@role_required("farmer")
 def get_farmer_products(farmer_id):
 
     connection = get_db_connection()
@@ -195,6 +206,8 @@ def get_farmer_products(farmer_id):
 # allowing farmer to update product
 
 @farmer_routes.route("/update/<int:product_id>", methods=["PUT"])
+@jwt_required()
+@role_required("farmer")
 def update_product(product_id):
 
     data = request.json
@@ -225,6 +238,8 @@ def update_product(product_id):
 # allowing farmer to delete their product
 
 @farmer_routes.route("/delete/<int:product_id>", methods=["DELETE"])
+@jwt_required()
+@role_required("farmer")
 def delete_product(product_id):
 
     connection = get_db_connection()
