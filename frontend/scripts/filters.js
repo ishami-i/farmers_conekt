@@ -25,7 +25,7 @@
     loadSampleProducts();
     renderProducts(allProducts);
   });
-  
+
   // ============= APPLY FILTERS =============
   const applyFiltersBtn = document.getElementById('apply-filters');
   if (applyFiltersBtn) {
@@ -127,7 +127,6 @@
           <p class="product-quantity">Quantity Available: ${capitalizeFirst(product.quantity)}</p>
           <div class="product-actions">
             <button class="btn-view">👁 View Details</button>
-            <button class="btn-cart">🛒 Add to Cart</button>
           </div>
         </div>
       </div>
