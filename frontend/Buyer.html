@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FarmerConekt</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --green-deep:   #1a3c2e;
+  --green-mid:    #2d6a4f;
+  --green-bright: #52b788;
+  --cream:        #f8f4ed;
+  --cream-dark:   #ede8df;
+  --yellow:       #f4a940;
+  --red:          #e05c5c;
+  --blue:         #3a7bd5;
+  --white:        #ffffff;
+  --text-dark:    #1a2e1f;
+  --text-mid:     #4a6358;
+  --text-light:   #7a9487;
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 2px 8px rgba(26, 60, 46, 0.08);
+  --shadow-lg:    0 12px 40px rgba(26, 60, 46, 0.18);
+}
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: var(--green-deep);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: transform 0.25s;
+}
+.sb-logo {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+}
+.logo-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--green-bright);
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.logo-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.logo-green { color: var(--green-bright); }
+.logo-white { color: var(--white); }
+.logo-tag {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+}
+.sb-profile {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.avatar-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.07);
+  position: relative;
+  transition: border-color 0.2s;
+}
+.avatar-ring:hover {
+  border-color: var(--green-bright);
+}
+#avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: none;
+}
+.avatar-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  gap: 3px;
+}
+#sb-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  min-height: 16px;
+}
+.sb-nav {
+  flex: 1;
+  padding: 14px 0;
+}
+.sb-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0 18px 7px;
+}
+.sb-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 18px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+.sb-link:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.05);
+}
+.sb-link.active {
+  color: var(--green-bright);
+  background: rgba(82, 183, 136, 0.10);
+  border-left-color: var(--green-bright);
+}
+.sb-icon {
+  font-size: 16px;
+  width: 18px;
+  text-align: center;
+}
+.sb-footer {
+  padding: 16px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sb-logout {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: color 0.18s;
+}
+.sb-logout:hover {
+  color: var(--red);
+}
+
+/* MAIN */
+.main {
+  margin-left: 250px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  background: var(--white);
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--cream-dark);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar-title {
+  font-size: 19px;
+  font-weight: 700;
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.cart-btn {
+  background: var(--green-mid);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.18s;
+}
+.cart-btn:hover {
+  background: var(--green-deep);
+}
+.cart-count {
+  background: var(--yellow);
+  color: var(--green-deep);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 20px;
+  min-width: 17px;
+  text-align: center;
+}
+
+/*PAGES */
+.page {
+  padding: 24px 28px;
+  display: none;
+  flex: 1;
+}
+.page.active {
+  display: block;
+}
+
+/*STAT CARDS  */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--cream-dark);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 3px;
+}
+.stat-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green-bright);
+}
+.stat-sub.yellow { color: #8b5e3c; }
+.stat-sub.blue   { color: var(--blue); }
+
+/* SECTION CARD*/
+.section-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--cream-dark);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.section-head {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.section-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/*PRODUCT GRID */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  padding: 18px 20px;
+}
+.product-card {
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--white);
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.product-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Farmer's uploaded photo or plain placeholder */
+.product-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+.product-img-ph {
+  width: 100%;
+  height: 140px;
+  background: var(--cream-dark);
+  display: block;
+}
+.product-body {
+  padding: 12px;
+}
+.product-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.product-who {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.product-price {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-mid);
+  margin-top: 7px;
+}
+.product-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.product-qty {
+  font-size: 11px;
+  color: var(--text-mid);
+  font-family: 'DM Mono', monospace;
+}
+.product-footer {
+  padding: 8px 12px;
+  border-top: 1px solid var(--cream-dark);
+}
+
+/*BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.badge-green  { background: rgba(82,183,136,0.12); color: var(--green-mid); }
+.badge-green::before  { background: var(--green-bright); }
+.badge-yellow { background: rgba(244,169,64,0.12);  color: #8b5e3c; }
+.badge-yellow::before { background: var(--yellow); }
+.badge-red    { background: rgba(224,92,92,0.12);   color: var(--red); }
+.badge-red::before    { background: var(--red); }
+.badge-blue   { background: rgba(58,123,213,0.12);  color: var(--blue); }
+.badge-blue::before   { background: var(--blue); }
+
+/*TABLE */
+.table-wrap {
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+.data-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--cream-dark);
+}
+.data-table td {
+  padding: 13px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--cream-dark);
+  vertical-align: middle;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.data-table tr:hover td {
+  background: #fafaf8;
+}
+.text-mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-mid);
+}
+.text-price {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-mid);
+}
+
+/*EMPTY STATE */
+.empty-state {
+  padding: 50px 20px;
+  text-align: center;
+}
+.empty-icon {
+  font-size: 32px;
+  opacity: 0.15;
+  margin-bottom: 12px;
+}
+.empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-mid);
+}
+.empty-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+/*MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 60, 46, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open {
+  display: flex;
+}
+.modal-box {
+  background: var(--white);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: popUp 0.22s ease;
+}
+@keyframes popUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--cream-dark);
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 1;
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: none;
+  background: var(--cream);
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover {
+  background: var(--cream-dark);
+}
+.modal-body {
+  padding: 18px 22px;
+  flex: 1;
+}
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 12px 22px 18px;
+  border-top: 1px solid var(--cream-dark);
+  position: sticky;
+  bottom: 0;
+  background: var(--white);
+  z-index: 1;
+}
+
+/* FORM*/
+.form-group {
+  margin-bottom: 14px;
+}
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 5px;
+}
+.required {
+  color: var(--red);
+  margin-left: 2px;
+}
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-dark);
+  background: var(--white);
+  outline: none;
+  transition: all 0.18s;
+}
+.form-input:focus {
+  border-color: var(--green-bright);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.12);
+}
+.form-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 3px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/*SUMMARY BOX */
+.summary-box {
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+.sum-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+.sum-row.total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  border-top: 1px solid var(--cream-dark);
+  margin-top: 6px;
+  padding-top: 8px;
+}
+.sum-value {
+  font-family: 'DM Mono', monospace;
+  color: var(--green-mid);
+}
+
+/*PAYMENT TILES */
+.pay-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.pay-tile {
+  border: 2px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  padding: 11px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.pay-tile:hover {
+  border-color: var(--green-bright);
+}
+.pay-tile.selected {
+  border-color: var(--green-bright);
+  background: rgba(82, 183, 136, 0.06);
+}
+.tile-logo {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.tile-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.tile-sub {
+  font-size: 10px;
+  color: var(--text-light);
+}
+.lbl-mtn    { background: #FFCB00; color: #000; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 3px; }
+.lbl-airtel { background: #ED1C24; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 3px; }
+
+.section-divider {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 16px 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+
+/* BUTTONS  */
+.btn-white {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--cream-dark);
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.btn-white:hover { background: var(--cream); }
+
+.btn-green {
+  padding: 9px 22px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--green-mid);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-green:hover  { background: var(--green-deep); }
+.btn-green:disabled { background: var(--cream-dark); color: var(--text-light); cursor: default; }
+
+.btn-blue {
+  padding: 9px 22px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-blue:hover { background: #2d65c2; }
+
+/*CART ITEMS  */
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--cream-dark);
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.cart-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  background: var(--cream-dark);
+  flex-shrink: 0;
+  object-fit: cover;
+  display: block;
+}
+.cart-info {
+  flex: 1;
+  min-width: 0;
+}
+.cart-item-name   { font-size: 13px; font-weight: 700; }
+.cart-item-farmer { font-size: 11px; color: var(--text-light); }
+.cart-item-price  { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green-mid); margin-top: 2px; }
+.qty-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+}
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--cream-dark);
+  background: var(--white);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-mid);
+  line-height: 1;
+  transition: background 0.15s;
+}
+.qty-btn:hover { background: var(--cream); }
+.qty-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 26px;
+  text-align: center;
+}
+.cart-item-remove {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.cart-item-remove:hover {
+  color: var(--red);
+  background: rgba(224, 92, 92, 0.08);
+}
+.cart-item-subtotal {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cart-total-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--cream-dark);
+  margin-top: 4px;
+}
+.cart-total-label { font-size: 14px; font-weight: 700; }
+.cart-total-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green-mid);
+}
+
+/* PROFILE */
+.profile-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--cream-dark);
+  box-shadow: var(--shadow);
+  max-width: 480px;
+  overflow: hidden;
+}
+.profile-card-head {
+  background: var(--green-deep);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: border-color 0.2s;
+}
+.profile-avatar:hover {
+  border-color: var(--green-bright);
+}
+#profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  border-radius: 50%;
+}
+.profile-avatar-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  gap: 3px;
+}
+.profile-hint-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+.profile-card-body {
+  padding: 22px 24px;
+}
+.profile-save-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  gap: 10px;
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  background: var(--green-deep);
+  color: var(--white);
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  transform: translateY(70px);
+  opacity: 0;
+  max-width: 280px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/*MOBILE  */
+.mob-bar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 54px;
+  background: var(--green-deep);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  z-index: 150;
+}
+.mob-ham {
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 22px;
+  cursor: pointer;
+}
+.mob-bar-title { font-size: 14px; font-weight: 700; color: var(--white); }
+
+.mob-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 120;
+}
+.mob-overlay.show { display: block; }
+
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .mob-bar     { display: flex; }
+  .sidebar     { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main        { margin-left: 0; padding-top: 54px; }
+  .topbar      { display: none; }
+  .page        { padding: 14px 12px; }
+  .stats-row   { gap: 8px; margin-bottom: 14px; }
+  .stat-card   { padding: 12px 14px; }
+  .stat-value  { font-size: 20px; }
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 12px; gap: 10px; }
+  .form-row    { grid-template-columns: 1fr; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal-box   { border-radius: 18px 18px 0 0; max-height: 88vh; animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .toast       { left: 12px; right: 12px; max-width: none; bottom: 14px; }
+}
+
+@media (max-width: 420px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mobile top bar -->
+<div class="mob-bar">
+  <button class="mob-ham" onclick="toggleDrawer()">&#9776;</button>
+  <span class="mob-bar-title">FarmerConekt</span>
+  <button class="cart-btn" style="padding: 6px 12px; font-size: 12px;" onclick="openCartModal()">
+    🛒 <span class="cart-count" id="cart-count-mob">0</span>
+  </button>
+</div>
+<div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-icon">🌿</div>
+    <div class="logo-name">
+      <span class="logo-white">FARMER</span><span class="logo-green"> CONEKT</span>
+    </div>
+    <div class="logo-tag">Connecting farmers and buyers</div>
+  </div>
+
+  <div class="sb-profile">
+    <div class="avatar-ring" onclick="document.getElementById('avatar-file').click()">
+      <img id="avatar-img" src="" alt=""/>
+      <div class="avatar-hint">📷<br/>Upload</div>
+    </div>
+    <input type="file" id="avatar-file" accept="image/*" onchange="previewAvatar(event)" style="display:none"/>
+    <div id="sb-username"></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Menu</div>
+    <a class="sb-link active" onclick="showPage('dashboard', this)">
+      <span class="sb-icon">&#9781;</span> Dashboard
+    </a>
+    <a class="sb-link" onclick="showPage('orders', this)">
+      <span class="sb-icon">&#9672;</span> Orders &amp; Payments
+    </a>
+    <div class="sb-label" style="margin-top: 12px">Account</div>
+    <a class="sb-link" onclick="showPage('profile', this)">
+      <span class="sb-icon">&#128100;</span> My Profile
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <button class="sb-logout" onclick="confirmLogout()">Log Out</button>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sub" id="topbar-sub">Browse products and manage your orders</div>
+    </div>
+    <button class="cart-btn" onclick="openCartModal()">
+      🛒 Cart <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+
+  <!-- Dashboard page -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="stat-orders">0</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unpaid Orders</div>
+        <div class="stat-value" id="stat-unpaid">0</div>
+        <div class="stat-sub yellow">pending payment</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Spent</div>
+        <div class="stat-value" id="stat-spent">0 RWF</div>
+        <div class="stat-sub">paid orders</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Available Products</div>
+          <div class="section-sub" id="products-subtitle">No products listed yet</div>
+        </div>
+      </div>
+      <div class="product-grid" id="product-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- Orders & Payments page -->
+  <div class="page" id="page-orders">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Paid</div>
+        <div class="stat-value" id="op-total">0 RWF</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unpaid</div>
+        <div class="stat-value" id="op-unpaid">0</div>
+        <div class="stat-sub yellow">awaiting payment</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="op-done">0</div>
+        <div class="stat-sub blue">paid</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Orders &amp; Payments</div>
+          <div class="section-sub">Pay directly from here if you chose Pay Later</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Order Status</th>
+              <th>Payment</th>
+              <th>Method</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <!-- Profile page -->
+  <div class="page" id="page-profile">
+    <div class="profile-card">
+      <div class="profile-card-head">
+        <div class="profile-avatar" onclick="document.getElementById('profile-avatar-file').click()">
+          <img id="profile-avatar-img" src="" alt=""/>
+          <div class="profile-avatar-hint">📷<br/>Upload photo</div>
+        </div>
+        <input type="file" id="profile-avatar-file" accept="image/*" onchange="previewProfileAvatar(event)" style="display:none"/>
+        <div class="profile-hint-text">Click the circle to upload your photo</div>
+      </div>
+
+      <div class="profile-card-body">
+        <div class="form-group">
+          <label class="form-label">Receiving Location</label>
+          <input class="form-input" id="prof-location" type="text" placeholder="e.g. Kigali, Gasabo"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" id="prof-name" type="text" placeholder="e.g. Amina Uwase"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-input" id="prof-phone" type="tel" placeholder="e.g. 078 000 0000"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">About / Preferences</label>
+          <textarea class="form-input" style="resize:vertical; min-height:70px" id="prof-bio" placeholder="What you usually buy, quantities needed..."></textarea>
+        </div>
+        <div class="profile-save-row">
+          <button class="btn-white" onclick="showPage('dashboard', document.querySelectorAll('.sb-link')[0])">&#8592; Back</button>
+          <button class="btn-green" onclick="saveProfile()">Save Profile</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Add to Cart modal -->
+<div class="modal-overlay" id="modal-add" onclick="overlayClick(event, 'modal-add')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Add to Cart</span>
+      <button class="modal-close" onclick="closeModal('modal-add')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="add-product-preview" style="display:flex; gap:12px; padding:12px; background:var(--cream); border-radius:var(--radius-sm); margin-bottom:16px;"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Quantity <span class="required">*</span></label>
+          <input class="form-input" id="add-qty" type="number" min="1" placeholder="e.g. 50" oninput="updateAddSummary()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <input class="form-input" id="add-unit" readonly style="background:var(--cream)"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Receiving Location <span class="required">*</span></label>
+        <input class="form-input" id="add-location" type="text" placeholder="e.g. Kigali, Gasabo"/>
+      </div>
+      <div class="summary-box" id="add-summary" style="display:none">
+        <div class="sum-row"><span>Unit price</span><span class="sum-value" id="add-sum-unit"></span></div>
+        <div class="sum-row"><span>Quantity</span><span class="sum-value" id="add-sum-qty"></span></div>
+        <div class="sum-row total"><span>Subtotal</span><span class="sum-value" id="add-sum-total"></span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-white" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn-green" onclick="confirmAddToCart()">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cart modal -->
+<div class="modal-overlay" id="modal-cart" onclick="overlayClick(event, 'modal-cart')">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-head">
+      <span class="modal-title">🛒 My Cart</span>
+      <button class="modal-close" onclick="closeModal('modal-cart')">&#10005;</button>
+    </div>
+    <div class="modal-body" id="cart-body"></div>
+    <div class="modal-footer" id="cart-footer"></div>
+  </div>
+</div>
+<!-- Checkout modal -->
+<div class="modal-overlay" id="modal-checkout" onclick="overlayClick(event, 'modal-checkout')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Checkout</span>
+      <button class="modal-close" onclick="closeModal('modal-checkout')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="summary-box" style="margin-bottom:16px">
+        <div class="sum-row"><span>Items</span><span class="sum-value" id="co-items"></span></div>
+        <div class="sum-row total"><span>Total</span><span class="sum-value" id="co-total"></span></div>
+      </div>
+      <div class="section-divider">Payment Method</div>
+      <div class="pay-tiles" id="co-tiles">
+        <div class="pay-tile selected" onclick="selectCheckoutMethod(this, 'MTN MoMo')">
+          <div class="tile-logo"><span class="lbl-mtn">MTN</span></div>
+          <div class="tile-name">MTN MoMo Pay</div>
+          <div class="tile-sub">Mobile Money</div>
+        </div>
+        <div class="pay-tile" onclick="selectCheckoutMethod(this, 'Airtel Money')">
+          <div class="tile-logo"><span class="lbl-airtel">airtel</span></div>
+          <div class="tile-name">Airtel Money</div>
+          <div class="tile-sub">Mobile Money</div>
+        </div>
+        <div class="pay-tile" onclick="selectCheckoutMethod(this, 'Bank Transfer')">
+          <div class="tile-logo" style="font-size:19px">🏦</div>
+          <div class="tile-name">Bank Transfer</div>
+          <div class="tile-sub">Direct transfer</div>
+        </div>
+        <div class="pay-tile" onclick="selectCheckoutMethod(this, 'Pay Later')">
+          <div class="tile-logo" style="font-size:19px">🕐</div>
+          <div class="tile-name">Pay Later</div>
+          <div class="tile-sub">Cash on delivery</div>
+        </div>
+      </div>
+      <div class="form-group" id="field-mtn">
+        <label class="form-label">MTN MoMo Number <span class="required">*</span></label>
+        <input class="form-input" id="inp-mtn" type="tel" placeholder="078 000 0000"/>
+        <div class="form-hint">You will get a push prompt to approve</div>
+      </div>
+      <div class="form-group" id="field-airtel" style="display:none">
+        <label class="form-label">Airtel Money Number <span class="required">*</span></label>
+        <input class="form-input" id="inp-airtel" type="tel" placeholder="073 000 0000"/>
+        <div class="form-hint">You will get a push prompt to approve</div>
+      </div>
+      <div class="form-group" id="field-bank" style="display:none">
+        <label class="form-label">Bank Account Number <span class="required">*</span></label>
+        <input class="form-input" id="inp-bank" type="text" placeholder="000 1234 5678 9012"/>
+      </div>
+      <div id="field-paylater" style="display:none; background:rgba(244,169,64,0.1); border-radius:var(--radius-sm); padding:12px; font-size:12px; color:#8b5e3c; line-height:1.6">
+        <strong>Pay Later</strong> — your order is placed now. Pay on delivery or use the Orders &amp; Payments page anytime.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-white" onclick="closeModal('modal-checkout')">Back</button>
+      <button class="btn-blue" id="co-confirm-btn" onclick="confirmCheckout()">Confirm &amp; Pay</button>
+    </div>
+  </div>
+</div>
+<!-- Pay Now modal (for Pay Later orders) -->
+<div class="modal-overlay" id="modal-paynow" onclick="overlayClick(event, 'modal-paynow')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Pay Now</span>
+      <button class="modal-close" onclick="closeModal('modal-paynow')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="summary-box" style="margin-bottom:16px">
+        <div class="sum-row"><span>Order</span><span class="sum-value text-mono" id="pn-order-id"></span></div>
+        <div class="sum-row"><span>Product</span><span style="font-weight:600" id="pn-product"></span></div>
+        <div class="sum-row total"><span>Amount Due</span><span class="sum-value" id="pn-amount"></span></div>
+      </div>
+      <div class="section-divider">Payment Method</div>
+      <div class="pay-tiles" id="pn-tiles">
+        <div class="pay-tile selected" onclick="selectPayNowMethod(this, 'MTN MoMo')">
+          <div class="tile-logo"><span class="lbl-mtn">MTN</span></div>
+          <div class="tile-name">MTN MoMo Pay</div>
+          <div class="tile-sub">Mobile Money</div>
+        </div>
+        <div class="pay-tile" onclick="selectPayNowMethod(this, 'Airtel Money')">
+          <div class="tile-logo"><span class="lbl-airtel">airtel</span></div>
+          <div class="tile-name">Airtel Money</div>
+          <div class="tile-sub">Mobile Money</div>
+        </div>
+        <div class="pay-tile" onclick="selectPayNowMethod(this, 'Bank Transfer')">
+          <div class="tile-logo" style="font-size:19px">🏦</div>
+          <div class="tile-name">Bank Transfer</div>
+          <div class="tile-sub">Direct transfer</div>
+        </div>
+      </div>
+
+      <div class="form-group" id="pn-field-mtn">
+        <label class="form-label">MTN MoMo Number <span class="required">*</span></label>
+        <input class="form-input" id="pn-inp-mtn" type="tel" placeholder="078 000 0000"/>
+      </div>
+      <div class="form-group" id="pn-field-airtel" style="display:none">
+        <label class="form-label">Airtel Money Number <span class="required">*</span></label>
+        <input class="form-input" id="pn-inp-airtel" type="tel" placeholder="073 000 0000"/>
+      </div>
+      <div class="form-group" id="pn-field-bank" style="display:none">
+        <label class="form-label">Bank Account Number <span class="required">*</span></label>
+        <input class="form-input" id="pn-inp-bank" type="text" placeholder="000 1234 5678 9012"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-white" onclick="closeModal('modal-paynow')">Cancel</button>
+      <button class="btn-blue" onclick="confirmPayNow()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+//State 
+var products = [];
+var cart     = [];
+var orders   = [];
+var currentProduct    = null;
+var checkoutMethod    = 'MTN MoMo';
+var payNowMethod      = 'MTN MoMo';
+var payNowOrderId     = null;
+
+// Navigation 
+function showPage(name, el) {
+  closeDrawer();
+  var pages = ['dashboard', 'orders', 'profile'];
+  pages.forEach(function(p) {
+    var pg = document.getElementById('page-' + p);
+    pg.classList.remove('active');
+    pg.style.display = 'none';
+  });
+  var target = document.getElementById('page-' + name);
+  target.classList.add('active');
+  target.style.display = 'block';
+  document.querySelectorAll('.sb-link').forEach(function(link) {
+    link.classList.remove('active');
+  });
+  if (el) el.classList.add('active');
+  var titles = {
+    dashboard: ['Dashboard',         'Browse products and manage your orders'],
+    orders:    ['Orders & Payments', 'All your orders and payment status'],
+    profile:   ['My Profile',        'Manage your account details']
+  };
+  var t = titles[name];
+  document.getElementById('topbar-title').textContent = t[0];
+  document.getElementById('topbar-sub').textContent   = t[1];
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'orders')    renderOrdersTable();
+}
+// Product grid 
+
+function renderProductGrid() {
+  var grid     = document.getElementById('product-grid');
+  var subtitle = document.getElementById('products-subtitle');
+  if (products.length === 0) {
+    subtitle.textContent = "No products listed yet — check back soon";
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🌾</div><div class="empty-title">No products yet</div><div class="empty-sub">Once farmers list their products they will appear here.</div></div>';
+    return;
+  }
+  subtitle.textContent = products.length + ' product' + (products.length !== 1 ? 's' : '') + ' available';
+  grid.innerHTML = products.map(function(p) {
+    var expired = new Date(p.expiry + 'T00:00:00') < new Date();
+    var lowStock = p.qty <= 20;
+    var badgeClass = expired ? 'badge-red' : (lowStock ? 'badge-yellow' : 'badge-green');
+    var badgeText  = expired ? 'Expired'   : (lowStock ? 'Low Stock'   : 'Available');
+
+    var imageHTML = p.image
+      ? '<img class="product-img" src="' + p.image + '" alt="' + p.name + '"/>'
+      : '<div class="product-img-ph"></div>';
+
+    return '<div class="product-card">' +
+      imageHTML +
+      '<div class="product-body">' +
+        '<div class="product-name">' + p.name + '</div>' +
+        '<div class="product-who">' + p.farmer + ' &middot; ' + p.district + '</div>' +
+        '<div class="product-price">' + fmt(p.price) + ' RWF / ' + p.unit + '</div>' +
+        '<div class="product-meta">' +
+          '<span class="badge ' + badgeClass + '">' + badgeText + '</span>' +
+          '<span class="product-qty">' + p.qty + ' ' + p.unit + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="product-footer">' +
+        '<button class="btn-green" style="width:100%"' + (expired ? ' disabled' : ' onclick="openAddModal(' + p.id + ')"') + '>' +
+          (expired ? 'Unavailable' : 'Add to Cart') +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+//Dashboard 
+function renderDashboard() {
+  var total  = orders.length;
+  var unpaid = orders.filter(function(o) { return !o.paid && o.status !== 'Cancelled'; }).length;
+  var spent  = orders.filter(function(o) { return o.paid; }).reduce(function(s, o) { return s + o.total; }, 0);
+  document.getElementById('stat-orders').textContent = total;
+  document.getElementById('stat-unpaid').textContent = unpaid;
+  document.getElementById('stat-spent').textContent  = fmt(spent) + ' RWF';
+
+  renderProductGrid();
+  updateCartCount();
+}
+
+//Add to Cart modal 
+function openAddModal(productId) {
+  currentProduct = products.find(function(p) { return p.id === productId; });
+  if (!currentProduct) return;
+  var imageHTML = currentProduct.image
+    ? '<img style="width:64px;height:64px;border-radius:8px;object-fit:cover;flex-shrink:0;" src="' + currentProduct.image + '" alt="' + currentProduct.name + '"/>'
+    : '<div style="width:64px;height:64px;border-radius:8px;background:var(--cream-dark);flex-shrink:0;"></div>';
+
+  document.getElementById('add-product-preview').innerHTML =
+    imageHTML +
+    '<div>' +
+      '<div style="font-size:14px;font-weight:700;">' + currentProduct.name + '</div>' +
+      '<div style="font-size:11px;color:var(--text-light);margin-top:2px;">' + currentProduct.farmer + ' &middot; ' + currentProduct.district + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:15px;font-weight:700;color:var(--green-mid);margin-top:5px;">' + fmt(currentProduct.price) + ' RWF / ' + currentProduct.unit + '</div>' +
+      '<div style="font-size:11px;color:var(--text-mid);margin-top:2px;">' + currentProduct.qty + ' ' + currentProduct.unit + ' available</div>' +
+    '</div>';
+
+  document.getElementById('add-qty').value      = '';
+  document.getElementById('add-unit').value     = currentProduct.unit;
+  document.getElementById('add-location').value = document.getElementById('prof-location').value || '';
+  document.getElementById('add-summary').style.display = 'none';
+
+  openModal('modal-add');
+}
+function updateAddSummary() {
+  if (!currentProduct) return;
+  var qty = parseInt(document.getElementById('add-qty').value);
+  var summaryEl = document.getElementById('add-summary');
+  if (!qty || qty <= 0) {
+    summaryEl.style.display = 'none';
+    return;
+  }
+  document.getElementById('add-sum-unit').textContent  = fmt(currentProduct.price) + ' RWF';
+  document.getElementById('add-sum-qty').textContent   = qty + ' ' + currentProduct.unit;
+  document.getElementById('add-sum-total').textContent = fmt(qty * currentProduct.price) + ' RWF';
+  summaryEl.style.display = 'block';
+}
+function confirmAddToCart() {
+  var qty = parseInt(document.getElementById('add-qty').value);
+  var loc = document.getElementById('add-location').value.trim();
+  if (!qty || qty <= 0)      { showToast('Please enter a valid quantity.'); return; }
+  if (qty > currentProduct.qty) { showToast('Only ' + currentProduct.qty + ' ' + currentProduct.unit + ' available.'); return; }
+  if (!loc)                  { showToast('Please enter your receiving location.'); return; }
+  var existing = cart.find(function(c) { return c.pid === currentProduct.id; });
+  if (existing) {
+    existing.qty = qty;
+    existing.loc = loc;
+    showToast(currentProduct.name + ' updated in cart.');
+  } else {
+    cart.push({
+      id:      Date.now(),
+      pid:     currentProduct.id,
+      name:    currentProduct.name,
+      farmer:  currentProduct.farmer,
+      unit:    currentProduct.unit,
+      qty:     qty,
+      price:   currentProduct.price,
+      loc:     loc
+    });
+    showToast(currentProduct.name + ' added to cart!');
+  }
+  closeModal('modal-add');
+  updateCartCount();
+  renderDashboard();
+}
+
+//Cart modal 
+function openCartModal() {
+  renderCartModal();
+  openModal('modal-cart');
+}
+function renderCartModal() {
+  var body   = document.getElementById('cart-body');
+  var footer = document.getElementById('cart-footer');
+  if (cart.length === 0) {
+    body.innerHTML   = '<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Cart is empty</div><div class="empty-sub">Browse the products on the dashboard and click Add to Cart.</div></div>';
+    footer.innerHTML = '<button class="btn-white" onclick="closeModal(\'modal-cart\')">Close</button>';
+    return;
+  }
+  var html = '';
+  cart.forEach(function(item) {
+    html +=
+      '<div class="cart-item">' +
+        '<div class="cart-thumb"></div>' +
+        '<div class="cart-info">' +
+          '<div class="cart-item-name">'   + item.name   + '</div>' +
+          '<div class="cart-item-farmer">' + item.farmer + '</div>' +
+          '<div class="cart-item-price">'  + fmt(item.price) + ' RWF / ' + item.unit + '</div>' +
+          '<div class="qty-row">' +
+            '<button class="qty-btn" onclick="changeQty(' + item.id + ', -1)">&#8722;</button>' +
+            '<span class="qty-value" id="qty-' + item.id + '">' + item.qty + '</span>' +
+            '<button class="qty-btn" onclick="changeQty(' + item.id + ', 1)">+</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">' +
+          '<span class="cart-item-subtotal" id="sub-' + item.id + '">' + fmt(item.price * item.qty) + ' RWF</span>' +
+          '<button class="cart-item-remove" onclick="removeFromCart(' + item.id + ')">&#10005; Remove</button>' +
+        '</div>' +
+      '</div>';
+  });
+  html += '<div class="cart-total-bar"><span class="cart-total-label">Total</span><span class="cart-total-value">' + fmt(cartTotal()) + ' RWF</span></div>';
+  body.innerHTML   = html;
+  footer.innerHTML = '<button class="btn-white" onclick="closeModal(\'modal-cart\')">Continue Shopping</button><button class="btn-blue" onclick="openCheckout()">Checkout →</button>';
+}
+function changeQty(id, delta) {
+  var item = cart.find(function(c) { return c.id === id; });
+  if (!item) return;
+  var prod = products.find(function(p) { return p.id === item.pid; });
+  var maxQty = prod ? prod.qty : 9999;
+  item.qty = Math.max(1, Math.min(item.qty + delta, maxQty));
+  document.getElementById('qty-' + id).textContent = item.qty;
+  document.getElementById('sub-' + id).textContent = fmt(item.price * item.qty) + ' RWF';
+  document.querySelector('.cart-total-value').textContent = fmt(cartTotal()) + ' RWF';
+  updateCartCount();
+}
+function removeFromCart(id) {
+  cart = cart.filter(function(c) { return c.id !== id; });
+  renderCartModal();
+  updateCartCount();
+  renderDashboard();
+}
+function cartTotal() {
+  return cart.reduce(function(sum, c) { return sum + c.price * c.qty; }, 0);
+}
+
+//Checkout 
+function openCheckout() {
+  closeModal('modal-cart');
+  document.getElementById('co-items').textContent = cart.length + ' item' + (cart.length !== 1 ? 's' : '');
+  document.getElementById('co-total').textContent = fmt(cartTotal()) + ' RWF';
+
+  // Reset to MTN MoMo
+  checkoutMethod = 'MTN MoMo';
+  document.querySelectorAll('#co-tiles .pay-tile').forEach(function(t) { t.classList.remove('selected'); });
+  document.querySelector('#co-tiles .pay-tile').classList.add('selected');
+  showCheckoutFields('MTN MoMo');
+  ['inp-mtn', 'inp-airtel', 'inp-bank'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('co-confirm-btn').textContent = 'Confirm & Pay';
+
+  openModal('modal-checkout');
+}
+function selectCheckoutMethod(el, method) {
+  document.querySelectorAll('#co-tiles .pay-tile').forEach(function(t) { t.classList.remove('selected'); });
+  el.classList.add('selected');
+  checkoutMethod = method;
+  showCheckoutFields(method);
+  document.getElementById('co-confirm-btn').textContent = method === 'Pay Later' ? 'Place Order (Pay Later)' : 'Confirm & Pay';
+}
+function showCheckoutFields(method) {
+  document.getElementById('field-mtn').style.display     = method === 'MTN MoMo'     ? 'block' : 'none';
+  document.getElementById('field-airtel').style.display  = method === 'Airtel Money'  ? 'block' : 'none';
+  document.getElementById('field-bank').style.display    = method === 'Bank Transfer' ? 'block' : 'none';
+  document.getElementById('field-paylater').style.display = method === 'Pay Later'    ? 'block' : 'none';
+}
+function confirmCheckout() {
+  if (checkoutMethod === 'MTN MoMo'     && !document.getElementById('inp-mtn').value.trim())    { showToast('Enter your MTN MoMo number.'); return; }
+  if (checkoutMethod === 'Airtel Money' && !document.getElementById('inp-airtel').value.trim()) { showToast('Enter your Airtel Money number.'); return; }
+  if (checkoutMethod === 'Bank Transfer'&& !document.getElementById('inp-bank').value.trim())   { showToast('Enter your bank account number.'); return; }
+  var today  = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  var isPaid = checkoutMethod !== 'Pay Later';
+  cart.forEach(function(item) {
+    orders.push({
+      id:      Date.now() + Math.random(),
+      name:    item.name,
+      farmer:  item.farmer,
+      unit:    item.unit,
+      qty:     item.qty,
+      total:   item.price * item.qty,
+      loc:     item.loc,
+      status:  isPaid ? 'Confirmed' : 'Pending',
+      paid:    isPaid,
+      method:  checkoutMethod,
+      date:    today
+    });
+  });
+  cart = [];
+  updateCartCount();
+  closeModal('modal-checkout');
+  showToast(isPaid ? 'Order placed & payment confirmed! ✅' : 'Order placed — pay on delivery.');
+  renderDashboard();
+}
+
+//Orders & Payments table 
+function renderOrdersTable() {
+  var paid   = orders.filter(function(o) { return o.paid; });
+  var unpaid = orders.filter(function(o) { return !o.paid && o.status !== 'Cancelled'; });
+  var total  = paid.reduce(function(s, o) { return s + o.total; }, 0);
+  document.getElementById('op-total').textContent  = fmt(total) + ' RWF';
+  document.getElementById('op-unpaid').textContent = unpaid.length;
+  document.getElementById('op-done').textContent   = paid.length;
+  var tbody = document.getElementById('orders-tbody');
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="padding:0;border:none"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No orders yet</div><div class="empty-sub">Add products to your cart and checkout to see orders here.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.slice().reverse().map(function(o) {
+    var statusClass  = { Confirmed: 'badge-green', Delivered: 'badge-blue', Cancelled: 'badge-red' }[o.status] || 'badge-yellow';
+    var paymentClass = o.paid ? 'badge-green' : 'badge-yellow';
+    var paymentText  = o.paid ? 'Paid' : 'Unpaid';
+    var actions = '';
+    if (!o.paid && o.status !== 'Cancelled') {
+      actions += '<button class="btn-blue" style="padding:4px 10px;font-size:12px;" onclick="openPayNow(' + o.id + ')">Pay Now</button> ';
+    }
+    if (o.status === 'Pending') {
+      actions += '<button class="btn-white" style="padding:4px 10px;font-size:12px;" onclick="cancelOrder(' + o.id + ')">Cancel</button>';
+    }
+    return '<tr>' +
+      '<td><span class="text-mono">#' + Math.floor(o.id) + '</span></td>' +
+      '<td><strong>' + o.name + '</strong><br><span style="font-size:11px;color:var(--text-light)">' + o.farmer + '</span></td>' +
+      '<td style="font-family:\'DM Mono\',monospace">' + o.qty + ' ' + o.unit + '</td>' +
+      '<td><span class="text-price">' + fmt(o.total) + ' RWF</span></td>' +
+      '<td><span class="badge ' + statusClass  + '">' + o.status     + '</span></td>' +
+      '<td><span class="badge ' + paymentClass + '">' + paymentText  + '</span></td>' +
+      '<td style="font-size:12px;color:var(--text-mid)">' + o.method + '</td>' +
+      '<td style="font-size:12px;color:var(--text-mid)">' + o.date   + '</td>' +
+      '<td>' + (actions || '—') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+function cancelOrder(id) {
+  if (!confirm('Cancel this order?')) return;
+  var order = orders.find(function(o) { return o.id === id; });
+  if (order) order.status = 'Cancelled';
+  renderOrdersTable();
+  renderDashboard();
+  showToast('Order cancelled.');
+}
+
+// Payment mode 
+function openPayNow(orderId) {
+  var order = orders.find(function(o) { return o.id === orderId; });
+  if (!order) return;
+
+  payNowOrderId = orderId;
+  document.getElementById('pn-order-id').textContent = '#' + Math.floor(order.id);
+  document.getElementById('pn-product').textContent  = order.name;
+  document.getElementById('pn-amount').textContent   = fmt(order.total) + ' RWF';
+  payNowMethod = 'MTN MoMo';
+  document.querySelectorAll('#pn-tiles .pay-tile').forEach(function(t) { t.classList.remove('selected'); });
+  document.querySelector('#pn-tiles .pay-tile').classList.add('selected');
+  showPayNowFields('MTN MoMo');
+  ['pn-inp-mtn', 'pn-inp-airtel', 'pn-inp-bank'].forEach(function(id) { document.getElementById(id).value = ''; });
+
+  openModal('modal-paynow');
+}
+function selectPayNowMethod(el, method) {
+  document.querySelectorAll('#pn-tiles .pay-tile').forEach(function(t) { t.classList.remove('selected'); });
+  el.classList.add('selected');
+  payNowMethod = method;
+  showPayNowFields(method);
+}
+function showPayNowFields(method) {
+  document.getElementById('pn-field-mtn').style.display    = method === 'MTN MoMo'     ? 'block' : 'none';
+  document.getElementById('pn-field-airtel').style.display = method === 'Airtel Money'  ? 'block' : 'none';
+  document.getElementById('pn-field-bank').style.display   = method === 'Bank Transfer' ? 'block' : 'none';
+}
+function confirmPayNow() {
+  if (payNowMethod === 'MTN MoMo'     && !document.getElementById('pn-inp-mtn').value.trim())    { showToast('Enter your MTN MoMo number.'); return; }
+  if (payNowMethod === 'Airtel Money' && !document.getElementById('pn-inp-airtel').value.trim()) { showToast('Enter your Airtel Money number.'); return; }
+  if (payNowMethod === 'Bank Transfer'&& !document.getElementById('pn-inp-bank').value.trim())   { showToast('Enter your bank account number.'); return; }
+
+  var order = orders.find(function(o) { return o.id === payNowOrderId; });
+  if (!order) return;
+
+  order.paid   = true;
+  order.status = 'Confirmed';
+  order.method = payNowMethod;
+
+  closeModal('modal-paynow');
+  showToast('Payment confirmed! ✅');
+  renderOrdersTable();
+  renderDashboard();
+}
+
+// Profile details
+
+function saveProfile() {
+  var name = document.getElementById('prof-name').value.trim();
+  document.getElementById('sb-username').textContent = name || '';
+  showToast('Profile saved!');
+  setTimeout(function() {
+    showPage('dashboard', document.querySelectorAll('.sb-link')[0]);
+  }, 900);
+}
+function previewProfileAvatar(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img     = document.getElementById('profile-avatar-img');
+    var hint    = document.querySelector('.profile-avatar-hint');
+    var sbImg   = document.getElementById('avatar-img');
+    var sbHint  = document.querySelector('.avatar-hint');
+    img.src  = ev.target.result; img.style.display  = 'block'; hint.style.display   = 'none';
+    sbImg.src = ev.target.result; sbImg.style.display = 'block'; sbHint.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function previewAvatar(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img  = document.getElementById('avatar-img');
+    var hint = document.querySelector('.avatar-hint');
+    img.src = ev.target.result; img.style.display = 'block'; hint.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Helpers
+function fmt(value) {
+  return Number(value).toLocaleString();
+}
+function updateCartCount() {
+  var count = cart.length;
+  document.getElementById('cart-count').textContent     = count;
+  document.getElementById('cart-count-mob').textContent = count;
+}
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function overlayClick(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+function toggleDrawer() {
+  var sb = document.getElementById('sidebar');
+  sb.classList.contains('open') ? closeDrawer() : openDrawer();
+}
+function openDrawer() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('mob-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mob-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function confirmLogout() {
+  if (confirm('Log out?')) {
+    showToast('Logging out...');
+    setTimeout(function() { window.location.href = 'login.html'; }, 1400);
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  renderDashboard();
+});
+</script>
+</body>
+</html>
