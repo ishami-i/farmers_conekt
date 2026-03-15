@@ -17,10 +17,16 @@
   <p>Welcome to the buyer page. This page is under development.</p>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const user = JSON.parse(localStorage.getItem('currentUser'));
-      if (user) {
-        document.querySelector('h1').textContent = 'Welcome, ' + user.first + ' ' + user.last;
+      const token = localStorage.getItem('token');
+      const buyerId = localStorage.getItem('buyer_id');
+      const userName = localStorage.getItem('first_name');
+
+      if (!token || !buyerId) {
+        window.location.href = 'login.html';
+        return;
       }
+
+      document.querySelector('h1').textContent = 'Welcome, ' + (userName || 'Buyer');
     });
   </script>
 </body>
