@@ -7,218 +7,67 @@
  * 4. Tab switching and navigation
  * 5. User profile management
  * 6. Data persistence with localStorage
- * 7. Product browsing and filtering
+ * 7. Mobile sidebar toggle
  */
 
 let cart = [];
 let orders = [];
 let wishlist = [];
-let allProducts = [];
 let currentOrderFilter = 'all';
 
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', function() {
     loadBuyerData();
     displayUserInfo();
-    loadAvailableProducts();
-    setupProductFilters();
     render();
+    setupSidebarToggle();
 });
 
-// ============= LOAD AVAILABLE PRODUCTS =============
-function loadAvailableProducts() {
-    // In a real app, this would fetch from a server
-    // For now, we'll create sample products that would come from farmers
-    const sampleProducts = [
-        {
-            id: 1,
-            name: 'Fresh Tomatoes',
-            category: 'vegetables',
-            price: 500,
-            quantity: '100kg',
-            location: 'Kigali, Gasabo',
-            farmer: 'John Farmer',
-            image: '🍅',
-            harvestTime: 'post-harvest',
-            description: 'Fresh, organic tomatoes harvested this morning'
-        },
-        {
-            id: 2,
-            name: 'Bananas',
-            category: 'fruits',
-            price: 800,
-            quantity: '50kg',
-            location: 'Musanze',
-            farmer: 'Mary cultivator',
-            image: '🍌',
-            harvestTime: 'harvested',
-            description: 'Sweet, ripe bananas from mountain region'
-        },
-        {
-            id: 3,
-            name: 'Lettuce',
-            category: 'vegetables',
-            price: 1000,
-            quantity: '30kg',
-            location: 'Muhanga',
-            farmer: 'Peter Green',
-            image: '🥬',
-            harvestTime: 'post-harvest',
-            description: 'Crisp, fresh lettuce for salads'
-        },
-        {
-            id: 4,
-            name: 'Potatoes',
-            category: 'vegetables',
-            price: 400,
-            quantity: '200kg',
-            location: 'Nyaruguru',
-            farmer: 'Alice Root',
-            image: '🥔',
-            harvestTime: 'harvested',
-            description: 'High-quality potatoes, perfect for cooking'
-        },
-        {
-            id: 5,
-            name: 'Carrots',
-            category: 'vegetables',
-            price: 600,
-            quantity: '80kg',
-            location: 'Gisagara',
-            farmer: 'Robert Soil',
-            image: '🥕',
-            harvestTime: 'post-harvest',
-            description: 'Sweet, crunchy carrots, great nutritional value'
-        },
-        {
-            id: 6,
-            name: 'Pumpkin',
-            category: 'vegetables',
-            price: 700,
-            quantity: '120kg',
-            location: 'Huye',
-            farmer: 'Sarah Garden',
-            image: '🎃',
-            harvestTime: 'harvested',
-            description: 'Large, fresh pumpkins ready to harvest'
-        },
-        {
-            id: 7,
-            name: 'Apples',
-            category: 'fruits',
-            price: 1200,
-            quantity: '40kg',
-            location: 'Musanze',
-            farmer: 'David Orchard',
-            image: '🍎',
-            harvestTime: 'post-harvest',
-            description: 'Fresh apples with natural sweetness'
-        },
-        {
-            id: 8,
-            name: 'Maize',
-            category: 'grains',
-            price: 300,
-            quantity: '300kg',
-            location: 'Gicumbi',
-            farmer: 'James Field',
-            image: '🌽',
-            harvestTime: 'harvested',
-            description: 'Quality maize, suitable for milling or cooking'
-        }
-    ];
+// ============= SIDEBAR TOGGLE (Mobile) =============
+function setupSidebarToggle() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
 
-    allProducts = sampleProducts;
-    renderBuyerProducts(allProducts);
-}
-
-// ============= SETUP PRODUCT FILTERS =============
-function setupProductFilters() {
-    const categoryFilter = document.getElementById('product-category-filter');
-    const priceFilter = document.getElementById('product-price-filter');
-    const searchInput = document.getElementById('product-search');
-
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', filterAndRenderProducts);
+    // Create toggle button if it doesn't exist
+    let toggleBtn = document.querySelector('.sidebar-toggle-btn');
+    if (!toggleBtn) {
+        toggleBtn = document.createElement('button');
+        toggleBtn.className = 'sidebar-toggle-btn';
+        toggleBtn.innerHTML = '☰';
+        toggleBtn.setAttribute('aria-label', 'Toggle sidebar');
+        const header = document.getElementById('header');
+        header.appendChild(toggleBtn);
     }
-    if (priceFilter) {
-        priceFilter.addEventListener('change', filterAndRenderProducts);
-    }
-    if (searchInput) {
-        searchInput.addEventListener('input', filterAndRenderProducts);
-    }
-}
 
-// ============= FILTER AND RENDER PRODUCTS =============
-function filterAndRenderProducts() {
-    const category = document.getElementById('product-category-filter').value;
-    const priceSort = document.getElementById('product-price-filter').value;
-    const search = document.getElementById('product-search').value.toLowerCase();
-
-    let filtered = allProducts.filter(product => {
-        const matchCategory = category === 'all' || product.category === category;
-        const matchSearch = product.name.toLowerCase().includes(search) ||
-                          product.farmer.toLowerCase().includes(search) ||
-                          product.location.toLowerCase().includes(search);
-        return matchCategory && matchSearch;
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
     });
 
-    // Apply price sorting
-    if (priceSort === 'low-to-high') {
-        filtered.sort((a, b) => a.price - b.price);
-    } else if (priceSort === 'high-to-low') {
-        filtered.sort((a, b) => b.price - a.price);
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
     }
 
-    renderBuyerProducts(filtered);
+    // Close sidebar on window resize if screen is large
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+    });
 }
 
-// ============= RENDER BUYER PRODUCTS =============
-function renderBuyerProducts(products) {
-    const container = document.getElementById('buyer-products-container');
-    
-    if (!container) return;
-
-    if (products.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <div class="empty-icon">🌾</div>
-                <div class="empty-text">No products match your search</div>
-                <div class="empty-sub">Try adjusting your filters or search terms</div>
-            </div>
-        `;
-        return;
+function closeSidebarOnMobile() {
+    if (window.innerWidth < 1024) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
     }
-
-    container.innerHTML = products.map(product => `
-        <div class="product-card">
-            <div class="product-image" style="font-size: 4rem;">
-                ${product.image}
-            </div>
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-category">${product.category.toUpperCase()}</p>
-                <p class="product-details" style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
-                    From: <strong>${product.farmer}</strong>
-                </p>
-                <p class="product-details" style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
-                    📍 ${product.location}
-                </p>
-                <p class="product-details" style="font-size: 0.85rem; color: var(--text-light);">
-                    ${product.quantity} available
-                </p>
-                <div class="product-price">${product.price.toLocaleString()} RWF/unit</div>
-                <div class="product-actions">
-                    <button class="btn-view" onclick="addToCart('${product.name}', '${product.farmer}', ${product.price}, '${product.location}', ${product.quantity.split('kg')[0]})">
-                        🛒 Add to Cart
-                    </button>
-                    <button class="btn-cart" onclick="addToWishlist('${product.name}', '${product.farmer}', ${product.price}, '${product.location}', ${product.quantity.split('kg')[0]})">
-                        ♡ Wishlist
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
 }
 
 // ============= USER DATA MANAGEMENT =============
@@ -252,7 +101,7 @@ function displayUserInfo() {
 
 // ============= TAB SWITCHING =============
 function switchTab(tabName, element) {
-    if (element) {
+    if (element && element.preventDefault) {
         element.preventDefault();
     }
 
@@ -273,14 +122,16 @@ function switchTab(tabName, element) {
     }
 
     // Mark nav item as active
-    if (element) {
-        element.closest('.nav-item').classList.add('active');
+    if (element && element.closest) {
+        const navItem = element.closest('.nav-item');
+        if (navItem) {
+            navItem.classList.add('active');
+        }
     }
 
     // Update page title
     const titles = {
         dashboard: 'Buyer Dashboard',
-        products: 'Browse Fresh Products',
         cart: 'Shopping Cart',
         orders: 'My Orders',
         wishlist: 'My Wishlist',
@@ -290,7 +141,6 @@ function switchTab(tabName, element) {
 
     const subtitles = {
         dashboard: 'Welcome back to your shopping hub',
-        products: 'Find quality products from local farmers',
         cart: 'Review and manage your items',
         orders: 'Track and manage your orders',
         wishlist: 'Products you\'re interested in',
@@ -338,7 +188,7 @@ function renderCart() {
                 <div class="empty-icon">🛒</div>
                 <div class="empty-text">Your cart is empty</div>
                 <div class="empty-sub">Add some fresh produce to get started</div>
-                <button class="empty-cta" onclick="switchTab('products', null)">🌾 Browse Products</button>
+                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
             </div>
         `;
         summary.style.display = 'none';
@@ -445,7 +295,7 @@ function renderWishlist() {
                 <div class="empty-icon">♡</div>
                 <div class="empty-text">Your wishlist is empty</div>
                 <div class="empty-sub">Add products you'd like to buy later</div>
-                <button class="empty-cta" onclick="switchTab('products', null)">🌾 Browse Products</button>
+                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
             </div>
         `;
         return;
@@ -481,7 +331,7 @@ function renderDashboardOrders() {
                 <div class="empty-icon">📭</div>
                 <div class="empty-text">No orders yet</div>
                 <div class="empty-sub">Start shopping to place your first order</div>
-                <button class="empty-cta" onclick="switchTab('products', null)">🌾 Browse Products</button>
+                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
             </div>
         `;
         return;
@@ -549,7 +399,9 @@ function checkout() {
     }
 
     const orderId = 'ORD-' + Date.now();
-    const total = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0) + 5000 + Math.round(cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0) * 0.05);
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+    const tax = Math.round(subtotal * 0.05);
+    const total = subtotal + 5000 + tax;
 
     const order = {
         id: orderId,
@@ -596,7 +448,9 @@ function filterOrders(status) {
     document.querySelectorAll('#orders-tab .tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 
     renderOrders();
 }
@@ -634,6 +488,12 @@ function showToast(msg) {
 function confirmLogout() {
     if (confirm('Are you sure you want to log out?')) {
         showToast('Logging out...');
-        setTimeout(() => { window.logoutUser(); }, 1500);
+        setTimeout(() => { 
+            if (window.logoutUser) {
+                window.logoutUser();
+            } else {
+                window.location.href = './login.html';
+            }
+        }, 1500);
     }
 }

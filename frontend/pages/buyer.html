@@ -18,16 +18,11 @@
     </div>
     <nav id="nav">
         <ul class="nav-links" id="nav-links" aria-label="Main navigation">
-            <li><a href="./home.html">Home</a></li>
+            <li><a href="./home.html">🏠 Home</a></li>
             <li><a href="./buyer.html" class="active-nav">Dashboard</a></li>
             <li><a href="./login.html" onclick="logoutUser()">Log Out</a></li>
         </ul>
     </nav>
-    <button class="toggle-button" id="toggle-button" aria-label="toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-    </button>
     <button class="light/dark-toggle" id="light-dark-toggle" aria-label="toggle light and dark mode" aria-pressed="false">
         <span class="light-mode">Light</span>
         <span class="dark-mode">Dark</span>
@@ -36,8 +31,8 @@
 
 <div style="display: flex; min-height: calc(100vh - 80px);">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <!-- SIDEBAR (Left navigation) -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
             <div class="logo-text">FarmerConekt</div>
         </div>
@@ -54,24 +49,20 @@
 
         <nav class="nav-section">
             <div class="nav-label">Shopping</div>
-            <a class="nav-item active" href="#" onclick="switchTab('dashboard', this)">
+            <a class="nav-item active" href="#" onclick="switchTab('dashboard', this); closeSidebarOnMobile()">
                 <span class="nav-icon">⊟</span> Dashboard
             </a>
-            <a class="nav-item" href="#" onclick="switchTab('products', this)">
-                <span class="nav-icon">🌾</span> Browse Products
-            </a>
-            <a class="nav-item" href="#" onclick="switchTab('cart', this)">
+            <a class="nav-item" href="#" onclick="switchTab('cart', this); closeSidebarOnMobile()">
                 <span class="nav-icon">🛒</span> My Cart
-                <span class="nav-badge" id="cart-badge" style="display:none;">0</span>
             </a>
-            <a class="nav-item" href="#" onclick="switchTab('orders', this)">
+            <a class="nav-item" href="#" onclick="switchTab('orders', this); closeSidebarOnMobile()">
                 <span class="nav-icon">◱</span> My Orders
             </a>
-            <a class="nav-item" href="#" onclick="switchTab('wishlist', this)">
+            <a class="nav-item" href="#" onclick="switchTab('wishlist', this); closeSidebarOnMobile()">
                 <span class="nav-icon">♡</span> Wishlist
             </a>
             <div class="nav-label" style="margin-top:16px;">Account</div>
-            <a class="nav-item" href="#" onclick="switchTab('profile', this)">
+            <a class="nav-item" href="#" onclick="switchTab('profile', this); closeSidebarOnMobile()">
                 <span class="nav-icon">👤</span> My Profile
             </a>
         </nav>
@@ -83,12 +74,18 @@
         </div>
     </aside>
 
+    <!-- SIDEBAR OVERLAY (for mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
     <!-- MAIN CONTENT -->
     <main class="main">
         <div class="topbar">
             <div class="topbar-left">
                 <h2 id="page-title">Buyer Dashboard</h2>
                 <p id="page-subtitle">Welcome back to your shopping hub</p>
+            </div>
+            <div class="topbar-right">
+                <a href="./home.html" class="browse-btn">🌾 Browse Products</a>
             </div>
         </div>
 
