@@ -1,34 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buyer Dashboard - Farmer Conekt</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmerConekt – Buyer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/buyer.css">
 </head>
 <body>
-  <h1>Buyer Dashboard</h1>
-  <p>Welcome to the buyer page. This page is under development.</p>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const token = localStorage.getItem('token');
-      const buyerId = localStorage.getItem('buyer_id');
-      const userName = localStorage.getItem('first_name');
 
-      if (!token || !buyerId) {
-        window.location.href = 'login.html';
-        return;
-      }
+<!-- HEADER (matching homepage) -->
+<header id="header">
+    <div class="header-content">
+        <h1 class="header-title">Farmer Conekt</h1>
+        <p class="sub-header">where every product is saved from damages</p>
+    </div>
+    <nav id="nav">
+        <ul class="nav-links" id="nav-links" aria-label="Main navigation">
+            <li><a href="./home.html">🏠 Home</a></li>
+            <li><a href="./buyer.html" class="active-nav">Dashboard</a></li>
+            <li><a href="./login.html" onclick="logoutUser()">Log Out</a></li>
+        </ul>
+    </nav>
+    <button class="light/dark-toggle" id="light-dark-toggle" aria-label="toggle light and dark mode" aria-pressed="false">
+        <span class="light-mode">Light</span>
+        <span class="dark-mode">Dark</span>
+    </button>
+</header>
 
-      document.querySelector('h1').textContent = 'Welcome, ' + (userName || 'Buyer');
-    });
-  </script>
+<div style="display: flex; min-height: calc(100vh - 80px);">
+
+    <!-- SIDEBAR (Left navigation) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-text">FarmerConekt</div>
+        </div>
+
+        <div class="buyer-profile">
+            <div class="buyer-avatar" onclick="document.getElementById('avatar-input').click()" title="Click to upload photo">
+                👤
+                <img id="avatar-preview" src="" style="display:none;"/>
+            </div>
+            <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)"/>
+            <div class="buyer-name">My Profile</div>
+            <div class="buyer-email" id="buyer-email">Loading...</div>
+        </div>
+
+        <nav class="nav-section">
+            <div class="nav-label">Shopping</div>
+            <a class="nav-item active" href="#" onclick="switchTab('dashboard', this); closeSidebarOnMobile()">
+                <span class="nav-icon">⊟</span> Dashboard
+            </a>
+            <a class="nav-item" href="#" onclick="switchTab('cart', this); closeSidebarOnMobile()">
+                <span class="nav-icon">🛒</span> My Cart
+            </a>
+            <a class="nav-item" href="#" onclick="switchTab('orders', this); closeSidebarOnMobile()">
+                <span class="nav-icon">◱</span> My Orders
+            </a>
+            <a class="nav-item" href="#" onclick="switchTab('wishlist', this); closeSidebarOnMobile()">
+                <span class="nav-icon">♡</span> Wishlist
+            </a>
+            <div class="nav-label" style="margin-top:16px;">Account</div>
+            <a class="nav-item" href="#" onclick="switchTab('profile', this); closeSidebarOnMobile()">
+                <span class="nav-icon">👤</span> My Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()">
+                🚪 Log Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- SIDEBAR OVERLAY (for mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2 id="page-title">Buyer Dashboard</h2>
+                <p id="page-subtitle">Welcome back to your shopping hub</p>
+            </div>
+            <div class="topbar-right">
+                <a href="./home.html" class="browse-btn">🌾 Browse Products</a>
+            </div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🛒</div>
+                        <div class="stat-value" id="stat-cart">0</div>
+                        <div class="stat-label">Items in Cart</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-value" id="stat-orders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💚</div>
+                        <div class="stat-value" id="stat-wishlist">0</div>
+                        <div class="stat-label">Wishlist Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-value" id="stat-delivered">0</div>
+                        <div class="stat-label">Delivered Orders</div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">Recent Orders</div>
+                            <div class="section-subtitle">Your latest purchases</div>
+                        </div>
+                    </div>
+                    <div id="dashboard-orders" class="items-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <div class="empty-text">No orders yet</div>
+                            <div class="empty-sub">Start shopping to place your first order</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CART TAB -->
+            <div id="cart-tab" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">Shopping Cart</div>
+                            <div class="section-subtitle">Review and manage your items</div>
+                        </div>
+                    </div>
+                    <div id="cart-items" class="items-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">🛒</div>
+                            <div class="empty-text">Your cart is empty</div>
+                            <div class="empty-sub">Add some fresh produce to get started</div>
+                        </div>
+                    </div>
+                    <div id="cart-summary" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- ORDERS TAB -->
+            <div id="orders-tab" class="tab-content">
+                <div class="tabs" style="padding: 0; margin: 0 0 1.5rem 0;">
+                    <button class="tab-btn active" onclick="filterOrders('all')">All</button>
+                    <button class="tab-btn" onclick="filterOrders('pending')">Pending</button>
+                    <button class="tab-btn" onclick="filterOrders('confirmed')">Confirmed</button>
+                    <button class="tab-btn" onclick="filterOrders('shipped')">Shipped</button>
+                    <button class="tab-btn" onclick="filterOrders('delivered')">Delivered</button>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">Order History</div>
+                            <div class="section-subtitle">Track and manage your orders</div>
+                        </div>
+                    </div>
+                    <div id="orders-list" class="items-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <div class="empty-text">No orders found</div>
+                            <div class="empty-sub">You haven't placed any orders yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WISHLIST TAB -->
+            <div id="wishlist-tab" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">My Wishlist</div>
+                            <div class="section-subtitle">Products you're interested in</div>
+                        </div>
+                    </div>
+                    <div id="wishlist-items" class="items-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">♡</div>
+                            <div class="empty-text">Your wishlist is empty</div>
+                            <div class="empty-sub">Add products you'd like to buy later</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE TAB -->
+            <div id="profile-tab" class="tab-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">My Profile</div>
+                            <div class="section-subtitle">Manage your account information</div>
+                        </div>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Email</label>
+                                <input type="email" id="profile-email" readonly style="width: 100%; padding: 0.75rem; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); background: var(--cream);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Full Name</label>
+                                <input type="text" id="profile-name" placeholder="Your full name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Phone</label>
+                                <input type="tel" id="profile-phone" placeholder="Your phone number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Location</label>
+                                <input type="text" id="profile-location" placeholder="Your location" style="width: 100%; padding: 0.75rem; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm);">
+                            </div>
+                        </div>
+                        <button onclick="saveProfile()" class="checkout-btn" style="margin-top: 2rem; max-width: 200px;">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">
+    <span id="toast-msg">Done!</span>
+</div>
+
+<script src="../scripts/toggle.js"></script>
+<script src="../scripts/buyer.js"></script>
+
 </body>
-</html></content>
-<parameter name="filePath">/home/kevin/repos/farmers_conekt/frontend/pages/buyer.html
+</html>
