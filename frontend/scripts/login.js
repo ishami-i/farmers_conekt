@@ -228,220 +228,166 @@ function setSignupContact(role, method, clickedBtn) {
 // ─────────────────────────────────────
 // SIGN UP
 // ─────────────────────────────────────
-function doSignup(role) {
-  if (role === "farmer") {
-    var first = document.getElementById("fs-first").value.trim();
-    var last = document.getElementById("fs-last").value.trim();
-    var farm = document.getElementById("fs-farm").value.trim();
-    var type = document.getElementById("fs-type").value;
-    var pass = document.getElementById("fs-pass").value;
-    var confirm = document.getElementById("fs-confirm").value;
+async function doSignup(role) {
+  // Gather fields
+  var first = document
+    .getElementById(role === "farmer" ? "fs-first" : "bs-first")
+    .value.trim();
+  var last = document
+    .getElementById(role === "farmer" ? "fs-last" : "bs-last")
+    .value.trim();
+  var pass = document.getElementById(
+    role === "farmer" ? "fs-pass" : "bs-pass",
+  ).value;
+  var confirm = document.getElementById(
+    role === "farmer" ? "fs-confirm" : "bs-confirm",
+  ).value;
 
-    // Pick email or phone as the login credential depending on which toggle is active
-    var method = signupMethod.farmer;
-    var email =
-      method === "email"
-        ? document.getElementById("fs-email").value.trim()
-        : document.getElementById("fs-email-extra").value.trim();
-    var phone =
-      method === "phone"
-        ? document.getElementById("fs-phone-c").value.trim()
-        : document.getElementById("fs-phone").value.trim();
+  var method = signupMethod[role];
+  var email =
+    method === "email"
+      ? document
+          .getElementById(role === "farmer" ? "fs-email" : "bs-email")
+          .value.trim()
+      : document
+          .getElementById(
+            role === "farmer" ? "fs-email-extra" : "bs-email-extra",
+          )
+          .value.trim();
+  var phone =
+    method === "phone"
+      ? document
+          .getElementById(role === "farmer" ? "fs-phone-c" : "bs-phone-c")
+          .value.trim()
+      : document
+          .getElementById(role === "farmer" ? "fs-phone" : "bs-phone")
+          .value.trim();
 
-    // Validation checks
-    if (!first || !last || !farm || !type || !pass || !confirm) {
-      showToast("Please fill in all fields.", "error");
-      return;
-    }
-    if (email && !/\S+@\S+\.\S+/.test(email)) {
-      showToast("Enter a valid email address.", "error");
-      return;
-    }
-    if (!email && !phone) {
-      showToast("Please provide an email or phone number.", "error");
-      return;
-    }
-    if (pass.length < 6) {
-      showToast("Password must be at least 6 characters.", "error");
-      return;
-    }
-    if (pass !== confirm) {
-      showToast("Passwords do not match.", "error");
-      return;
-    }
-
-    // Check if this email or phone is already registered
-    var duplicate = DB.farmers.some(function (f) {
-      return (email && f.email === email) || (phone && f.phone === phone);
-    });
-    if (duplicate) {
-      showToast("An account with that email or phone already exists.", "error");
-      return;
-    }
-
-    withLoading("fs-btn", function () {
-      var newFarmer = {
-        id: makeId(),
-        first: first,
-        last: last,
-        email: email,
-        phone: phone,
-        farm: farm,
-        type: type,
-        password: pass,
-        joinDate: today(),
-      };
-      DB.farmers.push(newFarmer);
-      currentUser = newFarmer;
-      currentRole = "farmer";
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      localStorage.setItem("currentRole", currentRole);
-      localStorage.setItem("farmer_id", currentUser.id);
-      window.location.href = "farmer.html";
-      showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
-    });
-  } else {
-    var first = document.getElementById("bs-first").value.trim();
-    var last = document.getElementById("bs-last").value.trim();
-    var pass = document.getElementById("bs-pass").value;
-    var confirm = document.getElementById("bs-confirm").value;
-
-    var method = signupMethod.buyer;
-    var email =
-      method === "email"
-        ? document.getElementById("bs-email").value.trim()
-        : document.getElementById("bs-email-extra").value.trim();
-    var phone =
-      method === "phone"
-        ? document.getElementById("bs-phone-c").value.trim()
-        : document.getElementById("bs-phone").value.trim();
-
-    if (!first || !last || !pass || !confirm) {
-      showToast("Please fill in all fields.", "error");
-      return;
-    }
-    if (email && !/\S+@\S+\.\S+/.test(email)) {
-      showToast("Enter a valid email address.", "error");
-      return;
-    }
-    if (!email && !phone) {
-      showToast("Please provide an email or phone number.", "error");
-      return;
-    }
-    if (pass.length < 6) {
-      showToast("Password must be at least 6 characters.", "error");
-      return;
-    }
-    if (pass !== confirm) {
-      showToast("Passwords do not match.", "error");
-      return;
-    }
-
-    var duplicate = DB.buyers.some(function (b) {
-      return (email && b.email === email) || (phone && b.phone === phone);
-    });
-    if (duplicate) {
-      showToast("An account with that email or phone already exists.", "error");
-      return;
-    }
-
-    withLoading("bs-btn", function () {
-      var newBuyer = {
-        id: makeId(),
-        first: first,
-        last: last,
-        email: email,
-        phone: phone,
-        password: pass,
-        joinDate: today(),
-      };
-      DB.buyers.push(newBuyer);
-      currentUser = newBuyer;
-      currentRole = "buyer";
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      localStorage.setItem("currentRole", currentRole);
-      localStorage.setItem("buyer_id", currentUser.id);
-      window.location.href = "buyer.html";
-      showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
-    });
+  // Basic validation
+  if (!first || !last || !pass || !confirm) {
+    showToast("Please fill in all fields.", "error");
+    return;
   }
+  if (email && !/\S+@\S+\.\S+/.test(email)) {
+    showToast("Enter a valid email address.", "error");
+    return;
+  }
+  if (!email && !phone) {
+    showToast("Please provide an email or phone number.", "error");
+    return;
+  }
+  if (pass.length < 6) {
+    showToast("Password must be at least 6 characters.", "error");
+    return;
+  }
+  if (pass !== confirm) {
+    showToast("Passwords do not match.", "error");
+    return;
+  }
+
+  withLoading(role === "farmer" ? "fs-btn" : "bs-btn", async function () {
+    try {
+      var payload = {
+        name: first + " " + last,
+        email: email || null,
+        phone: phone || null,
+        password: pass,
+        role: role,
+        district_id: 1, // TODO: replace with actual district selection
+      };
+
+      var response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      var data = await response.json();
+      if (!response.ok) {
+        showToast(data.error || data.message || "Signup failed.", "error");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("user_id", data.user_id);
+      if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
+      if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
+      if (data.district_id)
+        localStorage.setItem("district_id", data.district_id);
+      localStorage.setItem("first_name", first);
+
+      window.location.href = role === "farmer" ? "farmer.html" : "buyer.html";
+      showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Signup failed. Please try again.", "error");
+    }
+  });
 }
 
 // ─────────────────────────────────────
-// LOGIN — looks up user in the database
+// LOGIN — calls backend auth endpoint
 // ─────────────────────────────────────
-function doLogin(role) {
+async function doLogin(role) {
   var method = loginMethod[role];
 
-  if (role === "farmer") {
-    var credential =
-      method === "email"
-        ? document.getElementById("fl-email").value.trim()
-        : document.getElementById("fl-phone").value.trim();
-    var password = document.getElementById("fl-pass").value;
+  var credential =
+    method === "email"
+      ? document
+          .getElementById(role === "farmer" ? "fl-email" : "bl-email")
+          .value.trim()
+      : document
+          .getElementById(role === "farmer" ? "fl-phone" : "bl-phone")
+          .value.trim();
+  var password = document.getElementById(
+    role === "farmer" ? "fl-pass" : "bl-pass",
+  ).value;
 
-    if (!credential || !password) {
-      showToast("Please fill in all fields.", "error");
-      return;
-    }
-
-    var match = DB.farmers.find(function (f) {
-      return (
-        (method === "email"
-          ? f.email === credential
-          : f.phone === credential) && f.password === password
-      );
-    });
-
-    if (!match) {
-      showToast("Incorrect email/phone or password.", "error");
-      return;
-    }
-
-    withLoading("fl-btn", function () {
-      currentUser = match;
-      currentRole = "farmer";
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      localStorage.setItem("currentRole", currentRole);
-      localStorage.setItem("farmer_id", currentUser.id);
-      window.location.href = "farmer.html";
-      showToast("Welcome back, " + match.first + "!", "success");
-    });
-  } else {
-    var credential =
-      method === "email"
-        ? document.getElementById("bl-email").value.trim()
-        : document.getElementById("bl-phone").value.trim();
-    var password = document.getElementById("bl-pass").value;
-
-    if (!credential || !password) {
-      showToast("Please fill in all fields.", "error");
-      return;
-    }
-
-    var match = DB.buyers.find(function (b) {
-      return (
-        (method === "email"
-          ? b.email === credential
-          : b.phone === credential) && b.password === password
-      );
-    });
-
-    if (!match) {
-      showToast("Incorrect email/phone or password.", "error");
-      return;
-    }
-
-    withLoading("bl-btn", function () {
-      currentUser = match;
-      currentRole = "buyer";
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      localStorage.setItem("currentRole", currentRole);
-      localStorage.setItem("buyer_id", currentUser.id);
-      window.location.href = "buyer.html";
-      showToast("Welcome back, " + match.first + "!", "success");
-    });
+  if (!credential || !password) {
+    showToast("Please fill in all fields.", "error");
+    return;
   }
+
+  withLoading(role === "farmer" ? "fl-btn" : "bl-btn", async function () {
+    try {
+      var payload = {
+        email: method === "email" ? credential : null,
+        phone: method === "phone" ? credential : null,
+        password: password,
+      };
+
+      var response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      var data = await response.json();
+      if (!response.ok) {
+        showToast(data.error || "Login failed.", "error");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("user_id", data.user_id);
+      if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
+      if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
+      if (data.district_id)
+        localStorage.setItem("district_id", data.district_id);
+
+      window.location.href = role === "farmer" ? "farmer.html" : "buyer.html";
+      showToast("Welcome back!", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Login failed. Please try again.", "error");
+    }
+  });
 }
 
 // ─────────────────────────────────────

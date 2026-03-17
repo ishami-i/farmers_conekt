@@ -112,46 +112,32 @@ def place_order():
 
     data = request.json
 
-    buyer_id = data["buyer_id"]
-    items = data["items"]
+    buyer_id = get_jwt_identity()
+    items = data.get("items", [])
 
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    order_query = """
-    INSERT INTO orders (buyer_id, status, total_payment, created_at)
-    VALUES (%s,'pending',%s,NOW())
-    """
+    try:
+        order_query = "INSERT INTO orders (buyer_id, status, total_payment, created_at) VALUES (%s, 'pending', %s, NOW())"
+        cursor.execute(order_query, (buyer_id, data["total"]))
+        order_id = cursor.lastrowid
 
-    cursor.execute(order_query, (
-        buyer_id,
-        data["total"]
-    ))
+        for item in items:
+            detail_query = "INSERT INTO order_details (order_id, product_id, price, quantity) VALUES (%s, %s, %s, %s)"
+            cursor.execute(detail_query, (order_id, item["product_id"], item["price"], item["quantity"]))
 
-    order_id = cursor.lastrowid
+        delivery_query = "INSERT INTO deliveries (order_id, pickup_district_id, delivery_district_id) VALUES (%s, %s, %s)"
+        cursor.execute(delivery_query, (order_id, data["pickup_district"], data["delivery_district"]))
 
-    for item in items:
+        connection.commit()
+        return jsonify({"message": "Order placed successfully", "order_id": order_id}), 201
 
-        detail_query = """
-        INSERT INTO order_details
-        (order_id, product_id, price, quantity)
-        VALUES (%s,%s,%s,%s)
-        """
-
-        cursor.execute(detail_query, (
-            order_id,
-            item["product_id"],
-            item["price"],
-            item["quantity"]
-        ))
-
-    connection.commit()
-    connection.close()
-
-    return jsonify({
-        "message": "Order placed successfully",
-        "order_id": order_id
-    })
+    except Exception as e:
+        connection.rollback() # Undo changes if anything fails
+        return jsonify({"error": "Failed to place order", "details": str(e)}), 500
+    finally:
+        connection.close()
 
 # order history
 
@@ -177,6 +163,31 @@ def get_buyer_orders(buyer_id):
     connection.close()
 
     return jsonify(orders)
+
+# allowing buyer to track delivery
+
+@buyer_routes.route("/delivery-status/<int:order_id>", methods=["GET"])
+@jwt_required()
+@role_required("buyer")
+def delivery_status(order_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    query = """
+    SELECT
+        delivery_status
+    FROM deliveries
+    WHERE order_id=%s
+    """
+
+    cursor.execute(query, (order_id,))
+
+    delivery = cursor.fetchone()
+
+    connection.close()
+
+    return jsonify(delivery)
 
 # buyer leave a review
 
