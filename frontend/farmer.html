@@ -28,17 +28,14 @@
   --shadow-sm:    0 2px 8px rgba(26,60,46,0.08);
   --shadow-lg:    0 16px 48px rgba(26,60,46,0.20);
 }
-
 html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: var(--text-dark); min-height: 100vh; }
 
-/*Mobile to bar */
 .mob-bar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--green-deep); align-items: center; justify-content: space-between; padding: 0 16px; z-index: 200; }
 .mob-ham { background: none; border: none; color: var(--white); font-size: 24px; cursor: pointer; padding: 4px 8px; }
 .mob-title { font-size: 15px; font-weight: 700; color: var(--white); }
 .mob-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 150; }
 .mob-overlay.show { display: block; }
 
-/* SIDEBAR */
 .sidebar { width: 260px; min-height: 100vh; background: var(--green-deep); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 160; transition: transform 0.28s ease; }
 
 .sb-logo { padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
@@ -48,7 +45,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .logo-g { color: var(--green-bright); }
 .logo-tag { font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; }
 
-/* Sidebar Profile*/
 .sb-profile { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
 .sb-avatar-wrap { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; position: relative; cursor: pointer; background: rgba(255,255,255,0.08); border: 2px dashed rgba(255,255,255,0.25); transition: border-color 0.2s; flex-shrink: 0; }
 .sb-avatar-wrap:hover { border-color: var(--green-bright); }
@@ -56,7 +52,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .avatar-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); text-align: center; padding: 8px; line-height: 1.3; }
 .avatar-overlay-icon { font-size: 20px; opacity: 0.5; }
 
-/* Navigation */
 .sb-nav { flex: 1; padding: 16px 0; }
 .sb-nav-label { font-size: 10px; font-weight: 600; color: var(--text-light); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 20px 8px; }
 .sb-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; text-decoration: none; border-left: 3px solid transparent; transition: all 0.2s; }
@@ -73,7 +68,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .topbar-sub { font-size: 13px; color: var(--text-light); margin-top: 2px; }
 .page-body { padding: 28px 32px; flex: 1; }
 
-/* STATS CARDS */
 .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
 .stat-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); padding: 20px 24px; }
 .stat-label { font-size: 10px; font-weight: 600; color: var(--text-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
@@ -155,7 +149,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .form-textarea { resize: vertical; min-height: 78px; }
 .form-hint { font-size: 11px; color: var(--text-light); margin-top: 4px; }
 
-/*Crop photo upload box */
 .crop-box { width: 100%; min-height: 110px; border: 2px dashed var(--cream-dark); border-radius: var(--radius-sm); background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
 .crop-box:hover { border-color: var(--green-bright); }
 .crop-hint { display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
@@ -176,7 +169,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .toast { position: fixed; bottom: 28px; right: 24px; background: var(--green-deep); color: var(--white); padding: 13px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 9999; transform: translateY(80px); opacity: 0; max-width: 300px; transition: all 0.32s cubic-bezier(0.34,1.56,0.64,1); }
 .toast.show { transform: translateY(0); opacity: 1; }
 
-/* My profile page */
 .profile-page { display: none; padding: 28px 32px; flex: 1; }
 .profile-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); max-width: 520px; overflow: hidden; }
 .profile-card-head { background: var(--green-deep); padding: 28px 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -190,6 +182,34 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 .prof-save-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 10px; }
 .prof-save-btn { background: var(--green-mid); color: var(--white); border: none; border-radius: var(--radius-sm); padding: 10px 26px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
 .prof-save-btn:hover { background: var(--green-deep); }
+
+/* PLANTING PLANS PAGE*/
+.plans-page { display: none; padding: 28px 32px; flex: 1; }
+.season-banner { border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.season-banner.season-a { background: linear-gradient(135deg, #1a3c2e 0%, #2d6a4f 100%); }
+.season-banner.season-b { background: linear-gradient(135deg, #8b5e3c 0%, #c4854a 100%); }
+.season-banner.season-c { background: linear-gradient(135deg, #2d5a8e 0%, #3a7bd5 100%); }
+.season-banner-icon { font-size: 42px; flex-shrink: 0; }
+.season-banner-title { font-size: 18px; font-weight: 700; color: var(--white); }
+.season-banner-desc { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; line-height: 1.5; }
+.season-banner-months { display: inline-block; background: rgba(255,255,255,0.18); color: var(--white); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-top: 8px; }
+
+.plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+.plan-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+.plan-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+
+.plan-card-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--cream-dark); }
+.plan-crop-name { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.plan-crop-cat { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+.plan-card-body { padding: 14px 18px; }
+.plan-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.plan-row:last-child { margin-bottom: 0; }
+.plan-row-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; width: 18px; text-align: center; }
+.plan-row-label { font-size: 11px; font-weight: 600; color: var(--text-light); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+.plan-row-value { font-size: 13px; color: var(--text-dark); font-weight: 500; }
+/*END PLANTING PLANS*/
 
 @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) {
@@ -211,6 +231,9 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
   .modal-box { border-radius: 20px 20px 0 0; max-height: 90vh; animation: sheetUp 0.28s ease; }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .toast { left: 14px; right: 14px; max-width: none; bottom: 16px; }
+  .plans-page { padding: 20px 14px; }
+  .plans-grid { grid-template-columns: 1fr; }
+  .season-banner { flex-direction: column; text-align: center; }
 }
 @media (max-width: 480px) {
   .stats-row { grid-template-columns: 1fr; }
@@ -219,15 +242,12 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 </style>
 </head>
 <body>
-
-<!-- MOBILE TOP BAR -->
 <div class="mob-bar" id="mob-bar">
   <button class="mob-ham" onclick="toggleDrawer()">&#9776;</button>
   <span class="mob-title">FarmerConekt</span>
 </div>
 <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
 
   <div class="sb-logo">
@@ -235,8 +255,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
     <div class="logo-name"><span class="logo-w">FARMER</span><span class="logo-g"> CONEKT</span></div>
     <div class="logo-tag">Connecting farmers and buyers</div>
   </div>
-
-  <!-- Photo upload only – name/location live in My Profile -->
   <div class="sb-profile">
     <div class="sb-avatar-wrap" onclick="document.getElementById('avatar-input').click()" title="Upload profile photo">
       <img id="avatar-img" src="" alt="Profile photo"/>
@@ -246,7 +264,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
       </div>
     </div>
     <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)" style="display:none"/>
-    <!-- Shows the farm name entered in My Profile -->
     <div id="sidebar-farmer-name" style="font-size:13px;font-weight:600;color:var(--white);min-height:18px;"></div>
   </div>
 
@@ -255,11 +272,11 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
     <a class="sb-item active" href="#" onclick="openDashboard(event)">
       <span class="sb-icon">&#9781;</span> Dashboard
     </a>
-    <a class="sb-item" href="#" onclick="comingSoon(event,'Orders')">
-      <span class="sb-icon">&#9635;</span> Orders
+    <a class="sb-item" href="#" onclick="openPlans(event)">
+      <span class="sb-icon">&#127807;</span> Planting Plans
     </a>
-    <a class="sb-item" href="#" onclick="comingSoon(event,'Payments')">
-      <span class="sb-icon">&#9672;</span> Payments
+    <a class="sb-item" href="#" onclick="comingSoon(event,'Orders &amp; Payments')">
+      <span class="sb-icon">&#9635;</span> Orders &amp; Payments
     </a>
     <div class="sb-nav-label" style="margin-top:14px">Account</div>
     <a class="sb-item" href="#" onclick="openProfile(event)">
@@ -272,8 +289,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
   </div>
 
 </aside>
-
-<!-- MAIN -->
 <main class="main">
 
   <div class="topbar">
@@ -282,8 +297,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
       <p class="topbar-sub" id="topbar-sub">Manage your product listings</p>
     </div>
   </div>
-
-  <!-- DASHBOARD VIEW -->
   <div class="page-body" id="page-dashboard">
 
     <div class="stats-row">
@@ -302,6 +315,10 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
         <div class="stat-val" id="stat-revenue">0 RWF</div>
         <div class="stat-sub">from all orders</div>
       </div>
+    </div>
+
+    <div class="section-card" style="margin-bottom:24px;">
+      <div id="season-widget-inner"></div>
     </div>
 
     <div class="section-card">
@@ -327,8 +344,13 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
     </div>
 
   </div>
+  <!-- PLANTING PLANS PAGE -->
+  <div class="plans-page" id="page-plans">
 
-  <!-- MY PROFILE VIEW -->
+    <div id="season-banner-area"></div>
+    <div class="plans-grid" id="plans-grid"></div>
+
+  </div>
   <div class="profile-page" id="page-profile">
     <div class="profile-card">
 
@@ -346,9 +368,9 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
 
       <div class="profile-card-body">
         <div class="form-group">
-            <label class="form-label">District</label>
-            <input class="form-input" id="prof-district" type="text" placeholder="e.g. Musanze"/>
-          </div>
+          <label class="form-label">District</label>
+          <input class="form-input" id="prof-district" type="text" placeholder="e.g. Musanze"/>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Full Name</label>
@@ -375,8 +397,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
   </div>
 
 </main>
-
-<!-- ADD / EDIT PRODUCT MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
   <div class="modal-box" id="modal-box">
 
@@ -384,7 +404,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
       <span class="modal-title" id="modal-title">Add New Product</span>
       <button class="modal-close" onclick="closeModal()">&#10005;</button>
     </div>
-
     <div class="modal-body">
 
       <div class="form-row">
@@ -440,7 +459,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
         </div>
       </div>
 
-      <!-- Farmer uploads their own crop photo -->
       <div class="form-group">
         <label class="form-label">Crop Photo <span class="form-hint-inline">(optional)</span></label>
         <input type="file" id="crop-input" accept="image/*" onchange="handleCropImage(event)" style="display:none"/>
@@ -461,7 +479,6 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
       </div>
 
     </div>
-
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" id="btn-save" onclick="saveProduct()">Save Product</button>
@@ -470,32 +487,26 @@ html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: v
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"><span id="toast-msg"></span></div>
-
 <script>
 var products      = [];
 var editingId     = null;
 var cropImageData = null;
-
 function formatDate(s) {
   if (!s) return '—';
   var d = new Date(s + 'T00:00:00');
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
-
 function isExpiringSoon(s) {
   if (!s) return false;
   var diff = (new Date(s + 'T00:00:00') - new Date()) / 86400000;
   return diff >= 0 && diff <= 7;
 }
-
 function calcStatus(qty, expiry) {
   if (new Date(expiry + 'T00:00:00') < new Date()) return 'expired';
   if (Number(qty) <= 20) return 'low';
   return 'available';
 }
-
 function render() { renderTable(); renderMobCards(); updateStats(); }
 
 function renderTable() {
@@ -538,7 +549,6 @@ function renderTable() {
   }
   tbody.innerHTML = rows;
 }
-
 function renderMobCards() {
   var container = document.getElementById('mob-cards');
   if (!container) return;
@@ -577,13 +587,11 @@ function renderMobCards() {
   }
   container.innerHTML = html;
 }
-
 function updateStats() {
   document.getElementById('stat-crops').textContent   = products.length;
   document.getElementById('stat-orders').textContent  = 0;
   document.getElementById('stat-revenue').textContent = '0 RWF';
 }
-
 function openModal() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Add New Product';
@@ -592,7 +600,6 @@ function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function openEdit(id) {
   var p = null;
   for (var i = 0; i < products.length; i++) {
@@ -616,18 +623,15 @@ function openEdit(id) {
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
   clearForm();
   editingId = null;
 }
-
 function overlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
-
 function clearForm() {
   var fields = ['inp-name','inp-category','inp-price','inp-unit','inp-qty','inp-district','inp-harvest','inp-expiry','inp-desc'];
   for (var i = 0; i < fields.length; i++) {
@@ -636,7 +640,6 @@ function clearForm() {
   }
   resetCropImage();
 }
-
 function saveProduct() {
   var name     = document.getElementById('inp-name').value.trim();
   var category = document.getElementById('inp-category').value;
@@ -657,7 +660,6 @@ function saveProduct() {
   if (!harvest)                                                      { showToast('Please enter the harvest date.');     return; }
   if (!expiry)                                                       { showToast('Please enter the expiration date.');  return; }
   if (new Date(expiry) <= new Date(harvest))                        { showToast('Expiry must be after harvest date.'); return; }
-
   var product = {
     name: name, category: category, price: parseFloat(price),
     unit: unit, qty: parseInt(qty), district: district,
@@ -676,11 +678,9 @@ function saveProduct() {
     products.push(product);
     showToast(name + ' listed successfully!');
   }
-
   closeModal();
   render();
 }
-
 function deleteProduct(id) {
   var name = '';
   for (var i = 0; i < products.length; i++) {
@@ -693,7 +693,6 @@ function deleteProduct(id) {
     showToast(name + ' removed.');
   }
 }
-
 function handleCropImage(e) {
   var file = e.target.files[0];
   if (!file) return;
@@ -701,14 +700,12 @@ function handleCropImage(e) {
   reader.onload = function(ev) { cropImageData = ev.target.result; showCropPreview(cropImageData); };
   reader.readAsDataURL(file);
 }
-
 function showCropPreview(src) {
   document.getElementById('crop-preview').src           = src;
   document.getElementById('crop-preview').style.display = 'block';
   document.getElementById('crop-hint').style.display    = 'none';
   document.getElementById('crop-change').style.display  = 'block';
 }
-
 function resetCropImage() {
   cropImageData = null;
   var p = document.getElementById('crop-preview');
@@ -720,40 +717,172 @@ function resetCropImage() {
   if (c) { c.style.display = 'none'; }
   if (f) { f.value = ''; }
 }
-
 function openProfile(e) {
   e.preventDefault();
   closeDrawer();
   document.getElementById('page-dashboard').style.display = 'none';
+  document.getElementById('page-plans').style.display     = 'none';
   document.getElementById('page-profile').style.display   = 'block';
   document.getElementById('topbar-title').textContent = 'My Profile';
   document.getElementById('topbar-sub').textContent   = 'Manage your farm details';
   document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('active'); });
   document.querySelector('[onclick="openProfile(event)"]').classList.add('active');
 }
-
 function openDashboard(e) {
   if (e) { e.preventDefault(); closeDrawer(); }
   document.getElementById('page-dashboard').style.display = 'block';
+  document.getElementById('page-plans').style.display     = 'none';
   document.getElementById('page-profile').style.display   = 'none';
   document.getElementById('topbar-title').textContent = 'Farmer Dashboard';
   document.getElementById('topbar-sub').textContent   = 'Manage your product listings';
   document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('active'); });
   document.querySelector('[onclick="openDashboard(event)"]').classList.add('active');
 }
+function openPlans(e) {
+  e.preventDefault();
+  closeDrawer();
+  document.getElementById('page-dashboard').style.display = 'none';
+  document.getElementById('page-profile').style.display   = 'none';
+  document.getElementById('page-plans').style.display     = 'block';
+  document.getElementById('topbar-title').textContent = 'Planting Plans';
+  document.getElementById('topbar-sub').textContent   = 'Seasonal crop calendar for Rwanda';
+  document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelector('[onclick="openPlans(event)"]').classList.add('active');
+  var defaultSeason = getCurrentRwandaSeason();
+  renderPlans(defaultSeason);
+}
+var SEASONS = {
+  A: {
+    name: 'Season A (Itumba)',
+    months: 'September – February',
+    description: 'The long rainy season. Best for high-yield crops. Rains begin in September and allow planting through October. Harvest runs December to February.',
+    bannerClass: 'season-a',
+    crops: [
+      { name: 'Maize', category: 'Grains', plantWindow: 'Sep – Oct', harvestWindow: 'Jan – Feb' },
+      { name: 'Beans (Common)', category: 'Legumes', plantWindow: 'Sep – Oct', harvestWindow: 'Dec – Jan' },
+      { name: 'Irish Potatoes', category: 'Tubers', plantWindow: 'Sep – Oct', harvestWindow: 'Jan – Feb' },
+      { name: 'Sorghum', category: 'Grains', plantWindow: 'Sep – Oct', harvestWindow: 'Jan – Mar', underrated: true },
+      { name: 'Tomatoes', category: 'Vegetables', plantWindow: 'Aug – Sep (transplant)', harvestWindow: 'Nov – Jan' },
+      { name: 'Cabbage', category: 'Vegetables', plantWindow: 'Sep – Oct', harvestWindow: 'Dec – Jan', underrated: true }
+    ]
+  },
+  B: {
+    name: 'Season B (Urugaryi)',
+    months: 'February – June',
+    description: 'The short rainy season. Shorter growing window but suitable for fast-maturing varieties. Planting starts in February after Season A harvest.',
+    bannerClass: 'season-b',
+    crops: [
+      { name: 'Beans (Climbing)', category: 'Legumes', plantWindow: 'Feb – Mar', harvestWindow: 'May – Jun' },
+      { name: 'Soybeans', category: 'Legumes', plantWindow: 'Feb – Mar', harvestWindow: 'May – Jun', underrated: true },
+      { name: 'Maize (Early)', category: 'Grains', plantWindow: 'Feb – Mar', harvestWindow: 'May – Jun' },
+      { name: 'Sweet Potatoes', category: 'Tubers', plantWindow: 'Feb – Mar', harvestWindow: 'May – Jun' },
+      { name: 'Cassava', category: 'Tubers', plantWindow: 'Feb – Mar', harvestWindow: '9–18 months later', underrated: true },
+      { name: 'Groundnuts', category: 'Legumes', plantWindow: 'Feb – Mar', harvestWindow: 'May – Jun', underrated: true }
+    ]
+  },
+  C: {
+    name: 'Season C / Umwaka (Dry Season)',
+    months: 'June – September',
+    description: 'The dry season — irrigation required. Practiced mainly in marshlands (marais) and irrigated lowlands. High value crops grown here command premium prices.',
+    bannerClass: 'season-c',
+    crops: [
+      { name: 'Rice', category: 'Grains', plantWindow: 'Jun – Jul', harvestWindow: 'Sep – Oct' },
+      { name: 'Vegetables (Irrigated)', category: 'Vegetables', plantWindow: 'Jun – Jul', harvestWindow: 'Aug – Sep' },
+      { name: 'Onions', category: 'Vegetables', plantWindow: 'Jun – Jul', harvestWindow: 'Sep – Oct' },
+      { name: 'Watermelon', category: 'Fruits', plantWindow: 'Jun – Jul', harvestWindow: 'Aug – Sep', underrated: true },
+      { name: 'Sunflower', category: 'Other', plantWindow: 'Jun – Jul', harvestWindow: 'Sep – Oct', underrated: true },
+      { name: 'Banana (Year-round)', category: 'Fruits', plantWindow: 'Any season', harvestWindow: '9–12 months after planting' }
+    ]
+  }
+};
+function getCurrentRwandaSeason() {
+  var month = new Date().getMonth() + 1;
+  if (month >= 9 || month <= 2) return 'A';
+  if (month >= 3 && month <= 6) return 'B';
+  return 'C';
+}
+function renderPlans(season) {
+  var s = SEASONS[season];
 
+  var bannerHtml =
+    '<div class="season-banner ' + s.bannerClass + '">' +
+      '<div>' +
+        '<div class="season-banner-title">' + s.name + '</div>' +
+        '<div class="season-banner-desc">' + s.description + '</div>' +
+        '<span class="season-banner-months">' + s.months + '</span>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('season-banner-area').innerHTML = bannerHtml;
+
+  var html = '';
+  for (var i = 0; i < s.crops.length; i++) {
+    var c = s.crops[i];
+    var underratedBadge = c.underrated
+      ? '<span style="display:inline-block;background:rgba(244,169,64,0.15);color:#8b5e3c;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;letter-spacing:0.3px;">Less known</span>'
+      : '';
+    html +=
+      '<div class="plan-card">' +
+        '<div class="plan-card-head">' +
+          '<div>' +
+            '<div class="plan-crop-name">' + c.name + underratedBadge + '</div>' +
+            '<div class="plan-crop-cat">' + c.category + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="plan-card-body">' +
+          '<div class="plan-row">' +
+            '<div><div class="plan-row-label">Planting Window</div><div class="plan-row-value">' + c.plantWindow + '</div></div>' +
+          '</div>' +
+          '<div class="plan-row">' +
+            '<div><div class="plan-row-label">Harvest Window</div><div class="plan-row-value">' + c.harvestWindow + '</div></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  document.getElementById('plans-grid').innerHTML = html;
+}
+function renderSeasonWidget() {
+  var season = getCurrentRwandaSeason();
+  var s = SEASONS[season];
+  var el = document.getElementById('season-widget-inner');
+  if (!el) return;
+
+  var suggested = s.crops.filter(function(c) { return !c.underrated; });
+  var underrated = s.crops.filter(function(c) { return c.underrated; });
+
+  var suggestedHTML = suggested.map(function(c) {
+    return '<span style="display:inline-block;background:rgba(82,183,136,0.12);color:var(--green-mid);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin:3px 4px 3px 0;">' + c.name + '</span>';
+  }).join('');
+
+  var underratedHTML = underrated.map(function(c) {
+    return '<span style="display:inline-block;background:rgba(244,169,64,0.12);color:#8b5e3c;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin:3px 4px 3px 0;">' + c.name + '</span>';
+  }).join('');
+
+  el.innerHTML =
+    '<div style="padding:18px 22px;border-bottom:1px solid var(--cream-dark);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">' +
+      '<div>' +
+        '<div style="font-size:15px;font-weight:700;color:var(--text-dark);">Current Season: ' + s.name + '</div>' +
+        '<div style="font-size:12px;color:var(--text-light);margin-top:2px);">' + s.months + ' &mdash; ' + s.description + '</div>' +
+      '</div>' +
+      '<a href="#" onclick="openPlans(event)" style="font-size:13px;font-weight:600;color:var(--green-mid);text-decoration:none;">View full plan &rarr;</a>' +
+    '</div>' +
+    '<div style="padding:16px 22px;border-bottom:1px solid var(--cream-dark);">' +
+      '<div style="font-size:11px;font-weight:600;color:var(--text-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Recommended crops this season</div>' +
+      suggestedHTML +
+    '</div>' +
+    '<div style="padding:16px 22px;">' +
+      '<div style="font-size:11px;font-weight:600;color:var(--text-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Lesser-known crops worth trying</div>' +
+      '<div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;">These crops are not widely grown but give good yields this season and have strong market demand.</div>' +
+      underratedHTML +
+    '</div>';
+}
 function saveProfile() {
-  // Update the name shown below the sidebar avatar
   var name = document.getElementById('prof-fullname').value.trim();
   var nameEl = document.getElementById('sidebar-farmer-name');
   if (nameEl) nameEl.textContent = name || '';
-
   showToast('Profile saved!');
-  // Return to dashboard automatically after saving
   setTimeout(function() { openDashboard(null); }, 1000);
 }
-
-// Profile page avatar to the sidebar circle
 function previewProfileAvatar(e) {
   var file = e.target.files[0];
   if (!file) return;
@@ -769,7 +898,6 @@ function previewProfileAvatar(e) {
   };
   reader.readAsDataURL(file);
 }
-
 function previewAvatar(e) {
   var file = e.target.files[0];
   if (!file) return;
@@ -783,7 +911,6 @@ function previewAvatar(e) {
   };
   reader.readAsDataURL(file);
 }
-
 function openDrawer() {
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('mob-overlay').classList.add('show');
@@ -795,28 +922,23 @@ function closeDrawer() {
   document.getElementById('mob-overlay').classList.remove('show');
   document.body.style.overflow = '';
 }
-
 function toggleDrawer() {
   if (document.getElementById('sidebar').classList.contains('open')) { closeDrawer(); } else { openDrawer(); }
 }
-
 function showToast(msg) {
   var t = document.getElementById('toast');
   document.getElementById('toast-msg').textContent = msg;
   t.classList.add('show');
   setTimeout(function() { t.classList.remove('show'); }, 3200);
 }
-
 function comingSoon(e, name) { e.preventDefault(); closeDrawer(); showToast(name + ' — coming soon!'); }
-
 function confirmLogout() {
   if (window.confirm('Are you sure you want to log out?')) {
     showToast('Logging out...');
     setTimeout(function() { window.location.href = 'login.html'; }, 1500);
   }
 }
-
-document.addEventListener('DOMContentLoaded', function() { render(); });
+document.addEventListener('DOMContentLoaded', function() { render(); renderSeasonWidget(); });
 </script>
 </body>
 </html>
