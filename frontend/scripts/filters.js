@@ -1,30 +1,121 @@
 /**
  * Filters Script
  * Handles:
- * 1. Loading location data (provinces and districts)
- * 2. Applying filters to products
- * 3. Displaying filtered results
+ * 1. Loading location data (districts from location.json)
+ * 2. Searchable district input with autocomplete
+ * 3. Applying filters to products (search, category, harvest time, price, district)
+ * 4. Displaying filtered results
  */
 
 (function() {
   // Store all products and filter state
   let allProducts = [];
   let filteredProducts = [];
+  let allDistricts = [];
+  
   let currentFilters = {
+    search: '',
     category: 'all',
     harvestTime: 'all',
     price: 'all',
-    province: 'all',
-    district: 'all',
-    quantity: 'all'
+    district: 'all'
   };
 
   // ============= INITIALIZE FILTERS ON PAGE LOAD =============
   document.addEventListener('DOMContentLoaded', function() {
     loadLocationData();
     loadSampleProducts();
+    setupDistrictAutocomplete();
+    setupSearchInput();
     renderProducts(allProducts);
   });
+
+  // ============= LOAD LOCATION DATA FROM JSON =============
+  function loadLocationData() {
+    fetch('../data/locations.json')
+      .then(response => response.json())
+      .then(data => {
+        // Extract all districts from all provinces
+        allDistricts = [];
+        Object.values(data).forEach(province => {
+          Object.keys(province).forEach(district => {
+            if (!allDistricts.includes(district)) {
+              allDistricts.push(district);
+            }
+          });
+        });
+        allDistricts.sort();
+      })
+      .catch(error => {
+        console.error('Error loading location data:', error);
+        // Fallback districts if JSON fails to load
+        allDistricts = ['Kigali', 'Gasabo', 'Kicukiro', 'Nyarugenge', 'Burera', 'Gakenke'];
+      });
+  }
+
+  // ============= DISTRICT AUTOCOMPLETE =============
+  function setupDistrictAutocomplete() {
+    const districtInput = document.getElementById('district-filter');
+    const suggestionsContainer = document.getElementById('district-suggestions');
+
+    if (!districtInput) return;
+
+    districtInput.addEventListener('input', function(e) {
+      const value = e.target.value.toLowerCase().trim();
+      
+      if (value.length === 0) {
+        suggestionsContainer.style.display = 'none';
+        currentFilters.district = 'all';
+        return;
+      }
+
+      // Filter districts matching input
+      const matches = allDistricts.filter(district =>
+        district.toLowerCase().includes(value)
+      );
+
+      if (matches.length > 0) {
+        // Create suggestion items
+        suggestionsContainer.innerHTML = matches
+          .slice(0, 8) // Limit to 8 suggestions
+          .map(district => `
+            <div class="district-suggestion-item" onclick="selectDistrict('${district}')">
+              ${district}
+            </div>
+          `).join('');
+        suggestionsContainer.style.display = 'block';
+      } else {
+        suggestionsContainer.innerHTML = '<div class="district-suggestion-item disabled">No districts found</div>';
+        suggestionsContainer.style.display = 'block';
+      }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#district-filter') && !e.target.closest('#district-suggestions')) {
+        suggestionsContainer.style.display = 'none';
+      }
+    });
+  }
+
+  // ============= SELECT DISTRICT FROM SUGGESTIONS =============
+  window.selectDistrict = function(district) {
+    document.getElementById('district-filter').value = district;
+    document.getElementById('district-suggestions').style.display = 'none';
+    currentFilters.district = district;
+  };
+
+  // ============= PRODUCT SEARCH SETUP =============
+  function setupSearchInput() {
+    const searchInput = document.getElementById('search-products');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        currentFilters.search = e.target.value.toLowerCase().trim();
+        applyAllFilters();
+      });
+    }
+  }
 
   // ============= APPLY FILTERS =============
   const applyFiltersBtn = document.getElementById('apply-filters');
@@ -34,18 +125,23 @@
       currentFilters.category = document.getElementById('category-filter').value;
       currentFilters.harvestTime = document.getElementById('harvest-time').value;
       currentFilters.price = document.getElementById('price-filter').value;
-      currentFilters.province = document.getElementById('province-filter').value;
-      currentFilters.district = document.getElementById('district-filter').value;
-      currentFilters.quantity = document.getElementById('quantity-filter').value;
+      
+      const districtInput = document.getElementById('district-filter').value.toLowerCase().trim();
+      currentFilters.district = districtInput || 'all';
 
       // Apply filters
       applyAllFilters();
     });
   }
 
-  // Filter products based on current filter state
+  // ============= FILTER PRODUCTS BASED ON CURRENT FILTER STATE =============
   function applyAllFilters() {
     filteredProducts = allProducts.filter(product => {
+      // Search filter - search in product name
+      if (currentFilters.search && !product.name.toLowerCase().includes(currentFilters.search)) {
+        return false;
+      }
+
       // Category filter
       if (currentFilters.category !== 'all' && product.category !== currentFilters.category) {
         return false;
@@ -56,26 +152,11 @@
         return false;
       }
 
-      // Price filter
-      if (currentFilters.price === 'low-to-high') {
-        // Will be sorted, not filtered
-      } else if (currentFilters.price === 'high-to-low') {
-        // Will be sorted, not filtered
-      }
-
-      // Province filter
-      if (currentFilters.province !== 'all' && product.province !== currentFilters.province) {
-        return false;
-      }
-
-      // District filter
-      if (currentFilters.district !== 'all' && product.district !== currentFilters.district) {
-        return false;
-      }
-
-      // Quantity filter
-      if (currentFilters.quantity !== 'all' && product.quantity !== currentFilters.quantity) {
-        return false;
+      // District filter (case-insensitive)
+      if (currentFilters.district !== 'all') {
+        if (!product.district || product.district.toLowerCase() !== currentFilters.district.toLowerCase()) {
+          return false;
+        }
       }
 
       return true;
@@ -123,14 +204,52 @@
           <p class="product-category">Category: ${capitalizeFirst(product.category)}</p>
           <p class="product-harvest-time">Harvest Time: ${capitalizeFirst(product.harvestTime)}</p>
           <p class="product-price">Price: ${product.price} RWF per unit</p>
-          <p class="product-location">Location: ${product.province}, ${product.district}</p>
-          <p class="product-quantity">Quantity Available: ${capitalizeFirst(product.quantity)}</p>
+          <p class="product-location">Location: ${product.province || 'N/A'}, ${product.district || 'N/A'}</p>
           <div class="product-actions">
             <button class="btn-view">👁 View Details</button>
           </div>
         </div>
       </div>
     `).join('');
+  }
+
+  // ============= LOAD SAMPLE PRODUCTS (from product.js) =============
+  function loadSampleProducts() {
+    // Products will be loaded from product.js if available
+    if (window.getProducts && typeof window.getProducts === 'function') {
+      allProducts = window.getProducts();
+    } else {
+      // Fallback sample products
+      allProducts = [
+        {
+          name: 'Fresh Tomatoes',
+          category: 'vegetables',
+          harvestTime: 'harvested',
+          price: 5000,
+          province: 'Kigali City',
+          district: 'Gasabo',
+          image: '🍅'
+        },
+        {
+          name: 'Bananas',
+          category: 'fruits',
+          harvestTime: 'post-harvest',
+          price: 3000,
+          province: 'Northern',
+          district: 'Musanze',
+          image: '🍌'
+        },
+        {
+          name: 'Maize',
+          category: 'grains',
+          harvestTime: 'harvested',
+          price: 2000,
+          province: 'Eastern',
+          district: 'Kayonza',
+          image: '🌽'
+        }
+      ];
+    }
   }
 
   // Helper function to capitalize first letter

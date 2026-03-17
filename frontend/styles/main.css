@@ -245,6 +245,103 @@
     transform: translateY(0);
   }
 
+  /* ============= DISTRICT AUTOCOMPLETE SUGGESTIONS ============= */
+  .district-suggestions {
+    position: absolute;
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10;
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .district-suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--cream-dark);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+  }
+
+  .district-suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  .district-suggestion-item:hover {
+    background: var(--cream);
+    color: var(--green-mid);
+  }
+
+  .district-suggestion-item.disabled {
+    color: var(--text-light);
+    cursor: not-allowed;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .district-suggestion-item.disabled:hover {
+    background: transparent;
+    color: var(--text-light);
+  }
+
+  /* ============= SEARCH INPUT STYLING ============= */
+  #search-products {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    color: var(--text-dark);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    cursor: text;
+    transition: all 0.3s ease;
+  }
+
+  #search-products:hover {
+    border-color: var(--green-mid);
+    background: var(--white);
+  }
+
+  #search-products:focus {
+    outline: none;
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
+    background: var(--white);
+  }
+
+  /* ============= DISTRICT INPUT WITH AUTOCOMPLETE ============= */
+  #district-filter {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    color: var(--text-dark);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    cursor: text;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  #district-filter:hover {
+    border-color: var(--green-mid);
+    background: var(--white);
+  }
+
+  #district-filter:focus {
+    outline: none;
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
+    background: var(--white);
+  }
+
   /* ============= PRODUCTS SECTION ============= */
   #products-section {
     flex: 1;
