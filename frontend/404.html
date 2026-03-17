@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | Farmer Conekt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        /* 404 Specific Styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(82, 183, 136, 0.2);
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            margin: 1.5rem 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 1rem 0;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--text-mid);
+            line-height: 1.6;
+            margin: 1.5rem 0 2rem 0;
+        }
+
+        .error-subtext {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 0.85rem 2rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-bright) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--green-mid);
+            border: 2px solid var(--green-mid);
+        }
+
+        .btn-secondary:hover {
+            background: var(--green-light);
+            color: var(--green-deep);
+        }
+
+        .error-illustration {
+            margin: 2rem 0;
+            font-size: 4rem;
+            opacity: 0.8;
+            animation: floatIllustration 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIllustration {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .error-details {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--cream-dark);
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .error-details h3 {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-details li {
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--cream-dark);
+            color: var(--text-mid);
+            font-size: 0.95rem;
+        }
+
+        .error-details li:last-child {
+            border-bottom: none;
+        }
+
+        .error-details a {
+            color: var(--green-mid);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .error-details a:hover {
+            color: var(--green-bright);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 5rem;
+            }
+
+            .error-icon {
+                font-size: 3rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .error-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .error-details {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 3.5rem;
+            }
+
+            .error-icon {
+                font-size: 2.5rem;
+            }
+
+            .error-title {
+                font-size: 1.25rem;
+            }
+
+            .error-message {
+                font-size: 0.95rem;
+                margin: 1rem 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .error-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with title and sub-header -->
+    <header id="header">
+        <h1 class="header-title" id="header-title">Farmer Conekt</h1>
+        <p class="sub-header" id="sub-header">where every product is saved from damages</p>
+    </header>
+
+    <!-- Main error content -->
+    <div class="main-content">
+        <div class="error-container">
+            <!-- Error Code -->
+            <h1 class="error-code">404</h1>
+
+            <!-- Floating Icon -->
+            <div class="error-illustration">🚜</div>
+
+            <!-- Error Title -->
+            <h2 class="error-title">Oops! Page Not Found</h2>
+
+            <!-- Error Message -->
+            <p class="error-message">
+                The page you're looking for seems to have wandered off the farm. 
+                It might have been moved, deleted, or never existed at all.
+            </p>
+
+            <!-- Subtext -->
+            <p class="error-subtext">
+                Don't worry! Let's get you back on track. Click below to return to the main page or explore other sections.
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="error-actions">
+                <a href="./pages/home.html" class="btn-primary">🏠 Back to Home</a>
+                <button class="btn-secondary" onclick="window.history.back()">⬅ Go Back</button>
+            </div>
+
+            <!-- Helpful Links -->
+            <div class="error-details">
+                <h3>Quick Navigation</h3>
+                <ul>
+                    <li>
+                        <a href="./pages/home.html">🏠 Home</a> - Browse all available products
+                    </li>
+                    <li>
+                        <a href="./pages/login.html">🔐 Log In</a> - Access your account or Create a new account
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="reportIssue()">📧 Report Issue</a> - Let us know about this error
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Error Code Display -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--cream-dark); color: var(--text-light); font-size: 0.85rem;">
+                <p>Error Code: <code style="background: var(--cream); padding: 0.2rem 0.5rem; border-radius: 4px;">404 NOT FOUND</code></p>
+                <p style="margin-top: 0.5rem;">If this keeps happening, please <span style="color: var(--green-mid); font-weight: 600;">contact support</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="./"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Allow normal navigation
+                return true;
+            });
+        });
+
+        // Report issue function
+        function reportIssue() {
+            const message = `I encountered a 404 error on: ${window.location.href}\n\nPlease help me resolve this issue.`;
+            alert('Thank you for reporting this issue. Our team will look into it shortly.\n\n' + message);
+        }
+
+        // Log error details
+        console.log('404 Error - Page not found');
+        console.log('Current URL:', window.location.href);
+        console.log('Referrer:', document.referrer);
+    </script>
+
+    <script src="../scripts/404-handler.js"></script>
+</body>
+</html>
