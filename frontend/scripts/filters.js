@@ -24,14 +24,69 @@
 
   // ============= INITIALIZE FILTERS ON PAGE LOAD =============
   document.addEventListener('DOMContentLoaded', function() {
-    loadDistrictsFromJSON();
-    loadSampleProducts();
+    loadSampleProducts(); // Load products first
+    loadDistrictsFromJSON(); // Load districts
     setupSearchInput();
     setupSearchButton();
     setupDistrictFilter();
     setupApplyFiltersButton();
     renderProducts(allProducts);
   });
+
+  // ============= GLOBAL ORDER FUNCTION =============
+  window.orderProduct = function(id) {
+    // Check if user is logged in
+    const session = window.getSession ? window.getSession() : null;
+    if (!session) {
+      alert('Please log in first to add items to your cart');
+      window.location.href = './login.html?redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+
+    const product = allProducts.find(p => p.id === id);
+    if (!product) return;
+
+    // Get existing cart
+    let cart = [];
+    try {
+      cart = JSON.parse(localStorage.getItem('buyerCart')) || [];
+    } catch (e) {
+      cart = [];
+    }
+
+    // Create cart item with all necessary information
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      quantity: product.quantity || 1, // Default unit quantity
+      farmer: 'Local Farmer',
+      location: `${product.district || 'Unknown'}, ${product.province || 'Region'}`,
+      province: product.province,
+      district: product.district,
+      harvestTime: product.harvestTime,
+      image: product.image,
+      qty: 1 // Quantity ordered by buyer
+    };
+
+    // Check if item exists in cart (match by id)
+    const existingIndex = cart.findIndex(item => item.id === cartItem.id);
+    
+    if (existingIndex >= 0) {
+        cart[existingIndex].qty = (cart[existingIndex].qty || 1) + 1;
+    } else {
+        cart.push(cartItem);
+    }
+
+    // Save back to localStorage
+    localStorage.setItem('buyerCart', JSON.stringify(cart));
+
+    // Feedback
+    if(confirm(`${product.name} added to cart! \nDo you want to go to the Dashboard to checkout?`)) {
+        window.location.href = './buyer.html';
+    }
+  };
 
   // ============= LOAD DISTRICTS FROM district.json =============
   async function loadDistrictsFromJSON() {
@@ -270,7 +325,7 @@
           <p class="product-price">Price: ${escapeHTML(product.price)} RWF per unit</p>
           <p class="product-location">Location: ${escapeHTML(product.province || 'N/A')}, ${escapeHTML(product.district || 'N/A')}</p>
           <div class="product-actions">
-            <button class="btn-view">👁 View Details</button>
+            <button class="btn-view" onclick="window.orderProduct(${product.id})">Order</button>
           </div>
         </div>
       </div>
@@ -286,6 +341,7 @@
       // Fallback sample products
       allProducts = [
         {
+          id: 1,
           name: 'Fresh Tomatoes',
           category: 'vegetables',
           harvestTime: 'harvested',
@@ -295,6 +351,7 @@
           image: '🍅'
         },
         {
+          id: 2,
           name: 'Bananas',
           category: 'fruits',
           harvestTime: 'post-harvest',
@@ -304,6 +361,7 @@
           image: '🍌'
         },
         {
+          id: 3,
           name: 'Maize',
           category: 'grains',
           harvestTime: 'harvested',
