@@ -1,822 +1,2126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FarmerConekt – Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FarmerConekt – Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
 
-<style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-:root {
-  --green-deep:   #1a3c2e;
-  --green-mid:    #2d6a4f;
-  --green-bright: #52b788;
-  --green-light:  #95d5b2;
-  --cream:        #f8f4ed;
-  --cream-dark:   #ede8df;
-  --brown:        #8b5e3c;
-  --yellow:       #f4a940;
-  --red:          #e05c5c;
-  --white:        #ffffff;
-  --text-dark:    #1a2e1f;
-  --text-mid:     #4a6358;
-  --text-light:   #7a9487;
-  --radius:       16px;
-  --radius-sm:    10px;
-  --shadow-sm:    0 2px 8px rgba(26,60,46,0.08);
-  --shadow-lg:    0 16px 48px rgba(26,60,46,0.20);
-}
+      :root {
+        --green-deep: #1a3c2e;
+        --green-mid: #2d6a4f;
+        --green-bright: #52b788;
+        --green-light: #95d5b2;
+        --cream: #f8f4ed;
+        --cream-dark: #ede8df;
+        --brown: #8b5e3c;
+        --yellow: #f4a940;
+        --red: #e05c5c;
+        --white: #ffffff;
+        --text-dark: #1a2e1f;
+        --text-mid: #4a6358;
+        --text-light: #7a9487;
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow-sm: 0 2px 8px rgba(26, 60, 46, 0.08);
+        --shadow-lg: 0 16px 48px rgba(26, 60, 46, 0.2);
+      }
 
-html, body { font-family: 'Sora', sans-serif; background: var(--cream); color: var(--text-dark); min-height: 100vh; }
+      html,
+      body {
+        font-family: "Sora", sans-serif;
+        background: var(--cream);
+        color: var(--text-dark);
+        min-height: 100vh;
+      }
 
-/*Mobile to bar */
-.mob-bar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--green-deep); align-items: center; justify-content: space-between; padding: 0 16px; z-index: 200; }
-.mob-ham { background: none; border: none; color: var(--white); font-size: 24px; cursor: pointer; padding: 4px 8px; }
-.mob-title { font-size: 15px; font-weight: 700; color: var(--white); }
-.mob-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 150; }
-.mob-overlay.show { display: block; }
+      /*Mobile to bar */
+      .mob-bar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: var(--green-deep);
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 200;
+      }
+      .mob-ham {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px 8px;
+      }
+      .mob-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+      }
+      .mob-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 150;
+      }
+      .mob-overlay.show {
+        display: block;
+      }
 
-/* SIDEBAR */
-.sidebar { width: 260px; min-height: 100vh; background: var(--green-deep); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 160; transition: transform 0.28s ease; }
+      /* SIDEBAR */
+      .sidebar {
+        width: 260px;
+        min-height: 100vh;
+        background: var(--green-deep);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 160;
+        transition: transform 0.28s ease;
+      }
 
-.sb-logo { padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
-.logo-icon { width: 52px; height: 52px; background: var(--green-bright); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
-.logo-name { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
-.logo-w { color: var(--white); }
-.logo-g { color: var(--green-bright); }
-.logo-tag { font-size: 10px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+      .sb-logo {
+        padding: 24px 20px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+      }
+      .logo-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--green-bright);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+      }
+      .logo-name {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .logo-w {
+        color: var(--white);
+      }
+      .logo-g {
+        color: var(--green-bright);
+      }
+      .logo-tag {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4);
+        line-height: 1.5;
+      }
 
-/* Sidebar Profile*/
-.sb-profile { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
-.sb-avatar-wrap { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; position: relative; cursor: pointer; background: rgba(255,255,255,0.08); border: 2px dashed rgba(255,255,255,0.25); transition: border-color 0.2s; flex-shrink: 0; }
-.sb-avatar-wrap:hover { border-color: var(--green-bright); }
-#avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
-.avatar-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); text-align: center; padding: 8px; line-height: 1.3; }
-.avatar-overlay-icon { font-size: 20px; opacity: 0.5; }
+      /* Sidebar Profile*/
+      .sb-profile {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+      }
+      .sb-avatar-wrap {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px dashed rgba(255, 255, 255, 0.25);
+        transition: border-color 0.2s;
+        flex-shrink: 0;
+      }
+      .sb-avatar-wrap:hover {
+        border-color: var(--green-bright);
+      }
+      #avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: none;
+      }
+      .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        padding: 8px;
+        line-height: 1.3;
+      }
+      .avatar-overlay-icon {
+        font-size: 20px;
+        opacity: 0.5;
+      }
 
-/* Navigation */
-.sb-nav { flex: 1; padding: 16px 0; }
-.sb-nav-label { font-size: 10px; font-weight: 600; color: var(--text-light); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 20px 8px; }
-.sb-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500; text-decoration: none; border-left: 3px solid transparent; transition: all 0.2s; }
-.sb-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
-.sb-item.active { color: var(--green-bright); background: rgba(82,183,136,0.10); border-left-color: var(--green-bright); }
-.sb-icon { font-size: 17px; width: 20px; text-align: center; }
-.sb-footer { padding: 18px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-.sb-logout { background: none; border: none; color: rgba(255,255,255,0.45); font-size: 14px; font-family: inherit; cursor: pointer; width: 100%; text-align: left; transition: color 0.2s; }
-.sb-logout:hover { color: var(--red); }
+      /* Navigation */
+      .sb-nav {
+        flex: 1;
+        padding: 16px 0;
+      }
+      .sb-nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-light);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 0 20px 8px;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 20px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+      }
+      .sb-item:hover {
+        color: var(--white);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .sb-item.active {
+        color: var(--green-bright);
+        background: rgba(82, 183, 136, 0.1);
+        border-left-color: var(--green-bright);
+      }
+      .sb-icon {
+        font-size: 17px;
+        width: 20px;
+        text-align: center;
+      }
+      .sb-footer {
+        padding: 18px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sb-logout {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition: color 0.2s;
+      }
+      .sb-logout:hover {
+        color: var(--red);
+      }
 
-.main { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
-.topbar { background: var(--white); padding: 16px 32px; border-bottom: 1px solid var(--cream-dark); position: sticky; top: 0; z-index: 50; }
-.topbar-title { font-size: 20px; font-weight: 700; color: var(--text-dark); }
-.topbar-sub { font-size: 13px; color: var(--text-light); margin-top: 2px; }
-.page-body { padding: 28px 32px; flex: 1; }
+      .main {
+        margin-left: 260px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .topbar {
+        background: var(--white);
+        padding: 16px 32px;
+        border-bottom: 1px solid var(--cream-dark);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .topbar-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .topbar-sub {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-top: 2px;
+      }
+      .page-body {
+        padding: 28px 32px;
+        flex: 1;
+      }
 
-/* STATS CARDS */
-.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-.stat-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); padding: 20px 24px; }
-.stat-label { font-size: 10px; font-weight: 600; color: var(--text-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-.stat-val { font-size: 28px; font-weight: 700; color: var(--text-dark); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
-.stat-sub { font-size: 12px; color: var(--green-bright); font-weight: 500; }
+      /* STATS CARDS */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--cream-dark);
+        box-shadow: var(--shadow-sm);
+        padding: 20px 24px;
+      }
+      .stat-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-light);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .stat-val {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-dark);
+        font-family: "DM Mono", monospace;
+        margin-bottom: 4px;
+      }
+      .stat-sub {
+        font-size: 12px;
+        color: var(--green-bright);
+        font-weight: 500;
+      }
 
-.section-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); overflow: hidden; }
-.section-head { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--cream-dark); flex-wrap: wrap; gap: 12px; }
-.section-title { font-size: 15px; font-weight: 700; color: var(--text-dark); }
-.section-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-.btn-add-product { background: var(--green-mid); color: var(--white); border: none; border-radius: var(--radius-sm); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; transition: background 0.2s; }
-.btn-add-product:hover { background: var(--green-deep); }
+      .section-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--cream-dark);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .section-head {
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--cream-dark);
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .section-sub {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-top: 2px;
+      }
+      .btn-add-product {
+        background: var(--green-mid);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+        transition: background 0.2s;
+      }
+      .btn-add-product:hover {
+        background: var(--green-deep);
+      }
 
-.table-wrap { overflow-x: auto; }
-.product-table { width: 100%; border-collapse: collapse; min-width: 640px; }
-.product-table th { padding: 11px 18px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.8px; background: var(--cream); border-bottom: 1px solid var(--cream-dark); }
-.product-table td { padding: 14px 18px; font-size: 13px; color: var(--text-dark); border-bottom: 1px solid var(--cream-dark); vertical-align: middle; }
-.product-table tr:last-child td { border-bottom: none; }
-.product-table tr:hover td { background: #fafaf8; }
-.product-info { display: flex; align-items: center; gap: 12px; }
-.product-name { font-weight: 600; font-size: 13px; }
-.product-cat { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-.prod-thumb { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; flex-shrink: 0; display: block; }
-.prod-thumb-ph { width: 46px; height: 46px; border-radius: 8px; background: var(--cream-dark); flex-shrink: 0; }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+      }
+      .product-table th {
+        padding: 11px 18px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        background: var(--cream);
+        border-bottom: 1px solid var(--cream-dark);
+      }
+      .product-table td {
+        padding: 14px 18px;
+        font-size: 13px;
+        color: var(--text-dark);
+        border-bottom: 1px solid var(--cream-dark);
+        vertical-align: middle;
+      }
+      .product-table tr:last-child td {
+        border-bottom: none;
+      }
+      .product-table tr:hover td {
+        background: #fafaf8;
+      }
+      .product-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .product-name {
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .product-cat {
+        font-size: 11px;
+        color: var(--text-light);
+        margin-top: 2px;
+      }
+      .prod-thumb {
+        width: 46px;
+        height: 46px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+        display: block;
+      }
+      .prod-thumb-ph {
+        width: 46px;
+        height: 46px;
+        border-radius: 8px;
+        background: var(--cream-dark);
+        flex-shrink: 0;
+      }
 
-.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
-.b-avail { background: rgba(82,183,136,0.12); color: var(--green-mid); }
-.b-avail::before { background: var(--green-bright); }
-.b-low { background: rgba(244,169,64,0.12); color: var(--brown); }
-.b-low::before { background: var(--yellow); }
-.b-exp { background: rgba(224,92,92,0.12); color: var(--red); }
-.b-exp::before { background: var(--red); }
-.price-tag { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--green-mid); }
-.qty-tag { font-family: 'DM Mono', monospace; font-size: 13px; }
-.date-ok { font-size: 12px; color: var(--text-mid); }
-.date-soon { font-size: 12px; color: var(--red); font-weight: 600; }
-.tbl-actions { display: flex; gap: 6px; }
-.tbl-btn { padding: 5px 12px; border-radius: 7px; border: 1px solid var(--cream-dark); background: var(--white); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--text-mid); transition: all 0.2s; }
-.tbl-btn:hover { background: var(--cream); }
-.tbl-btn.del:hover { background: rgba(224,92,92,0.08); border-color: var(--red); color: var(--red); }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .status-badge::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+      .b-avail {
+        background: rgba(82, 183, 136, 0.12);
+        color: var(--green-mid);
+      }
+      .b-avail::before {
+        background: var(--green-bright);
+      }
+      .b-low {
+        background: rgba(244, 169, 64, 0.12);
+        color: var(--brown);
+      }
+      .b-low::before {
+        background: var(--yellow);
+      }
+      .b-exp {
+        background: rgba(224, 92, 92, 0.12);
+        color: var(--red);
+      }
+      .b-exp::before {
+        background: var(--red);
+      }
+      .price-tag {
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--green-mid);
+      }
+      .qty-tag {
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+      }
+      .date-ok {
+        font-size: 12px;
+        color: var(--text-mid);
+      }
+      .date-soon {
+        font-size: 12px;
+        color: var(--red);
+        font-weight: 600;
+      }
+      .tbl-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .tbl-btn {
+        padding: 5px 12px;
+        border-radius: 7px;
+        border: 1px solid var(--cream-dark);
+        background: var(--white);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        color: var(--text-mid);
+        transition: all 0.2s;
+      }
+      .tbl-btn:hover {
+        background: var(--cream);
+      }
+      .tbl-btn.del:hover {
+        background: rgba(224, 92, 92, 0.08);
+        border-color: var(--red);
+        color: var(--red);
+      }
 
-.empty-state { padding: 60px 24px; text-align: center; }
-.empty-icon { font-size: 36px; opacity: 0.2; margin-bottom: 14px; }
-.empty-text { font-size: 16px; font-weight: 700; color: var(--text-mid); }
-.empty-sub { font-size: 13px; color: var(--text-light); margin-top: 8px; line-height: 1.5; }
+      .empty-state {
+        padding: 60px 24px;
+        text-align: center;
+      }
+      .empty-icon {
+        font-size: 36px;
+        opacity: 0.2;
+        margin-bottom: 14px;
+      }
+      .empty-text {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-mid);
+      }
+      .empty-sub {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
 
-.mob-cards { display: none; }
-.mob-card { padding: 14px 16px; border-bottom: 1px solid var(--cream-dark); display: flex; gap: 12px; align-items: flex-start; }
-.mob-card:last-child { border-bottom: none; }
-.mob-card-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-.mob-card-ph { width: 56px; height: 56px; border-radius: 8px; background: var(--cream-dark); flex-shrink: 0; }
-.mob-card-body { flex: 1; min-width: 0; }
-.mob-card-name { font-size: 14px; font-weight: 700; color: var(--text-dark); }
-.mob-card-cat { font-size: 11px; color: var(--text-light); margin-top: 1px; }
-.mob-card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-.mob-card-price { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green-mid); font-weight: 500; }
-.mob-card-dist { font-size: 11px; color: var(--text-mid); }
-.mob-card-acts { display: flex; gap: 6px; margin-top: 8px; }
-.mob-act-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; font-family: inherit; border: 1px solid var(--cream-dark); background: var(--white); color: var(--text-mid); transition: all 0.2s; }
-.mob-act-btn.del { color: var(--red); border-color: rgba(224,92,92,0.3); }
+      .mob-cards {
+        display: none;
+      }
+      .mob-card {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--cream-dark);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .mob-card:last-child {
+        border-bottom: none;
+      }
+      .mob-card-thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+      .mob-card-ph {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        background: var(--cream-dark);
+        flex-shrink: 0;
+      }
+      .mob-card-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .mob-card-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .mob-card-cat {
+        font-size: 11px;
+        color: var(--text-light);
+        margin-top: 1px;
+      }
+      .mob-card-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .mob-card-price {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        color: var(--green-mid);
+        font-weight: 500;
+      }
+      .mob-card-dist {
+        font-size: 11px;
+        color: var(--text-mid);
+      }
+      .mob-card-acts {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .mob-act-btn {
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 7px;
+        cursor: pointer;
+        font-family: inherit;
+        border: 1px solid var(--cream-dark);
+        background: var(--white);
+        color: var(--text-mid);
+        transition: all 0.2s;
+      }
+      .mob-act-btn.del {
+        color: var(--red);
+        border-color: rgba(224, 92, 92, 0.3);
+      }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(26,60,46,0.55); backdrop-filter: blur(3px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
-.modal-overlay.open { display: flex; }
-.modal-box { background: var(--white); border-radius: 20px; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; animation: popUp 0.25s ease; }
-@keyframes popUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--cream-dark); position: sticky; top: 0; background: var(--white); z-index: 1; }
-.modal-title { font-size: 17px; font-weight: 700; color: var(--text-dark); }
-.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--cream); font-size: 15px; cursor: pointer; color: var(--text-mid); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-.modal-close:hover { background: var(--cream-dark); }
-.modal-body { padding: 20px 24px; flex: 1; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-group { margin-bottom: 16px; }
-.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; }
-.req { color: var(--red); margin-left: 2px; }
-.form-hint-inline { font-size: 11px; color: var(--text-light); font-weight: 400; margin-left: 4px; }
-.form-input { width: 100%; padding: 10px 13px; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; color: var(--text-dark); background: var(--white); outline: none; transition: all 0.2s; }
-.form-input:focus { border-color: var(--green-bright); box-shadow: 0 0 0 3px rgba(82,183,136,0.15); }
-.form-textarea { resize: vertical; min-height: 78px; }
-.form-hint { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 60, 46, 0.55);
+        backdrop-filter: blur(3px);
+        z-index: 300;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal-box {
+        background: var(--white);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 560px;
+        max-height: 92vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        flex-direction: column;
+        animation: popUp 0.25s ease;
+      }
+      @keyframes popUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--cream-dark);
+        position: sticky;
+        top: 0;
+        background: var(--white);
+        z-index: 1;
+      }
+      .modal-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .modal-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: var(--cream);
+        font-size: 15px;
+        cursor: pointer;
+        color: var(--text-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .modal-close:hover {
+        background: var(--cream-dark);
+      }
+      .modal-body {
+        padding: 20px 24px;
+        flex: 1;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-mid);
+        margin-bottom: 6px;
+      }
+      .req {
+        color: var(--red);
+        margin-left: 2px;
+      }
+      .form-hint-inline {
+        font-size: 11px;
+        color: var(--text-light);
+        font-weight: 400;
+        margin-left: 4px;
+      }
+      .form-input {
+        width: 100%;
+        padding: 10px 13px;
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: var(--white);
+        outline: none;
+        transition: all 0.2s;
+      }
+      .form-input:focus {
+        border-color: var(--green-bright);
+        box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.15);
+      }
+      .form-textarea {
+        resize: vertical;
+        min-height: 78px;
+      }
+      .form-hint {
+        font-size: 11px;
+        color: var(--text-light);
+        margin-top: 4px;
+      }
 
-/*Crop photo upload box */
-.crop-box { width: 100%; min-height: 110px; border: 2px dashed var(--cream-dark); border-radius: var(--radius-sm); background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
-.crop-box:hover { border-color: var(--green-bright); }
-.crop-hint { display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
-.crop-icon { font-size: 28px; opacity: 0.4; }
-.crop-label { font-size: 13px; font-weight: 600; color: var(--text-mid); }
-.crop-sub { font-size: 11px; color: var(--text-light); }
-.crop-preview { width: 100%; height: 150px; object-fit: cover; border-radius: calc(var(--radius-sm) - 2px); display: none; }
-.crop-change { position: absolute; top: 8px; right: 8px; background: rgba(26,60,46,0.72); color: var(--white); border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; display: none; transition: background 0.2s; }
-.crop-change:hover { background: var(--red); }
+      /*Crop photo upload box */
+      .crop-box {
+        width: 100%;
+        min-height: 110px;
+        border: 2px dashed var(--cream-dark);
+        border-radius: var(--radius-sm);
+        background: var(--cream);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .crop-box:hover {
+        border-color: var(--green-bright);
+      }
+      .crop-hint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+      }
+      .crop-icon {
+        font-size: 28px;
+        opacity: 0.4;
+      }
+      .crop-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-mid);
+      }
+      .crop-sub {
+        font-size: 11px;
+        color: var(--text-light);
+      }
+      .crop-preview {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: calc(var(--radius-sm) - 2px);
+        display: none;
+      }
+      .crop-change {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(26, 60, 46, 0.72);
+        color: var(--white);
+        border: none;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        display: none;
+        transition: background 0.2s;
+      }
+      .crop-change:hover {
+        background: var(--red);
+      }
 
-.modal-foot { display: flex; gap: 10px; justify-content: flex-end; padding: 14px 24px 20px; border-top: 1px solid var(--cream-dark); position: sticky; bottom: 0; background: var(--white); z-index: 1; }
-.btn-cancel { padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); background: var(--white); font-size: 14px; font-weight: 600; font-family: inherit; color: var(--text-mid); cursor: pointer; transition: background 0.2s; }
-.btn-cancel:hover { background: var(--cream); }
-.btn-save { padding: 10px 26px; border-radius: var(--radius-sm); border: none; background: var(--green-mid); color: var(--white); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.2s; }
-.btn-save:hover { background: var(--green-deep); }
-.btn-save:active { transform: scale(0.98); }
+      .modal-foot {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 14px 24px 20px;
+        border-top: 1px solid var(--cream-dark);
+        position: sticky;
+        bottom: 0;
+        background: var(--white);
+        z-index: 1;
+      }
+      .btn-cancel {
+        padding: 10px 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--cream-dark);
+        background: var(--white);
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--text-mid);
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-cancel:hover {
+        background: var(--cream);
+      }
+      .btn-save {
+        padding: 10px 26px;
+        border-radius: var(--radius-sm);
+        border: none;
+        background: var(--green-mid);
+        color: var(--white);
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-save:hover {
+        background: var(--green-deep);
+      }
+      .btn-save:active {
+        transform: scale(0.98);
+      }
 
-.toast { position: fixed; bottom: 28px; right: 24px; background: var(--green-deep); color: var(--white); padding: 13px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 9999; transform: translateY(80px); opacity: 0; max-width: 300px; transition: all 0.32s cubic-bezier(0.34,1.56,0.64,1); }
-.toast.show { transform: translateY(0); opacity: 1; }
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        right: 24px;
+        background: var(--green-deep);
+        color: var(--white);
+        padding: 13px 20px;
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        z-index: 9999;
+        transform: translateY(80px);
+        opacity: 0;
+        max-width: 300px;
+        transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
 
-/* My profile page */
-.profile-page { display: none; padding: 28px 32px; flex: 1; }
-.profile-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm); max-width: 520px; overflow: hidden; }
-.profile-card-head { background: var(--green-deep); padding: 28px 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.prof-avatar-wrap { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; position: relative; cursor: pointer; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); transition: border-color 0.2s; flex-shrink: 0; }
-.prof-avatar-wrap:hover { border-color: var(--green-bright); }
-#prof-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
-.prof-avatar-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); text-align: center; padding: 8px; line-height: 1.3; }
-.prof-overlay-icon { font-size: 22px; opacity: 0.5; }
-.prof-head-hint { font-size: 11px; color: rgba(255,255,255,0.35); }
-.profile-card-body { padding: 24px 28px; }
-.prof-save-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 10px; }
-.prof-save-btn { background: var(--green-mid); color: var(--white); border: none; border-radius: var(--radius-sm); padding: 10px 26px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
-.prof-save-btn:hover { background: var(--green-deep); }
+      /* My profile page */
+      .profile-page {
+        display: none;
+        padding: 28px 32px;
+        flex: 1;
+      }
+      .profile-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--cream-dark);
+        box-shadow: var(--shadow-sm);
+        max-width: 520px;
+        overflow: hidden;
+      }
+      .profile-card-head {
+        background: var(--green-deep);
+        padding: 28px 28px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .prof-avatar-wrap {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        transition: border-color 0.2s;
+        flex-shrink: 0;
+      }
+      .prof-avatar-wrap:hover {
+        border-color: var(--green-bright);
+      }
+      #prof-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: none;
+      }
+      .prof-avatar-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        padding: 8px;
+        line-height: 1.3;
+      }
+      .prof-overlay-icon {
+        font-size: 22px;
+        opacity: 0.5;
+      }
+      .prof-head-hint {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .profile-card-body {
+        padding: 24px 28px;
+      }
+      .prof-save-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        gap: 10px;
+      }
+      .prof-save-btn {
+        background: var(--green-mid);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 10px 26px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s;
+      }
+      .prof-save-btn:hover {
+        background: var(--green-deep);
+      }
 
-@media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 768px) {
-  .mob-bar { display: flex; }
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main { margin-left: 0; padding-top: 56px; }
-  .topbar { display: none; }
-  .page-body { padding: 20px 14px; }
-  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .stat-card { padding: 14px 16px; }
-  .stat-val { font-size: 22px; }
-  .section-head { padding: 14px 16px; }
-  .btn-add-product { width: 100%; text-align: center; }
-  .table-wrap { display: none; }
-  .mob-cards { display: block; }
-  .form-row { grid-template-columns: 1fr; }
-  .modal-overlay { align-items: flex-end; padding: 0; }
-  .modal-box { border-radius: 20px 20px 0 0; max-height: 90vh; animation: sheetUp 0.28s ease; }
-  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .toast { left: 14px; right: 14px; max-width: none; bottom: 16px; }
-}
-@media (max-width: 480px) {
-  .stats-row { grid-template-columns: 1fr; }
-  .modal-body, .modal-head, .modal-foot { padding-left: 16px; padding-right: 16px; }
-}
-</style>
-</head>
-<body>
-
-<!-- MOBILE TOP BAR -->
-<div class="mob-bar" id="mob-bar">
-  <button class="mob-ham" onclick="toggleDrawer()">&#9776;</button>
-  <span class="mob-title">FarmerConekt</span>
-</div>
-<div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-
-  <div class="sb-logo">
-    <div class="logo-icon">🌿</div>
-    <div class="logo-name"><span class="logo-w">FARMER</span><span class="logo-g"> CONEKT</span></div>
-    <div class="logo-tag">Connecting farmers and buyers</div>
-  </div>
-
-  <!-- Photo upload only – name/location live in My Profile -->
-  <div class="sb-profile">
-    <div class="sb-avatar-wrap" onclick="document.getElementById('avatar-input').click()" title="Upload profile photo">
-      <img id="avatar-img" src="" alt="Profile photo"/>
-      <div class="avatar-overlay" id="avatar-overlay">
-        <div class="avatar-overlay-icon">📷</div>
-        Upload photo
-      </div>
+      @media (max-width: 900px) {
+        .stats-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 768px) {
+        .mob-bar {
+          display: flex;
+        }
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main {
+          margin-left: 0;
+          padding-top: 56px;
+        }
+        .topbar {
+          display: none;
+        }
+        .page-body {
+          padding: 20px 14px;
+        }
+        .stats-row {
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .stat-card {
+          padding: 14px 16px;
+        }
+        .stat-val {
+          font-size: 22px;
+        }
+        .section-head {
+          padding: 14px 16px;
+        }
+        .btn-add-product {
+          width: 100%;
+          text-align: center;
+        }
+        .table-wrap {
+          display: none;
+        }
+        .mob-cards {
+          display: block;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .modal-overlay {
+          align-items: flex-end;
+          padding: 0;
+        }
+        .modal-box {
+          border-radius: 20px 20px 0 0;
+          max-height: 90vh;
+          animation: sheetUp 0.28s ease;
+        }
+        @keyframes sheetUp {
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+        .toast {
+          left: 14px;
+          right: 14px;
+          max-width: none;
+          bottom: 16px;
+        }
+      }
+      @media (max-width: 480px) {
+        .stats-row {
+          grid-template-columns: 1fr;
+        }
+        .modal-body,
+        .modal-head,
+        .modal-foot {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- MOBILE TOP BAR -->
+    <div class="mob-bar" id="mob-bar">
+      <button class="mob-ham" onclick="toggleDrawer()">&#9776;</button>
+      <span class="mob-title">FarmerConekt</span>
     </div>
-    <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)" style="display:none"/>
-    <!-- Shows the farm name entered in My Profile -->
-    <div id="sidebar-farmer-name" style="font-size:13px;font-weight:600;color:var(--white);min-height:18px;"></div>
-  </div>
+    <div class="mob-overlay" id="mob-overlay" onclick="closeDrawer()"></div>
 
-  <nav class="sb-nav">
-    <div class="sb-nav-label">Main Menu</div>
-    <a class="sb-item active" href="#" onclick="openDashboard(event)">
-      <span class="sb-icon">&#9781;</span> Dashboard
-    </a>
-    <a class="sb-item" href="#" onclick="comingSoon(event,'Orders')">
-      <span class="sb-icon">&#9635;</span> Orders
-    </a>
-    <a class="sb-item" href="#" onclick="comingSoon(event,'Payments')">
-      <span class="sb-icon">&#9672;</span> Payments
-    </a>
-    <div class="sb-nav-label" style="margin-top:14px">Account</div>
-    <a class="sb-item" href="#" onclick="openProfile(event)">
-      <span class="sb-icon">&#128100;</span> My Profile
-    </a>
-  </nav>
-
-  <div class="sb-footer">
-    <button class="sb-logout" onclick="confirmLogout()">Log Out</button>
-  </div>
-
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-
-  <div class="topbar">
-    <div>
-      <h2 class="topbar-title" id="topbar-title">Farmer Dashboard</h2>
-      <p class="topbar-sub" id="topbar-sub">Manage your product listings</p>
-    </div>
-  </div>
-
-  <!-- DASHBOARD VIEW -->
-  <div class="page-body" id="page-dashboard">
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">CROPS LISTED</div>
-        <div class="stat-val" id="stat-crops">0</div>
-        <div class="stat-sub">active listings</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">ORDERS RECEIVED</div>
-        <div class="stat-val" id="stat-orders">0</div>
-        <div class="stat-sub">total orders</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">TOTAL REVENUE</div>
-        <div class="stat-val" id="stat-revenue">0 RWF</div>
-        <div class="stat-sub">from all orders</div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-head">
-        <div>
-          <div class="section-title">My Products</div>
-          <div class="section-sub">All your crop listings visible to buyers</div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-logo">
+        <div class="logo-icon">🌿</div>
+        <div class="logo-name">
+          <span class="logo-w">FARMER</span><span class="logo-g"> CONEKT</span>
         </div>
-        <button class="btn-add-product" onclick="openModal()">+ Add New Product</button>
+        <div class="logo-tag">Connecting farmers and buyers</div>
       </div>
-      <div class="table-wrap">
-        <table class="product-table">
-          <thead>
-            <tr>
-              <th>Product</th><th>Price / Unit</th><th>Qty</th><th>Status</th>
-              <th>District</th><th>Harvest</th><th>Expiry</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="products-tbody"></tbody>
-        </table>
-      </div>
-      <div class="mob-cards" id="mob-cards"></div>
-    </div>
 
-  </div>
-
-  <!-- MY PROFILE VIEW -->
-  <div class="profile-page" id="page-profile">
-    <div class="profile-card">
-
-      <div class="profile-card-head">
-        <div class="prof-avatar-wrap" onclick="document.getElementById('prof-avatar-input').click()">
-          <img id="prof-avatar-img" src="" alt="Profile photo"/>
-          <div class="prof-avatar-overlay" id="prof-avatar-overlay">
-            <div class="prof-overlay-icon">📷</div>
+      <!-- Photo upload only – name/location live in My Profile -->
+      <div class="sb-profile">
+        <div
+          class="sb-avatar-wrap"
+          onclick="document.getElementById('avatar-input').click()"
+          title="Upload profile photo"
+        >
+          <img id="avatar-img" src="" alt="Profile photo" />
+          <div class="avatar-overlay" id="avatar-overlay">
+            <div class="avatar-overlay-icon">📷</div>
             Upload photo
           </div>
         </div>
-        <input type="file" id="prof-avatar-input" accept="image/*" onchange="previewProfileAvatar(event)" style="display:none"/>
-        <div class="prof-head-hint">Click the circle to upload your photo</div>
+        <input
+          type="file"
+          id="avatar-input"
+          accept="image/*"
+          onchange="previewAvatar(event)"
+          style="display: none"
+        />
+        <!-- Shows the farm name entered in My Profile -->
+        <div
+          id="sidebar-farmer-name"
+          style="
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            min-height: 18px;
+          "
+        ></div>
       </div>
 
-      <div class="profile-card-body">
-        <div class="form-group">
-            <label class="form-label">District</label>
-            <input class="form-input" id="prof-district" type="text" placeholder="e.g. Musanze"/>
+      <nav class="sb-nav">
+        <div class="sb-nav-label">Main Menu</div>
+        <a class="sb-item active" href="#" onclick="openDashboard(event)">
+          <span class="sb-icon">&#9781;</span> Dashboard
+        </a>
+        <a class="sb-item" href="#" onclick="comingSoon(event, 'Orders')">
+          <span class="sb-icon">&#9635;</span> Orders
+        </a>
+        <a class="sb-item" href="#" onclick="comingSoon(event, 'Payments')">
+          <span class="sb-icon">&#9672;</span> Payments
+        </a>
+        <div class="sb-nav-label" style="margin-top: 14px">Account</div>
+        <a class="sb-item" href="#" onclick="openProfile(event)">
+          <span class="sb-icon">&#128100;</span> My Profile
+        </a>
+      </nav>
+
+      <div class="sb-footer">
+        <button class="sb-logout" onclick="confirmLogout()">Log Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 class="topbar-title" id="topbar-title">Farmer Dashboard</h2>
+          <p class="topbar-sub" id="topbar-sub">Manage your product listings</p>
+        </div>
+      </div>
+
+      <!-- DASHBOARD VIEW -->
+      <div class="page-body" id="page-dashboard">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">CROPS LISTED</div>
+            <div class="stat-val" id="stat-crops">0</div>
+            <div class="stat-sub">active listings</div>
           </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input class="form-input" id="prof-fullname" type="text" placeholder="e.g. Jean Baptiste"/>
+          <div class="stat-card">
+            <div class="stat-label">ORDERS RECEIVED</div>
+            <div class="stat-val" id="stat-orders">0</div>
+            <div class="stat-sub">total orders</div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Phone Number</label>
-            <input class="form-input" id="prof-phone" type="tel" placeholder="e.g. 0780 000 000"/>
+          <div class="stat-card">
+            <div class="stat-label">TOTAL REVENUE</div>
+            <div class="stat-val" id="stat-revenue">0 RWF</div>
+            <div class="stat-sub">from all orders</div>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">About Your Farm</label>
-          <textarea class="form-input form-textarea" id="prof-bio" placeholder="Tell buyers about your farm, what you grow, your farming methods..."></textarea>
+
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">My Products</div>
+              <div class="section-sub">
+                All your crop listings visible to buyers
+              </div>
+            </div>
+            <button class="btn-add-product" onclick="openModal()">
+              + Add New Product
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price / Unit</th>
+                  <th>Qty</th>
+                  <th>Status</th>
+                  <th>District</th>
+                  <th>Harvest</th>
+                  <th>Expiry</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody"></tbody>
+            </table>
+          </div>
+          <div class="mob-cards" id="mob-cards"></div>
         </div>
-        <div class="prof-save-row">
-          <button onclick="openDashboard(event)" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--cream-dark);border-radius:var(--radius-sm);color:var(--text-mid);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;padding:10px 20px;transition:background 0.2s;" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background='none'">
-            &#8592; Back
+      </div>
+
+      <!-- MY PROFILE VIEW -->
+      <div class="profile-page" id="page-profile">
+        <div class="profile-card">
+          <div class="profile-card-head">
+            <div
+              class="prof-avatar-wrap"
+              onclick="document.getElementById('prof-avatar-input').click()"
+            >
+              <img id="prof-avatar-img" src="" alt="Profile photo" />
+              <div class="prof-avatar-overlay" id="prof-avatar-overlay">
+                <div class="prof-overlay-icon">📷</div>
+                Upload photo
+              </div>
+            </div>
+            <input
+              type="file"
+              id="prof-avatar-input"
+              accept="image/*"
+              onchange="previewProfileAvatar(event)"
+              style="display: none"
+            />
+            <div class="prof-head-hint">
+              Click the circle to upload your photo
+            </div>
+          </div>
+
+          <div class="profile-card-body">
+            <div class="form-group">
+              <label class="form-label">District</label>
+              <input
+                class="form-input"
+                id="prof-district"
+                type="text"
+                placeholder="e.g. Musanze"
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input
+                  class="form-input"
+                  id="prof-fullname"
+                  type="text"
+                  placeholder="e.g. Jean Baptiste"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input
+                  class="form-input"
+                  id="prof-phone"
+                  type="tel"
+                  placeholder="e.g. 0780 000 000"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">About Your Farm</label>
+              <textarea
+                class="form-input form-textarea"
+                id="prof-bio"
+                placeholder="Tell buyers about your farm, what you grow, your farming methods..."
+              ></textarea>
+            </div>
+            <div class="prof-save-row">
+              <button
+                onclick="openDashboard(event)"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: none;
+                  border: 1px solid var(--cream-dark);
+                  border-radius: var(--radius-sm);
+                  color: var(--text-mid);
+                  font-size: 14px;
+                  font-weight: 600;
+                  font-family: inherit;
+                  cursor: pointer;
+                  padding: 10px 20px;
+                  transition: background 0.2s;
+                "
+                onmouseover="this.style.background = 'var(--cream)'"
+                onmouseout="this.style.background = 'none'"
+              >
+                &#8592; Back
+              </button>
+              <button class="prof-save-btn" onclick="saveProfile()">
+                Save Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ADD / EDIT PRODUCT MODAL -->
+    <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+      <div class="modal-box" id="modal-box">
+        <div class="modal-head">
+          <span class="modal-title" id="modal-title">Add New Product</span>
+          <button class="modal-close" onclick="closeModal()">&#10005;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"
+                >Product Name <span class="req">*</span></label
+              >
+              <input
+                class="form-input"
+                id="inp-name"
+                type="text"
+                placeholder="e.g. Tomatoes"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Category <span class="req">*</span></label
+              >
+              <select class="form-input" id="inp-category">
+                <option value="">Select category</option>
+                <option>Vegetables</option>
+                <option>Fruits</option>
+                <option>Grains</option>
+                <option>Legumes</option>
+                <option>Tubers</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"
+                >Price per Unit (RWF) <span class="req">*</span></label
+              >
+              <input
+                class="form-input"
+                id="inp-price"
+                type="number"
+                placeholder="e.g. 500"
+                min="1"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unit <span class="req">*</span></label>
+              <select class="form-input" id="inp-unit">
+                <option value="">Select unit</option>
+                <option>kg</option>
+                <option>g</option>
+                <option>litre</option>
+                <option>piece</option>
+                <option>bunch</option>
+                <option>bag</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"
+                >Quantity Available <span class="req">*</span></label
+              >
+              <input
+                class="form-input"
+                id="inp-qty"
+                type="number"
+                placeholder="e.g. 200"
+                min="1"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >District <span class="req">*</span></label
+              >
+              <input
+                class="form-input"
+                id="inp-district"
+                type="text"
+                placeholder="e.g. Musanze"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"
+                >Harvest Date <span class="req">*</span></label
+              >
+              <input class="form-input" id="inp-harvest" type="date" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Expiration Date <span class="req">*</span></label
+              >
+              <input class="form-input" id="inp-expiry" type="date" />
+              <div class="form-hint">Date this product is no longer fresh</div>
+            </div>
+          </div>
+
+          <!-- Farmer uploads their own crop photo -->
+          <div class="form-group">
+            <label class="form-label"
+              >Crop Photo
+              <span class="form-hint-inline">(optional)</span></label
+            >
+            <input
+              type="file"
+              id="crop-input"
+              accept="image/*"
+              onchange="handleCropImage(event)"
+              style="display: none"
+            />
+            <div
+              class="crop-box"
+              onclick="document.getElementById('crop-input').click()"
+            >
+              <div class="crop-hint" id="crop-hint">
+                <div class="crop-icon">📷</div>
+                <div class="crop-label">Tap to upload crop photo</div>
+                <div class="crop-sub">JPG, PNG or WEBP</div>
+              </div>
+              <img
+                id="crop-preview"
+                class="crop-preview"
+                src=""
+                alt="Crop photo preview"
+              />
+              <button
+                class="crop-change"
+                id="crop-change"
+                onclick="
+                  event.stopPropagation();
+                  resetCropImage();
+                "
+              >
+                &#10005; Change
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >Description
+              <span class="form-hint-inline">(optional)</span></label
+            >
+            <textarea
+              class="form-input form-textarea"
+              id="inp-desc"
+              placeholder="e.g. Fresh tomatoes from Musanze, harvested this morning..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-save" id="btn-save" onclick="saveProduct()">
+            Save Product
           </button>
-          <button class="prof-save-btn" onclick="saveProfile()">Save Profile</button>
         </div>
       </div>
-
-    </div>
-  </div>
-
-</main>
-
-<!-- ADD / EDIT PRODUCT MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
-  <div class="modal-box" id="modal-box">
-
-    <div class="modal-head">
-      <span class="modal-title" id="modal-title">Add New Product</span>
-      <button class="modal-close" onclick="closeModal()">&#10005;</button>
     </div>
 
-    <div class="modal-body">
+    <!-- TOAST -->
+    <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Product Name <span class="req">*</span></label>
-          <input class="form-input" id="inp-name" type="text" placeholder="e.g. Tomatoes"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Category <span class="req">*</span></label>
-          <select class="form-input" id="inp-category">
-            <option value="">Select category</option>
-            <option>Vegetables</option><option>Fruits</option><option>Grains</option>
-            <option>Legumes</option><option>Tubers</option><option>Other</option>
-          </select>
-        </div>
-      </div>
+    <script>
+      const API_BASE = window.API_BASE_URL || "http://localhost:5000";
+      const API_PREFIX = API_BASE + "/api";
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Price per Unit (RWF) <span class="req">*</span></label>
-          <input class="form-input" id="inp-price" type="number" placeholder="e.g. 500" min="1"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Unit <span class="req">*</span></label>
-          <select class="form-input" id="inp-unit">
-            <option value="">Select unit</option>
-            <option>kg</option><option>g</option><option>litre</option>
-            <option>piece</option><option>bunch</option><option>bag</option>
-          </select>
-        </div>
-      </div>
+      var products = [];
+      var editingId = null;
+      var cropImageData = null;
+      var cropImageFile = null;
+      var dashboardStats = {
+        total_products: 0,
+        total_sales: 0,
+        total_earnings: 0,
+      };
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Quantity Available <span class="req">*</span></label>
-          <input class="form-input" id="inp-qty" type="number" placeholder="e.g. 200" min="1"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">District <span class="req">*</span></label>
-          <input class="form-input" id="inp-district" type="text" placeholder="e.g. Musanze"/>
-        </div>
-      </div>
+      function getToken() {
+        return localStorage.getItem("token");
+      }
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Harvest Date <span class="req">*</span></label>
-          <input class="form-input" id="inp-harvest" type="date"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Expiration Date <span class="req">*</span></label>
-          <input class="form-input" id="inp-expiry" type="date"/>
-          <div class="form-hint">Date this product is no longer fresh</div>
-        </div>
-      </div>
+      function getUserRole() {
+        return localStorage.getItem("role");
+      }
 
-      <!-- Farmer uploads their own crop photo -->
-      <div class="form-group">
-        <label class="form-label">Crop Photo <span class="form-hint-inline">(optional)</span></label>
-        <input type="file" id="crop-input" accept="image/*" onchange="handleCropImage(event)" style="display:none"/>
-        <div class="crop-box" onclick="document.getElementById('crop-input').click()">
-          <div class="crop-hint" id="crop-hint">
-            <div class="crop-icon">📷</div>
-            <div class="crop-label">Tap to upload crop photo</div>
-            <div class="crop-sub">JPG, PNG or WEBP</div>
-          </div>
-          <img id="crop-preview" class="crop-preview" src="" alt="Crop photo preview"/>
-          <button class="crop-change" id="crop-change" onclick="event.stopPropagation(); resetCropImage()">&#10005; Change</button>
-        </div>
-      </div>
+      function getFarmerId() {
+        return localStorage.getItem("farmer_id");
+      }
 
-      <div class="form-group">
-        <label class="form-label">Description <span class="form-hint-inline">(optional)</span></label>
-        <textarea class="form-input form-textarea" id="inp-desc" placeholder="e.g. Fresh tomatoes from Musanze, harvested this morning..."></textarea>
-      </div>
+      function getUserId() {
+        return localStorage.getItem("user_id");
+      }
 
-    </div>
+      function apiFetch(path, options) {
+        options = options || {};
+        options.headers = options.headers || {};
+        const token = getToken();
+        if (token) {
+          options.headers["Authorization"] = "Bearer " + token;
+        }
 
-    <div class="modal-foot">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" id="btn-save" onclick="saveProduct()">Save Product</button>
-    </div>
+        if (
+          !options.headers["Content-Type"] &&
+          !(options.body instanceof FormData)
+        ) {
+          options.headers["Content-Type"] = "application/json";
+        }
 
-  </div>
-</div>
+        return fetch(API_PREFIX + path, options).then(async (res) => {
+          let body = null;
+          try {
+            body = await res.json();
+          } catch (e) {
+            /* not json */
+          }
+          if (!res.ok) {
+            const message =
+              (body && (body.error || body.message)) || res.statusText;
+            throw new Error(message);
+          }
+          return body;
+        });
+      }
 
-<!-- TOAST -->
-<div class="toast" id="toast"><span id="toast-msg"></span></div>
+      function ensureAuthenticated() {
+        if (!getToken() || getUserRole() !== "farmer" || !getFarmerId()) {
+          window.location.href = "../pages/login.html";
+          return false;
+        }
+        return true;
+      }
 
-<script>
-var products      = [];
-var editingId     = null;
-var cropImageData = null;
+      function normalizeProduct(p) {
+        return {
+          id: p.product_id,
+          name: p.product_name,
+          category: p.product_category,
+          price: Number(p.price_per_unit || 0),
+          unit: p.unit || "kg",
+          qty: Number(p.quantity_available || 0),
+          district: p.district_id ? String(p.district_id) : "—",
+          harvest: p.harvest_date || "",
+          expiry: p.expiration_date || "",
+          desc: p.description || "",
+          status: p.status || "available",
+          image: p.image_url
+            ? p.image_url.startsWith("http")
+              ? p.image_url
+              : API_BASE + p.image_url
+            : null,
+        };
+      }
 
-function formatDate(s) {
-  if (!s) return '—';
-  var d = new Date(s + 'T00:00:00');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+      function formatDate(s) {
+        if (!s) return "—";
+        var d = new Date(s + "T00:00:00");
+        return d.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      }
 
-function isExpiringSoon(s) {
-  if (!s) return false;
-  var diff = (new Date(s + 'T00:00:00') - new Date()) / 86400000;
-  return diff >= 0 && diff <= 7;
-}
+      function isExpiringSoon(s) {
+        if (!s) return false;
+        var diff = (new Date(s + "T00:00:00") - new Date()) / 86400000;
+        return diff >= 0 && diff <= 7;
+      }
 
-function calcStatus(qty, expiry) {
-  if (new Date(expiry + 'T00:00:00') < new Date()) return 'expired';
-  if (Number(qty) <= 20) return 'low';
-  return 'available';
-}
+      function calcStatus(qty, expiry) {
+        if (!expiry) return "available";
+        if (new Date(expiry + "T00:00:00") < new Date()) return "expired";
+        if (Number(qty) <= 20) return "low";
+        return "available";
+      }
 
-function render() { renderTable(); renderMobCards(); updateStats(); }
+      function render() {
+        renderTable();
+        renderMobCards();
+        updateStats();
+      }
 
-function renderTable() {
-  var tbody = document.getElementById('products-tbody');
-  if (!tbody) return;
-  if (products.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="8" style="padding:0;border:none;">' +
-        '<div class="empty-state">' +
-          '<div class="empty-icon">⊟</div>' +
-          '<div class="empty-text">No products listed yet</div>' +
-          '<div class="empty-sub">Add your first crop listing using the button above</div>' +
-        '</div></td></tr>';
-    return;
-  }
-  var rows = '';
-  for (var i = 0; i < products.length; i++) {
-    var p  = products[i];
-    var bc = p.status === 'available' ? 'b-avail' : p.status === 'low' ? 'b-low' : 'b-exp';
-    var bl = p.status === 'available' ? 'Available' : p.status === 'low' ? 'Low Stock' : 'Expired';
-    var dc = isExpiringSoon(p.expiry) ? 'date-soon' : 'date-ok';
-    var thumb = p.image
-      ? '<img class="prod-thumb" src="' + p.image + '" alt="' + p.name + '"/>'
-      : '<div class="prod-thumb-ph"></div>';
-    rows +=
-      '<tr>' +
-        '<td><div class="product-info">' + thumb +
-          '<div><div class="product-name">' + p.name + '</div>' +
-          '<div class="product-cat">' + p.category + '</div></div></div></td>' +
-        '<td><span class="price-tag">' + Number(p.price).toLocaleString() + ' RWF / ' + p.unit + '</span></td>' +
-        '<td><span class="qty-tag">' + p.qty + ' ' + p.unit + '</span></td>' +
-        '<td><span class="status-badge ' + bc + '">' + bl + '</span></td>' +
-        '<td class="date-ok">' + (p.district || '—') + '</td>' +
-        '<td class="date-ok">' + formatDate(p.harvest) + '</td>' +
-        '<td class="' + dc + '">' + formatDate(p.expiry) + '</td>' +
-        '<td><div class="tbl-actions">' +
-          '<button class="tbl-btn" onclick="openEdit(' + p.id + ')">Edit</button>' +
-          '<button class="tbl-btn del" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
-        '</div></td></tr>';
-  }
-  tbody.innerHTML = rows;
-}
+      function renderTable() {
+        var tbody = document.getElementById("products-tbody");
+        if (!tbody) return;
+        if (products.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="8" style="padding:0;border:none;">' +
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No products listed yet</div>' +
+            '<div class="empty-sub">Add your first crop listing using the button above</div>' +
+            "</div></td></tr>";
+          return;
+        }
+        var rows = "";
+        for (var i = 0; i < products.length; i++) {
+          var p = products[i];
+          var bc =
+            p.status === "available"
+              ? "b-avail"
+              : p.status === "low"
+                ? "b-low"
+                : "b-exp";
+          var bl =
+            p.status === "available"
+              ? "Available"
+              : p.status === "low"
+                ? "Low Stock"
+                : "Expired";
+          var dc = isExpiringSoon(p.expiry) ? "date-soon" : "date-ok";
+          var thumb = p.image
+            ? '<img class="prod-thumb" src="' +
+              p.image +
+              '" alt="' +
+              p.name +
+              '"/>'
+            : '<div class="prod-thumb-ph"></div>';
+          rows +=
+            "<tr>" +
+            '<td><div class="product-info">' +
+            thumb +
+            '<div><div class="product-name">' +
+            p.name +
+            "</div>" +
+            '<div class="product-cat">' +
+            p.category +
+            "</div></div></div></td>" +
+            '<td><span class="price-tag">' +
+            Number(p.price).toLocaleString() +
+            " RWF / " +
+            p.unit +
+            "</span></td>" +
+            '<td><span class="qty-tag">' +
+            p.qty +
+            " " +
+            p.unit +
+            "</span></td>" +
+            '<td><span class="status-badge ' +
+            bc +
+            '">' +
+            bl +
+            "</span></td>" +
+            '<td class="date-ok">' +
+            (p.district || "—") +
+            "</td>" +
+            '<td class="date-ok">' +
+            formatDate(p.harvest) +
+            "</td>" +
+            '<td class="' +
+            dc +
+            '">' +
+            formatDate(p.expiry) +
+            "</td>" +
+            '<td><div class="tbl-actions">' +
+            '<button class="tbl-btn" onclick="openEdit(' +
+            p.id +
+            ')">Edit</button>' +
+            '<button class="tbl-btn del" onclick="deleteProduct(' +
+            p.id +
+            ')">Delete</button>' +
+            "</div></td></tr>";
+        }
+        tbody.innerHTML = rows;
+      }
 
-function renderMobCards() {
-  var container = document.getElementById('mob-cards');
-  if (!container) return;
-  if (products.length === 0) {
-    container.innerHTML =
-      '<div class="empty-state">' +
-        '<div class="empty-icon">⊟</div>' +
-        '<div class="empty-text">No products listed yet</div>' +
-        '<div class="empty-sub">Add your first crop listing using the button above</div>' +
-      '</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < products.length; i++) {
-    var p  = products[i];
-    var bc = p.status === 'available' ? 'b-avail' : p.status === 'low' ? 'b-low' : 'b-exp';
-    var bl = p.status === 'available' ? 'Available' : p.status === 'low' ? 'Low Stock' : 'Expired';
-    var thumb = p.image
-      ? '<img class="mob-card-thumb" src="' + p.image + '" alt="' + p.name + '"/>'
-      : '<div class="mob-card-ph"></div>';
-    html +=
-      '<div class="mob-card">' + thumb +
-        '<div class="mob-card-body">' +
-          '<div class="mob-card-name">' + p.name + '</div>' +
-          '<div class="mob-card-cat">' + p.category + '</div>' +
-          '<div class="mob-card-meta">' +
-            '<span class="mob-card-price">' + Number(p.price).toLocaleString() + ' RWF / ' + p.unit + '</span>' +
-            '<span class="mob-card-dist">' + (p.district || '—') + '</span>' +
-          '</div>' +
-          '<div class="mob-card-meta" style="margin-top:4px"><span class="status-badge ' + bc + '">' + bl + '</span></div>' +
-          '<div class="mob-card-acts">' +
-            '<button class="mob-act-btn" onclick="openEdit(' + p.id + ')">Edit</button>' +
-            '<button class="mob-act-btn del" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
-          '</div>' +
-        '</div></div>';
-  }
-  container.innerHTML = html;
-}
+      function renderMobCards() {
+        var container = document.getElementById("mob-cards");
+        if (!container) return;
+        if (products.length === 0) {
+          container.innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No products listed yet</div>' +
+            '<div class="empty-sub">Add your first crop listing using the button above</div>' +
+            "</div>";
+          return;
+        }
+        var html = "";
+        for (var i = 0; i < products.length; i++) {
+          var p = products[i];
+          var bc =
+            p.status === "available"
+              ? "b-avail"
+              : p.status === "low"
+                ? "b-low"
+                : "b-exp";
+          var bl =
+            p.status === "available"
+              ? "Available"
+              : p.status === "low"
+                ? "Low Stock"
+                : "Expired";
+          var thumb = p.image
+            ? '<img class="mob-card-thumb" src="' +
+              p.image +
+              '" alt="' +
+              p.name +
+              '"/>'
+            : '<div class="mob-card-ph"></div>';
+          html +=
+            '<div class="mob-card">' +
+            thumb +
+            '<div class="mob-card-body">' +
+            '<div class="mob-card-name">' +
+            p.name +
+            "</div>" +
+            '<div class="mob-card-cat">' +
+            p.category +
+            "</div>" +
+            '<div class="mob-card-meta">' +
+            '<span class="mob-card-price">' +
+            Number(p.price).toLocaleString() +
+            " RWF / " +
+            p.unit +
+            "</span>" +
+            '<span class="mob-card-dist">' +
+            (p.district || "—") +
+            "</span>" +
+            "</div>" +
+            '<div class="mob-card-meta" style="margin-top:4px"><span class="status-badge ' +
+            bc +
+            '">' +
+            bl +
+            "</span></div>" +
+            '<div class="mob-card-acts">' +
+            '<button class="mob-act-btn" onclick="openEdit(' +
+            p.id +
+            ')">Edit</button>' +
+            '<button class="mob-act-btn del" onclick="deleteProduct(' +
+            p.id +
+            ')">Delete</button>' +
+            "</div>" +
+            "</div></div>";
+        }
+        container.innerHTML = html;
+      }
 
-function updateStats() {
-  document.getElementById('stat-crops').textContent   = products.length;
-  document.getElementById('stat-orders').textContent  = 0;
-  document.getElementById('stat-revenue').textContent = '0 RWF';
-}
+      function updateStats() {
+        document.getElementById("stat-crops").textContent =
+          dashboardStats.total_products || 0;
+        document.getElementById("stat-orders").textContent =
+          dashboardStats.total_sales || 0;
+        document.getElementById("stat-revenue").textContent =
+          (dashboardStats.total_earnings || 0) + " RWF";
+      }
 
-function openModal() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = 'Add New Product';
-  document.getElementById('btn-save').textContent    = 'Save Product';
-  clearForm();
-  document.getElementById('modal-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+      function openModal() {
+        editingId = null;
+        document.getElementById("modal-title").textContent = "Add New Product";
+        document.getElementById("btn-save").textContent = "Save Product";
+        clearForm();
+        document.getElementById("modal-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
 
-function openEdit(id) {
-  var p = null;
-  for (var i = 0; i < products.length; i++) {
-    if (products[i].id === id) { p = products[i]; break; }
-  }
-  if (!p) return;
-  editingId = id;
-  document.getElementById('modal-title').textContent = 'Edit Product';
-  document.getElementById('btn-save').textContent    = 'Update Product';
-  document.getElementById('inp-name').value     = p.name;
-  document.getElementById('inp-category').value = p.category;
-  document.getElementById('inp-price').value    = p.price;
-  document.getElementById('inp-unit').value     = p.unit;
-  document.getElementById('inp-qty').value      = p.qty;
-  document.getElementById('inp-district').value = p.district || '';
-  document.getElementById('inp-harvest').value  = p.harvest;
-  document.getElementById('inp-expiry').value   = p.expiry;
-  document.getElementById('inp-desc').value     = p.desc || '';
-  cropImageData = p.image || null;
-  if (p.image) showCropPreview(p.image);
-  document.getElementById('modal-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+      function openEdit(id) {
+        var p = products.find(function (item) {
+          return item.id === id;
+        });
+        if (!p) return;
 
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  clearForm();
-  editingId = null;
-}
+        editingId = id;
+        document.getElementById("modal-title").textContent = "Edit Product";
+        document.getElementById("btn-save").textContent = "Update Product";
 
-function overlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-}
+        document.getElementById("inp-name").value = p.name;
+        document.getElementById("inp-category").value = p.category;
+        document.getElementById("inp-price").value = p.price;
+        document.getElementById("inp-unit").value = p.unit;
+        document.getElementById("inp-qty").value = p.qty;
+        document.getElementById("inp-district").value = p.district || "";
+        document.getElementById("inp-harvest").value = p.harvest;
+        document.getElementById("inp-expiry").value = p.expiry;
+        document.getElementById("inp-desc").value = p.desc || "";
 
-function clearForm() {
-  var fields = ['inp-name','inp-category','inp-price','inp-unit','inp-qty','inp-district','inp-harvest','inp-expiry','inp-desc'];
-  for (var i = 0; i < fields.length; i++) {
-    var el = document.getElementById(fields[i]);
-    if (el) el.value = '';
-  }
-  resetCropImage();
-}
+        cropImageData = p.image || null;
+        if (p.image) showCropPreview(p.image);
+        document.getElementById("modal-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
 
-function saveProduct() {
-  var name     = document.getElementById('inp-name').value.trim();
-  var category = document.getElementById('inp-category').value;
-  var price    = document.getElementById('inp-price').value.trim();
-  var unit     = document.getElementById('inp-unit').value;
-  var qty      = document.getElementById('inp-qty').value.trim();
-  var district = document.getElementById('inp-district').value.trim();
-  var harvest  = document.getElementById('inp-harvest').value;
-  var expiry   = document.getElementById('inp-expiry').value;
-  var desc     = document.getElementById('inp-desc').value.trim();
+      function closeModal() {
+        document.getElementById("modal-overlay").classList.remove("open");
+        document.body.style.overflow = "";
+        clearForm();
+        editingId = null;
+      }
 
-  if (!name)                                                         { showToast('Please enter the product name.');     return; }
-  if (!category)                                                     { showToast('Please select a category.');          return; }
-  if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) { showToast('Please enter a valid price.');        return; }
-  if (!unit)                                                         { showToast('Please select a unit.');              return; }
-  if (!qty || isNaN(parseInt(qty)) || parseInt(qty) <= 0)           { showToast('Please enter a valid quantity.');     return; }
-  if (!district)                                                     { showToast('Please enter your district.');        return; }
-  if (!harvest)                                                      { showToast('Please enter the harvest date.');     return; }
-  if (!expiry)                                                       { showToast('Please enter the expiration date.');  return; }
-  if (new Date(expiry) <= new Date(harvest))                        { showToast('Expiry must be after harvest date.'); return; }
+      function overlayClick(e) {
+        if (e.target === document.getElementById("modal-overlay")) closeModal();
+      }
 
-  var product = {
-    name: name, category: category, price: parseFloat(price),
-    unit: unit, qty: parseInt(qty), district: district,
-    harvest: harvest, expiry: expiry, desc: desc,
-    image: cropImageData,
-    status: calcStatus(parseInt(qty), expiry)
-  };
+      function clearForm() {
+        var fields = [
+          "inp-name",
+          "inp-category",
+          "inp-price",
+          "inp-unit",
+          "inp-qty",
+          "inp-district",
+          "inp-harvest",
+          "inp-expiry",
+          "inp-desc",
+        ];
+        fields.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        resetCropImage();
+      }
 
-  if (editingId !== null) {
-    for (var i = 0; i < products.length; i++) {
-      if (products[i].id === editingId) { product.id = editingId; products[i] = product; break; }
-    }
-    showToast('Product updated!');
-  } else {
-    product.id = Date.now();
-    products.push(product);
-    showToast(name + ' listed successfully!');
-  }
+      async function saveProduct() {
+        var name = document.getElementById("inp-name").value.trim();
+        var category = document.getElementById("inp-category").value;
+        var price = document.getElementById("inp-price").value.trim();
+        var unit = document.getElementById("inp-unit").value;
+        var qty = document.getElementById("inp-qty").value.trim();
+        var harvest = document.getElementById("inp-harvest").value;
+        var expiry = document.getElementById("inp-expiry").value;
+        var desc = document.getElementById("inp-desc").value.trim();
 
-  closeModal();
-  render();
-}
+        if (!name) {
+          showToast("Please enter the product name.");
+          return;
+        }
+        if (!category) {
+          showToast("Please select a category.");
+          return;
+        }
+        if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+          showToast("Please enter a valid price.");
+          return;
+        }
+        if (!unit) {
+          showToast("Please select a unit.");
+          return;
+        }
+        if (!qty || isNaN(parseInt(qty)) || parseInt(qty) <= 0) {
+          showToast("Please enter a valid quantity.");
+          return;
+        }
+        if (!harvest) {
+          showToast("Please enter the harvest date.");
+          return;
+        }
+        if (!expiry) {
+          showToast("Please enter the expiration date.");
+          return;
+        }
+        if (new Date(expiry) <= new Date(harvest)) {
+          showToast("Expiry must be after harvest date.");
+          return;
+        }
 
-function deleteProduct(id) {
-  var name = '';
-  for (var i = 0; i < products.length; i++) {
-    if (products[i].id === id) { name = products[i].name; break; }
-  }
-  if (!name) return;
-  if (window.confirm('Remove "' + name + '" from your listings?')) {
-    products = products.filter(function(p) { return p.id !== id; });
-    render();
-    showToast(name + ' removed.');
-  }
-}
+        try {
+          var farmerId = getFarmerId();
+          var district = document.getElementById("inp-district").value.trim();
+          var storedDistrictId = localStorage.getItem("district_id");
+          if (!district && !storedDistrictId) {
+            showToast("Please enter your district.");
+            return;
+          }
+          if (!farmerId)
+            throw new Error("Missing farmer context; please re-login.");
 
-function handleCropImage(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) { cropImageData = ev.target.result; showCropPreview(cropImageData); };
-  reader.readAsDataURL(file);
-}
+          if (editingId !== null) {
+            await apiFetch("/farmers/update/" + editingId, {
+              method: "PUT",
+              body: JSON.stringify({
+                price: parseFloat(price),
+                quantity: parseInt(qty),
+                description: desc,
+              }),
+            });
+            showToast("Product updated!");
+          } else {
+            var form = new FormData();
+            form.append("farmer_id", farmerId);
+            // Send district name if the user entered one, else fall back to an ID
+            if (district) {
+              form.append("district", district);
+            } else if (storedDistrictId) {
+              form.append("district_id", storedDistrictId);
+            }
+            form.append("product_name", name);
+            form.append("category", category);
+            form.append("harvest_date", harvest);
+            form.append("expiration_date", expiry);
+            form.append("price", parseFloat(price));
+            form.append("unit", unit);
+            form.append("quantity", parseInt(qty));
+            form.append("description", desc);
+            if (cropImageFile) {
+              form.append("image", cropImageFile);
+            }
 
-function showCropPreview(src) {
-  document.getElementById('crop-preview').src           = src;
-  document.getElementById('crop-preview').style.display = 'block';
-  document.getElementById('crop-hint').style.display    = 'none';
-  document.getElementById('crop-change').style.display  = 'block';
-}
+            await apiFetch("/farmers/upload", {
+              method: "POST",
+              body: form,
+            });
+            showToast(name + " listed successfully!");
+          }
 
-function resetCropImage() {
-  cropImageData = null;
-  var p = document.getElementById('crop-preview');
-  var h = document.getElementById('crop-hint');
-  var c = document.getElementById('crop-change');
-  var f = document.getElementById('crop-input');
-  if (p) { p.src = ''; p.style.display = 'none'; }
-  if (h) { h.style.display = 'flex'; }
-  if (c) { c.style.display = 'none'; }
-  if (f) { f.value = ''; }
-}
+          await loadDashboard();
+          await loadProducts();
+          closeModal();
+        } catch (err) {
+          showToast(err.message || "Unable to save product.", "error");
+          console.error(err);
+        }
+      }
 
-function openProfile(e) {
-  e.preventDefault();
-  closeDrawer();
-  document.getElementById('page-dashboard').style.display = 'none';
-  document.getElementById('page-profile').style.display   = 'block';
-  document.getElementById('topbar-title').textContent = 'My Profile';
-  document.getElementById('topbar-sub').textContent   = 'Manage your farm details';
-  document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('active'); });
-  document.querySelector('[onclick="openProfile(event)"]').classList.add('active');
-}
+      async function deleteProduct(id) {
+        var product = products.find(function (p) {
+          return p.id === id;
+        });
+        if (!product) return;
+        if (
+          !window.confirm('Remove "' + product.name + '" from your listings?')
+        )
+          return;
 
-function openDashboard(e) {
-  if (e) { e.preventDefault(); closeDrawer(); }
-  document.getElementById('page-dashboard').style.display = 'block';
-  document.getElementById('page-profile').style.display   = 'none';
-  document.getElementById('topbar-title').textContent = 'Farmer Dashboard';
-  document.getElementById('topbar-sub').textContent   = 'Manage your product listings';
-  document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('active'); });
-  document.querySelector('[onclick="openDashboard(event)"]').classList.add('active');
-}
+        try {
+          await apiFetch("/farmers/delete/" + id, { method: "DELETE" });
+          await loadDashboard();
+          await loadProducts();
+          showToast(product.name + " removed.");
+        } catch (err) {
+          showToast(err.message || "Unable to delete product.", "error");
+          console.error(err);
+        }
+      }
 
-function saveProfile() {
-  // Update the name shown below the sidebar avatar
-  var name = document.getElementById('prof-fullname').value.trim();
-  var nameEl = document.getElementById('sidebar-farmer-name');
-  if (nameEl) nameEl.textContent = name || '';
+      function handleCropImage(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        cropImageFile = file;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          cropImageData = ev.target.result;
+          showCropPreview(cropImageData);
+        };
+        reader.readAsDataURL(file);
+      }
 
-  showToast('Profile saved!');
-  // Return to dashboard automatically after saving
-  setTimeout(function() { openDashboard(null); }, 1000);
-}
+      function showCropPreview(src) {
+        document.getElementById("crop-preview").src = src;
+        document.getElementById("crop-preview").style.display = "block";
+        document.getElementById("crop-hint").style.display = "none";
+        document.getElementById("crop-change").style.display = "block";
+      }
 
-// Profile page avatar to the sidebar circle
-function previewProfileAvatar(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var src = ev.target.result;
-    var pi = document.getElementById('prof-avatar-img');
-    var po = document.getElementById('prof-avatar-overlay');
-    pi.src = src; pi.style.display = 'block'; po.style.display = 'none';
-    var si = document.getElementById('avatar-img');
-    var so = document.getElementById('avatar-overlay');
-    si.src = src; si.style.display = 'block'; so.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
+      function resetCropImage() {
+        cropImageData = null;
+        cropImageFile = null;
+        var p = document.getElementById("crop-preview");
+        var h = document.getElementById("crop-hint");
+        var c = document.getElementById("crop-change");
+        var f = document.getElementById("crop-input");
+        if (p) {
+          p.src = "";
+          p.style.display = "none";
+        }
+        if (h) {
+          h.style.display = "flex";
+        }
+        if (c) {
+          c.style.display = "none";
+        }
+        if (f) {
+          f.value = "";
+        }
+      }
 
-function previewAvatar(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var img = document.getElementById('avatar-img');
-    var overlay = document.getElementById('avatar-overlay');
-    img.src = ev.target.result;
-    img.style.display = 'block';
-    overlay.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
+      function openProfile(e) {
+        e.preventDefault();
+        closeDrawer();
+        document.getElementById("page-dashboard").style.display = "none";
+        document.getElementById("page-profile").style.display = "block";
+        document.getElementById("topbar-title").textContent = "My Profile";
+        document.getElementById("topbar-sub").textContent =
+          "Manage your farm details";
+        document.querySelectorAll(".sb-item").forEach(function (el) {
+          el.classList.remove("active");
+        });
+        document
+          .querySelector('[onclick="openProfile(event)"]')
+          .classList.add("active");
+      }
 
-function openDrawer() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('mob-overlay').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
+      function openDashboard(e) {
+        if (e) {
+          e.preventDefault();
+          closeDrawer();
+        }
+        document.getElementById("page-dashboard").style.display = "block";
+        document.getElementById("page-profile").style.display = "none";
+        document.getElementById("topbar-title").textContent =
+          "Farmer Dashboard";
+        document.getElementById("topbar-sub").textContent =
+          "Manage your product listings";
+        document.querySelectorAll(".sb-item").forEach(function (el) {
+          el.classList.remove("active");
+        });
+        document
+          .querySelector('[onclick="openDashboard(event)"]')
+          .classList.add("active");
+      }
 
-function closeDrawer() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('mob-overlay').classList.remove('show');
-  document.body.style.overflow = '';
-}
+      async function loadProfile() {
+        try {
+          const userId = getUserId();
+          if (!userId) throw new Error("Missing user context.");
 
-function toggleDrawer() {
-  if (document.getElementById('sidebar').classList.contains('open')) { closeDrawer(); } else { openDrawer(); }
-}
+          const profile = await apiFetch("/farmers/profile/" + userId);
+          if (!profile) return;
 
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 3200);
-}
+          var name = profile.full_name || "";
+          var phone = profile.phone_number || "";
+          var districtName = profile.district_name || profile.district_id || "";
+          var bio = profile.bio || "";
 
-function comingSoon(e, name) { e.preventDefault(); closeDrawer(); showToast(name + ' — coming soon!'); }
+          if (profile.district_id)
+            localStorage.setItem("district_id", profile.district_id);
 
-function confirmLogout() {
-  if (window.confirm('Are you sure you want to log out?')) {
-    showToast('Logging out...');
-    setTimeout(function() { window.location.href = 'login.html'; }, 1500);
-  }
-}
+          document.getElementById("sidebar-farmer-name").textContent = name;
+          document.getElementById("prof-fullname").value = name;
+          document.getElementById("prof-phone").value = phone;
+          document.getElementById("prof-district").value = districtName;
+          document.getElementById("prof-bio").value = bio;
+        } catch (err) {
+          console.error(err);
+        }
+      }
 
-document.addEventListener('DOMContentLoaded', function() { render(); });
-</script>
-</body>
+      async function saveProfile() {
+        try {
+          var name = document.getElementById("prof-fullname").value.trim();
+          var phone = document.getElementById("prof-phone").value.trim();
+          var district = document.getElementById("prof-district").value.trim();
+          var bio = document.getElementById("prof-bio").value.trim();
+
+          var userId = getUserId();
+          if (!userId) throw new Error("Missing user context.");
+
+          await apiFetch("/farmers/profile/" + userId, {
+            method: "PUT",
+            body: JSON.stringify({
+              full_name: name,
+              phone_number: phone,
+              district: district || null,
+              bio: bio,
+            }),
+          });
+
+          if (name)
+            document.getElementById("sidebar-farmer-name").textContent = name;
+          if (district) localStorage.setItem("district_id", district);
+
+          showToast("Profile saved!");
+          setTimeout(function () {
+            openDashboard(null);
+          }, 1000);
+        } catch (err) {
+          showToast(err.message || "Unable to update profile.", "error");
+          console.error(err);
+        }
+      }
+
+      function previewProfileAvatar(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          var src = ev.target.result;
+          var pi = document.getElementById("prof-avatar-img");
+          var po = document.getElementById("prof-avatar-overlay");
+          pi.src = src;
+          pi.style.display = "block";
+          po.style.display = "none";
+          var si = document.getElementById("avatar-img");
+          var so = document.getElementById("avatar-overlay");
+          si.src = src;
+          si.style.display = "block";
+          so.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function previewAvatar(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          var img = document.getElementById("avatar-img");
+          var overlay = document.getElementById("avatar-overlay");
+          img.src = ev.target.result;
+          img.style.display = "block";
+          overlay.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function confirmLogout() {
+        if (window.confirm("Are you sure you want to log out?")) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          localStorage.removeItem("user_id");
+          localStorage.removeItem("farmer_id");
+          localStorage.removeItem("district_id");
+          showToast("Logging out...");
+          setTimeout(function () {
+            window.location.href = "../pages/login.html";
+          }, 800);
+        }
+      }
+
+      async function loadDashboard() {
+        if (!ensureAuthenticated()) return;
+        try {
+          const farmerId = getFarmerId();
+          const stats = await apiFetch("/farmers/dashboard/" + farmerId);
+          dashboardStats = stats || dashboardStats;
+          updateStats();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function loadProducts() {
+        if (!ensureAuthenticated()) return;
+        try {
+          const farmerId = getFarmerId();
+          const serverProducts = await apiFetch("/farmers/farmer/" + farmerId);
+          products = (serverProducts || []).map(normalizeProduct);
+          render();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load products.", "error");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        if (!ensureAuthenticated()) return;
+        await loadProfile();
+        await loadDashboard();
+        await loadProducts();
+      });
+    </script>
+  </body>
 </html>

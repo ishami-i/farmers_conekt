@@ -12,6 +12,15 @@ var currentUser = null; // the logged-in user object
 var currentRole = null; // 'farmer' or 'buyer'
 var orderCounter = 1000; // gives each order a unique number
 
+// Base API endpoint (can be overridden by setting window.API_BASE_URL)
+// If the page is opened via file://, window.location.origin will be "null",
+// so fall back to localhost API during development.
+var API_BASE =
+  window.API_BASE_URL ||
+  (window.location.origin && window.location.origin !== "null"
+    ? window.location.origin
+    : "http://localhost:5000");
+
 // Which method is selected on the login / signup forms
 var loginMethod = { farmer: "email", buyer: "email" };
 var signupMethod = { farmer: "email", buyer: "email" };
@@ -296,7 +305,7 @@ async function doSignup(role) {
         district_id: 1, // TODO: replace with actual district selection
       };
 
-      var response = await fetch("http://localhost:5000/api/auth/register", {
+      var response = await fetch(API_BASE + "/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -318,8 +327,17 @@ async function doSignup(role) {
       if (data.district_id)
         localStorage.setItem("district_id", data.district_id);
       localStorage.setItem("first_name", first);
+      localStorage.setItem(
+        "session",
+        JSON.stringify({
+          email: email || phone,
+          role: role,
+          user_id: data.user_id,
+        }),
+      );
 
-      window.location.href = role === "farmer" ? "farmer.html" : "buyer.html";
+      window.location.href =
+        role === "farmer" ? "../farmer.html" : "buyer.html";
       showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
     } catch (err) {
       console.error(err);
@@ -359,7 +377,7 @@ async function doLogin(role) {
         password: password,
       };
 
-      var response = await fetch("http://localhost:5000/api/auth/login", {
+      var response = await fetch(API_BASE + "/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -380,8 +398,17 @@ async function doLogin(role) {
       if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
       if (data.district_id)
         localStorage.setItem("district_id", data.district_id);
+      localStorage.setItem(
+        "session",
+        JSON.stringify({
+          email: credential,
+          role: role,
+          user_id: data.user_id,
+        }),
+      );
 
-      window.location.href = role === "farmer" ? "farmer.html" : "buyer.html";
+      window.location.href =
+        role === "farmer" ? "../farmer.html" : "buyer.html";
       showToast("Welcome back!", "success");
     } catch (err) {
       console.error(err);

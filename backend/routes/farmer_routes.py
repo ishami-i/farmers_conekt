@@ -43,9 +43,10 @@ def get_farmer_profile(user_id):
     connection = get_db_connection()
     cursor = connection.cursor()
     query = """
-    SELECT f.*, u.full_name, u.phone_number
+    SELECT f.*, u.full_name, u.phone_number, d.district_name
     FROM farmers f
     JOIN users u ON f.user_id = u.user_id
+    LEFT JOIN districts d ON f.district_id = d.district_id
     WHERE f.user_id = %s
     """
 
@@ -55,6 +56,63 @@ def get_farmer_profile(user_id):
     connection.close()
 
     return jsonify(farmer)
+
+# update farmer profile
+
+@farmer_routes.route("/profile/<int:user_id>", methods=["PUT"])
+@jwt_required()
+@role_required("farmer")
+def update_farmer_profile(user_id):
+
+    data = request.json or {}
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Update users table with full name and phone
+    user_fields = []
+    user_values = []
+    if "full_name" in data:
+        user_fields.append("full_name=%s")
+        user_values.append(data["full_name"])
+    if "phone_number" in data:
+        user_fields.append("phone_number=%s")
+        user_values.append(data["phone_number"])
+    if user_fields:
+        query = f"UPDATE users SET {', '.join(user_fields)} WHERE user_id = %s"
+        cursor.execute(query, (*user_values, user_id))
+
+    # Update farmers table with district and bio
+    farmer_fields = []
+    farmer_values = []
+    if "district_id" in data:
+        district_input = data.get("district_id")
+        # If a name was submitted instead of an ID, resolve it
+        if district_input and not str(district_input).isdigit():
+            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
+            row = cursor.fetchone()
+            district_input = row["district_id"] if row else None
+        farmer_fields.append("district_id=%s")
+        farmer_values.append(district_input)
+    if "district" in data and not data.get("district_id"):
+        district_input = data.get("district")
+        if district_input and not str(district_input).isdigit():
+            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
+            row = cursor.fetchone()
+            district_input = row["district_id"] if row else None
+        farmer_fields.append("district_id=%s")
+        farmer_values.append(district_input)
+    if "bio" in data:
+        farmer_fields.append("bio=%s")
+        farmer_values.append(data.get("bio"))
+    if farmer_fields:
+        query = f"UPDATE farmers SET {', '.join(farmer_fields)} WHERE user_id = %s"
+        cursor.execute(query, (*farmer_values, user_id))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Profile updated"})
 
 # farmer dsahboard stats
 
@@ -93,7 +151,22 @@ def upload_product():
 
     data = request.form.to_dict()
     farmer_id = data.get("farmer_id")
-    district_id = data.get("district_id")
+
+    # Accept either a district_id or district name from the frontend
+    district_input = data.get("district_id") or data.get("district")
+    district_id = None
+    if district_input:
+        if str(district_input).isdigit():
+            district_id = int(district_input)
+        else:
+            # Resolve district name to ID
+            connection = get_db_connection()
+            cursor = connection.cursor()
+            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
+            row = cursor.fetchone()
+            connection.close()
+            district_id = row["district_id"] if row else None
+
     product_name = data.get("product_name")
     category = data.get("category")
     harvest_date = data.get("harvest_date")
@@ -104,8 +177,22 @@ def upload_product():
     description = data.get("description")
 
     # Validate required fields
-    required = ['farmer_id', 'district_id', 'product_name', 'category', 'price', 'unit', 'quantity']
-    missing = [field for field in required if not data.get(field)]
+    missing = []
+    if not farmer_id:
+        missing.append('farmer_id')
+    if not district_id:
+        missing.append('district_id')
+    if not product_name:
+        missing.append('product_name')
+    if not category:
+        missing.append('category')
+    if not price:
+        missing.append('price')
+    if not unit:
+        missing.append('unit')
+    if not quantity:
+        missing.append('quantity')
+
     if missing:
         return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 

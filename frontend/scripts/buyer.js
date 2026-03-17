@@ -13,6 +13,15 @@ let cart = [];
 let orders = [];
 let currentOrderFilter = 'all';
 
+function getSession() {
+    try {
+        return JSON.parse(localStorage.getItem('session') || 'null');
+    } catch (e) {
+        return null;
+    }
+}
+window.getSession = getSession;
+
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', function() {
     loadBuyerData();
