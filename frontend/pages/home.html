@@ -40,7 +40,10 @@ the farmer goes on his or her dashboard.
     <section class="filters-section" id="filters-section">
         <div class="product-filters" id="product-filters">
             <label for="search-products">Search Products:</label>
-            <input type="text" id="search-products" name="search" placeholder="Search by product name...">
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="search-products" name="search" placeholder="Search by product name...">
+                <button id="search-btn" class="apply-filters" style="width: auto; padding: 0.75rem 1.5rem;">🔍 Search</button>
+            </div>
 
             <label for="category-filter">Filter by Category:</label>
             <select id="category-filter" name="category">
@@ -67,9 +70,10 @@ the farmer goes on his or her dashboard.
                 <option value="high-to-low">High to Low</option>
             </select>
 
-            <label for="district-filter">Filter by District:</label>
-            <input type="text" id="district-filter" name="district" placeholder="Type district name..." autocomplete="off">
-            <div id="district-suggestions" class="district-suggestions" style="display: none;"></div>
+            <label for="districtSelect">Filter by District:</label>
+            <select id="districtSelect">
+                <option value="">-- Choose District --</option>
+            </select>
 
             <button class="apply-filters" id="apply-filters">Apply Filters</button>
         </div>
