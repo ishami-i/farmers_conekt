@@ -245,6 +245,178 @@
     transform: translateY(0);
   }
 
+  /* ============= DISTRICT AUTOCOMPLETE SUGGESTIONS ============= */
+  .district-suggestions {
+    position: absolute;
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10;
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .district-suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--cream-dark);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+  }
+
+  .district-suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  .district-suggestion-item:hover {
+    background: var(--cream);
+    color: var(--green-mid);
+  }
+
+  .district-suggestion-item.disabled {
+    color: var(--text-light);
+    cursor: not-allowed;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .district-suggestion-item.disabled:hover {
+    background: transparent;
+    color: var(--text-light);
+  }
+
+  /* ============= DISTRICT LIST STYLING ============= */
+  .district-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--cream-dark);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+  }
+
+  .district-list label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+    user-select: none;
+  }
+
+  .district-list label:hover {
+    background: rgba(82, 183, 136, 0.1);
+  }
+
+  .district-list input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--green-mid);
+  }
+
+  .district-list input[type="checkbox"]:checked + text {
+    color: var(--green-bright);
+    font-weight: 600;
+  }
+
+  /* ============= SEARCH BUTTON STYLING ============= */
+  #search-btn {
+    width: auto;
+    padding: 0.75rem 1.5rem;
+    white-space: nowrap;
+  }
+
+  /* ============= RESPONSIVE SEARCH BAR ============= */
+  @media (max-width: 768px) {
+    .district-list {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      max-height: 250px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .district-list {
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      max-height: 200px;
+      padding: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .district-list label {
+      font-size: 0.85rem;
+      padding: 0.4rem;
+    }
+
+    .district-list input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* ============= SEARCH INPUT STYLING ============= */
+  #search-products {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    color: var(--text-dark);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    cursor: text;
+    transition: all 0.3s ease;
+  }
+
+  #search-products:hover {
+    border-color: var(--green-mid);
+    background: var(--white);
+  }
+
+  #search-products:focus {
+    outline: none;
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
+    background: var(--white);
+  }
+
+  /* ============= DISTRICT INPUT WITH AUTOCOMPLETE ============= */
+  #district-filter {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    color: var(--text-dark);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    cursor: text;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  #district-filter:hover {
+    border-color: var(--green-mid);
+    background: var(--white);
+  }
+
+  #district-filter:focus {
+    outline: none;
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.1);
+    background: var(--white);
+  }
+
   /* ============= PRODUCTS SECTION ============= */
   #products-section {
     flex: 1;

@@ -2,8 +2,7 @@
  * Buyer Dashboard Script
  * Handles:
  * 1. Cart management (add, remove, update quantity)
- * 2. Orders tracking
- * 3. Wishlist management
+ * 2. Orders tracking and
  * 4. Tab switching and navigation
  * 5. User profile management
  * 6. Data persistence with localStorage
@@ -12,7 +11,6 @@
 
 let cart = [];
 let orders = [];
-let wishlist = [];
 let currentOrderFilter = 'all';
 
 // ============= INITIALIZATION =============
@@ -75,17 +73,14 @@ function loadBuyerData() {
     // Load from localStorage
     const savedCart = localStorage.getItem('buyerCart');
     const savedOrders = localStorage.getItem('buyerOrders');
-    const savedWishlist = localStorage.getItem('buyerWishlist');
 
     cart = savedCart ? JSON.parse(savedCart) : [];
     orders = savedOrders ? JSON.parse(savedOrders) : [];
-    wishlist = savedWishlist ? JSON.parse(savedWishlist) : [];
 }
 
 function saveBuyerData() {
     localStorage.setItem('buyerCart', JSON.stringify(cart));
     localStorage.setItem('buyerOrders', JSON.stringify(orders));
-    localStorage.setItem('buyerWishlist', JSON.stringify(wishlist));
 }
 
 function displayUserInfo() {
@@ -156,14 +151,12 @@ function render() {
     updateStats();
     renderCart();
     renderOrders();
-    renderWishlist();
     renderDashboardOrders();
 }
 
 function updateStats() {
     document.getElementById('stat-cart').textContent = cart.length;
     document.getElementById('stat-orders').textContent = orders.length;
-    document.getElementById('stat-wishlist').textContent = wishlist.length;
     
     const delivered = orders.filter(o => o.status === 'delivered').length;
     document.getElementById('stat-delivered').textContent = delivered;
@@ -286,41 +279,6 @@ function renderOrders() {
     }).join('');
 }
 
-function renderWishlist() {
-    const container = document.getElementById('wishlist-items');
-
-    if (wishlist.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">♡</div>
-                <div class="empty-text">Your wishlist is empty</div>
-                <div class="empty-sub">Add products you'd like to buy later</div>
-                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = wishlist.map((item, idx) => `
-        <div class="item-card">
-            <div class="item-image">🥬</div>
-            <div class="item-details">
-                <div class="item-name">${item.name}</div>
-                <div class="item-farmer">From: ${item.farmer}</div>
-                <div class="item-meta">
-                    <span>${item.quantity}kg available</span>
-                    <span>${item.location}</span>
-                </div>
-            </div>
-            <div style="display: flex; gap: 0.5rem; flex-direction: column;">
-                <div class="item-price">${item.price.toLocaleString()} RWF</div>
-                <button class="btn-small" onclick="addToCart('${item.name}', '${item.farmer}', ${item.price}, '${item.location}', ${item.quantity})">Add to Cart</button>
-                <button class="btn-small danger" onclick="removeFromWishlist(${idx})">Remove</button>
-            </div>
-        </div>
-    `).join('');
-}
-
 function renderDashboardOrders() {
     const container = document.getElementById('dashboard-orders');
     const recentOrders = orders.slice(-3).reverse();
@@ -417,27 +375,6 @@ function checkout() {
     render();
     switchTab('orders', null);
     showToast('Order placed successfully! 🎉');
-}
-
-// ============= WISHLIST OPERATIONS =============
-function addToWishlist(name, farmer, price, location, quantity) {
-    const exists = wishlist.find(item => item.name === name && item.farmer === farmer);
-    if (!exists) {
-        wishlist.push({ name, farmer, price, location, quantity });
-        saveBuyerData();
-        render();
-        showToast(`${name} added to wishlist!`);
-    } else {
-        showToast(`${name} is already in your wishlist`);
-    }
-}
-
-function removeFromWishlist(idx) {
-    const item = wishlist[idx];
-    wishlist.splice(idx, 1);
-    saveBuyerData();
-    render();
-    showToast(`${item.name} removed from wishlist`);
 }
 
 // ============= ORDER FILTERING =============
