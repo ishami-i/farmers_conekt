@@ -216,6 +216,41 @@
     <span id="toast-msg">Done!</span>
 </div>
 
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Payment</h3>
+            <button class="close-modal" onclick="closePaymentModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <p>Please enter your details to complete the purchase.</p>
+            
+            <div class="order-summary-mini">
+                <div class="row">
+                    <span>Total Amount:</span>
+                    <span class="highlight" id="modal-total-amount">0 RWF</span>
+                </div>
+            </div>
+
+            <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
+                <div class="form-group">
+                    <label for="full-name">Full Name</label>
+                    <input type="text" id="full-name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="momo-number">MoMo Number (MTN/Airtel)</label>
+                    <input type="tel" id="momo-number" placeholder="078..." required pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Pay Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="../scripts/toggle.js"></script>
 <script src="../scripts/buyer.js"></script>
 

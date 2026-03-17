@@ -2,7 +2,7 @@
  * Buyer Dashboard Script
  * Handles:
  * 1. Cart management (add, remove, update quantity)
- * 2. Orders tracking and
+ * 2. Orders tracking and making orders
  * 4. Tab switching and navigation
  * 5. User profile management
  * 6. Data persistence with localStorage
@@ -129,7 +129,6 @@ function switchTab(tabName, element) {
         dashboard: 'Buyer Dashboard',
         cart: 'Shopping Cart',
         orders: 'My Orders',
-        wishlist: 'My Wishlist',
         profile: 'My Profile'
     };
     document.getElementById('page-title').textContent = titles[tabName] || 'Dashboard';
@@ -138,12 +137,32 @@ function switchTab(tabName, element) {
         dashboard: 'Welcome back to your shopping hub',
         cart: 'Review and manage your items',
         orders: 'Track and manage your orders',
-        wishlist: 'Products you\'re interested in',
         profile: 'Manage your account information'
     };
     document.getElementById('page-subtitle').textContent = subtitles[tabName] || '';
 
     render();
+}
+function makingorders() {
+    const orderId = 'ORD-' + Date.now();
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+    const tax = Math.round(subtotal * 0.05);
+    const total = subtotal + 5000 + tax;
+
+    const order = {
+        id: orderId,
+        date: new Date().toISOString(),
+        items: cart.map(item => ({ ...item, qty: item.qty || 1 })),
+        total: total,
+        status: 'pending'
+    };
+
+    orders.unshift(order);
+    cart = [];
+    saveBuyerData();
+    render();
+    switchTab('orders', null);
+    showToast('Order placed successfully! 🎉');
 }
 
 // ============= RENDERING =============
@@ -233,7 +252,7 @@ function renderCart() {
                 <span>Total:</span>
                 <span>${(total + 5000 + Math.round(total * 0.05)).toLocaleString()} RWF</span>
             </div>
-            <button class="checkout-btn" onclick="checkout()">🛍 Proceed to Checkout</button>
+            <button class="checkout-btn" onclick="checkout()"> Proceed to Checkout</button>
         </div>
     `;
     summary.style.display = 'block';
@@ -355,7 +374,72 @@ function checkout() {
         showToast('Your cart is empty');
         return;
     }
+    openPaymentModal();
+}
 
+// ============= PAYMENT & ORDER PROCESSING =============
+function openPaymentModal() {
+    const modal = document.getElementById('payment-modal');
+    if (!modal) return;
+
+    // Calculate totals
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+    const tax = Math.round(subtotal * 0.05);
+    const delivery = 5000;
+    const total = subtotal + delivery + tax;
+
+    // Update modal UI
+    const totalEl = document.getElementById('modal-total-amount');
+    if (totalEl) totalEl.textContent = total.toLocaleString() + ' RWF';
+
+    modal.classList.add('active');
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('payment-modal');
+    if (modal) modal.classList.remove('active');
+    
+    // Reset form
+    const form = document.getElementById('payment-form');
+    if (form) form.reset();
+}
+
+function handlePaymentSubmit(e) {
+    e.preventDefault();
+    const fullNameInput = document.getElementById('full-name');
+    const phoneInput = document.getElementById('momo-number');
+    const fullName = fullNameInput.value.trim();
+    const phoneNumber = phoneInput.value.trim();
+
+    // Validation
+    if (!fullName || fullName.length < 3) {
+        showToast('Please enter a valid full name');
+        return;
+    }
+
+    if (!phoneNumber || phoneNumber.length < 10) {
+        showToast('Please enter a valid phone number');
+        return;
+    }
+
+    // Show loading state
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.textContent = 'Processing...';
+    btn.disabled = true;
+
+    // Simulate payment processing delay
+    setTimeout(() => {
+        completeOrder(fullName, phoneNumber);
+        
+        // Reset UI
+        btn.textContent = originalText;
+        btn.disabled = false;
+        closePaymentModal();
+    }, 2000);
+}
+
+function completeOrder(fullName, phoneNumber) {
     const orderId = 'ORD-' + Date.now();
     const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
     const tax = Math.round(subtotal * 0.05);
@@ -366,7 +450,15 @@ function checkout() {
         date: new Date().toISOString(),
         items: cart.map(item => ({ ...item, qty: item.qty || 1 })),
         total: total,
-        status: 'pending'
+        status: 'pending',
+        payment: {
+            method: 'Mobile Money',
+            phone: phoneNumber,
+            status: 'paid'
+        },
+        customer: {
+            name: fullName
+        }
     };
 
     orders.unshift(order);
@@ -374,7 +466,7 @@ function checkout() {
     saveBuyerData();
     render();
     switchTab('orders', null);
-    showToast('Order placed successfully! 🎉');
+    showToast('Payment successful! Order placed. 🎉');
 }
 
 // ============= ORDER FILTERING =============
