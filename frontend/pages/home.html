@@ -39,7 +39,13 @@ the farmer goes on his or her dashboard.
 
     <section class="filters-section" id="filters-section">
         <div class="product-filters" id="product-filters">
-            <label for="category-filter">Filter by category:</label>
+            <label for="search-products">Search Products:</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="search-products" name="search" placeholder="Search by product name...">
+                <button id="search-btn" class="apply-filters" style="width: auto; padding: 0.75rem 1.5rem;">🔍 Search</button>
+            </div>
+
+            <label for="category-filter">Filter by Category:</label>
             <select id="category-filter" name="category">
                 <option value="all">All</option>
                 <option value="fruits">Fruits</option>
@@ -49,7 +55,7 @@ the farmer goes on his or her dashboard.
                 <option value="meat">Meat</option>
             </select>
 
-            <label for="harvest-time">Filter by Harvest time:</label>
+            <label for="harvest-time">Filter by Harvest Time:</label>
             <select id="harvest-time" name="harvest-time">
                 <option value="all">All</option>
                 <option value="pre-harvest">Preharvest</option>
@@ -57,31 +63,18 @@ the farmer goes on his or her dashboard.
                 <option value="harvested">Harvested(week)</option>
             </select>
 
-            <label for="price-filter">Filter by price:</label>
+            <label for="price-filter">Filter by Price:</label>
             <select id="price-filter" name="price">
                 <option value="all">All</option>
                 <option value="low-to-high">Low to High</option>
                 <option value="high-to-low">High to Low</option>
             </select>
 
-            <label for="province-filter">Filter by province:</label>
-            <select id="province-filter" name="province">
-                <option value="all">Select province:</option>
+            <label for="districtSelect">Filter by District:</label>
+            <select id="districtSelect">
+                <option value="">-- Choose District --</option>
             </select>
 
-            <label for="district-filter">Filter by District</label>
-            <select id="district-filter" name="district">
-                <option value="all">Select district:</option>
-            </select>
-
-            <label for="quantity-filter">Filter by quantity:</label>
-            <select id="quantity-filter" name="quantity">
-                <option value="all">select quantity size:</option>
-                <option value="small">Small (1-100kg)</option>
-                <option value="medium">Medium (100-500kg)</option>
-                <option value="large">Large (500-1000kg)</option>
-                <option value="extra-large">Extra Large (1000kg+)</option>
-            </select>
             <button class="apply-filters" id="apply-filters">Apply Filters</button>
         </div>
     </section>
@@ -108,6 +101,8 @@ the farmer goes on his or her dashboard.
 
     <script src="../scripts/404-handler.js"></script>
     <script src="../scripts/toggle.js"></script>
+    <script src="../scripts/product.js"></script>
     <script src="../scripts/filters.js"></script>
+    <script src="../scripts/session.js"></script>
 </body>
 </html>

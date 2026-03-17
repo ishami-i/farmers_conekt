@@ -58,9 +58,6 @@
             <a class="nav-item" href="#" onclick="switchTab('orders', this); closeSidebarOnMobile()">
                 <span class="nav-icon">◱</span> My Orders
             </a>
-            <a class="nav-item" href="#" onclick="switchTab('wishlist', this); closeSidebarOnMobile()">
-                <span class="nav-icon">♡</span> Wishlist
-            </a>
             <div class="nav-label" style="margin-top:16px;">Account</div>
             <a class="nav-item" href="#" onclick="switchTab('profile', this); closeSidebarOnMobile()">
                 <span class="nav-icon">👤</span> My Profile
@@ -103,11 +100,6 @@
                         <div class="stat-icon">📦</div>
                         <div class="stat-value" id="stat-orders">0</div>
                         <div class="stat-label">Total Orders</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">💚</div>
-                        <div class="stat-value" id="stat-wishlist">0</div>
-                        <div class="stat-label">Wishlist Items</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">✓</div>
@@ -176,25 +168,6 @@
                             <div class="empty-icon">📦</div>
                             <div class="empty-text">No orders found</div>
                             <div class="empty-sub">You haven't placed any orders yet</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- WISHLIST TAB -->
-            <div id="wishlist-tab" class="tab-content">
-                <div class="section-card">
-                    <div class="section-header">
-                        <div>
-                            <div class="section-title">My Wishlist</div>
-                            <div class="section-subtitle">Products you're interested in</div>
-                        </div>
-                    </div>
-                    <div id="wishlist-items" class="items-list">
-                        <div class="empty-state">
-                            <div class="empty-icon">♡</div>
-                            <div class="empty-text">Your wishlist is empty</div>
-                            <div class="empty-sub">Add products you'd like to buy later</div>
                         </div>
                     </div>
                 </div>
