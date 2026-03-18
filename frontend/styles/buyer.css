@@ -332,12 +332,14 @@ body {
     margin-left: auto;
     background: var(--yellow);
     color: var(--green-deep);
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 700;
-    padding: 2px 6px;
+    padding: 3px 7px;
     border-radius: 20px;
     flex-shrink: 0;
     display: none;
+    min-width: 18px;
+    text-align: center;
 }
 
 .sidebar-footer {

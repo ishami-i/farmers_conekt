@@ -7,10 +7,10 @@
  * 4. Logout functionality
  */
 
-(function() {
+(function () {
   const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  const SESSION_KEY = 'userSession';
-  const PROTECTED_PAGES = ['farmer.html', 'buyer.html'];
+  const SESSION_KEY = "userSession";
+  const PROTECTED_PAGES = ["farmer.html", "buyer.html"];
 
   /**
    * Check if user has an active session
@@ -18,22 +18,34 @@
    */
   function getUserSession() {
     try {
+      // Primary: use the structured session object used by login.js
       const sessionData = localStorage.getItem(SESSION_KEY);
-      if (!sessionData) return null;
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        const currentTime = new Date().getTime();
+        const sessionAge = currentTime - (session.loginTime || 0);
 
-      const session = JSON.parse(sessionData);
-      const currentTime = new Date().getTime();
-      const sessionAge = currentTime - session.loginTime;
+        // Check if session has expired
+        if (sessionAge > SESSION_TIMEOUT) {
+          logout();
+          return null;
+        }
 
-      // Check if session has expired
-      if (sessionAge > SESSION_TIMEOUT) {
-        logout();
-        return null;
+        return session;
       }
 
-      return session;
+      // Fallback: legacy session storage key used by older scripts
+      const legacy = localStorage.getItem("session");
+      if (!legacy) return null;
+      const parsed = JSON.parse(legacy);
+      // Create a minimal session object with a login timestamp
+      return {
+        ...parsed,
+        loginTime: Date.now(),
+        token: localStorage.getItem("token") || null,
+      };
     } catch (error) {
-      console.error('Error reading session:', error);
+      console.error("Error reading session:", error);
       return null;
     }
   }
@@ -44,7 +56,7 @@
    */
   function isProtectedPage() {
     const pathname = window.location.pathname;
-    const currentPage = pathname.split('/').pop() || 'home.html';
+    const currentPage = pathname.split("/").pop() || "home.html";
     return PROTECTED_PAGES.includes(currentPage);
   }
 
@@ -53,7 +65,8 @@
    */
   function redirectToLogin() {
     const returnUrl = window.location.pathname + window.location.search;
-    window.location.href = './login.html?redirect=' + encodeURIComponent(returnUrl);
+    window.location.href =
+      "./login.html?redirect=" + encodeURIComponent(returnUrl);
   }
 
   /**
@@ -61,8 +74,8 @@
    */
   function logout() {
     localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem('rememberedEmail');
-    window.location.href = './login.html';
+    localStorage.removeItem("rememberedEmail");
+    window.location.href = "./login.html";
   }
 
   /**
@@ -89,15 +102,15 @@
     if (!session) return;
 
     // Update farmer profile name if element exists
-    const farmerNameEl = document.querySelector('.farmer-name');
+    const farmerNameEl = document.querySelector(".farmer-name");
     if (farmerNameEl) {
-      farmerNameEl.textContent = session.email.split('@')[0];
+      farmerNameEl.textContent = session.email.split("@")[0];
     }
 
     // Update topbar user info if element exists
-    const topbarNameEl = document.querySelector('.topbar-left h2');
+    const topbarNameEl = document.querySelector(".topbar-left h2");
     if (topbarNameEl) {
-      const greeting = `Welcome, ${session.email.split('@')[0]}!`;
+      const greeting = `Welcome, ${session.email.split("@")[0]}!`;
       topbarNameEl.textContent = greeting;
     }
   }
@@ -109,41 +122,44 @@
     if (!isProtectedPage()) return;
 
     // Check session every 5 minutes
-    setInterval(() => {
-      const session = getUserSession();
-      if (!session) {
-        alert('Your session has expired. Please log in again.');
-        redirectToLogin();
-      }
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        const session = getUserSession();
+        if (!session) {
+          alert("Your session has expired. Please log in again.");
+          redirectToLogin();
+        }
+      },
+      5 * 60 * 1000,
+    );
   }
 
   /**
    * Make logout function globally accessible
    */
-  window.logoutUser = function() {
+  window.logoutUser = function () {
     logout();
   };
 
   /**
    * Make session check globally accessible
    */
-  window.getSession = function() {
+  window.getSession = function () {
     return getUserSession();
   };
 
   /**
    * Initialize on page load
    */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     checkAuthentication();
     displayUserInfo();
     monitorSession();
   });
 
   // Also check immediately (in case DOMContentLoaded already fired)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAuthentication);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkAuthentication);
   } else {
     checkAuthentication();
   }

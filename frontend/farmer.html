@@ -810,6 +810,22 @@
       .btn-cancel:hover {
         background: var(--cream);
       }
+      .btn-upload {
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--cream-dark);
+        background: var(--white);
+        color: var(--text-dark);
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 8px;
+      }
+      .btn-upload:hover {
+        background: var(--cream);
+      }
       .btn-save {
         padding: 10px 26px;
         border-radius: var(--radius-sm);
@@ -1088,10 +1104,10 @@
         <a class="sb-item active" href="#" onclick="openDashboard(event)">
           <span class="sb-icon">&#9781;</span> Dashboard
         </a>
-        <a class="sb-item" href="#" onclick="comingSoon(event, 'Orders')">
+        <a class="sb-item" href="#" onclick="openOrders(event)">
           <span class="sb-icon">&#9635;</span> Orders
         </a>
-        <a class="sb-item" href="#" onclick="comingSoon(event, 'Payments')">
+        <a class="sb-item" href="#" onclick="openPayments(event)">
           <span class="sb-icon">&#9672;</span> Payments
         </a>
         <div class="sb-nav-label" style="margin-top: 14px">Account</div>
@@ -1261,6 +1277,74 @@
           </div>
         </div>
       </div>
+
+      <!-- ORDERS VIEW -->
+      <div
+        class="orders-page"
+        id="page-orders"
+        style="display: none; padding: 28px 32px"
+      >
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Orders</div>
+              <div class="section-sub">
+                Orders received from buyers. Mark as paid once fulfilled.
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Buyer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody"></tbody>
+            </table>
+          </div>
+          <div class="mob-cards" id="orders-mob-cards"></div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS VIEW -->
+      <div
+        class="payments-page"
+        id="page-payments"
+        style="display: none; padding: 28px 32px"
+      >
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Payments</div>
+              <div class="section-sub">
+                Keep track of payments received from buyers.
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Buyer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Payment Status</th>
+                </tr>
+              </thead>
+              <tbody id="payments-tbody"></tbody>
+            </table>
+          </div>
+          <div class="mob-cards" id="payments-mob-cards"></div>
+        </div>
+      </div>
     </main>
 
     <!-- ADD / EDIT PRODUCT MODAL -->
@@ -1389,7 +1473,17 @@
               <div class="crop-hint" id="crop-hint">
                 <div class="crop-icon">📷</div>
                 <div class="crop-label">Tap to upload crop photo</div>
-                <div class="crop-sub">JPG, PNG or WEBP</div>
+                <div class="crop-sub">JPG, PNG or WEBP (max 2MB)</div>
+                <button
+                  type="button"
+                  class="btn-upload"
+                  onclick="
+                    event.stopPropagation();
+                    document.getElementById('crop-input').click();
+                  "
+                >
+                  Choose photo
+                </button>
               </div>
               <img
                 id="crop-preview"
@@ -1440,6 +1534,7 @@
       const API_PREFIX = API_BASE + "/api";
 
       var products = [];
+      var farmerOrders = [];
       var editingId = null;
       var cropImageData = null;
       var cropImageFile = null;
@@ -1449,29 +1544,90 @@
         total_earnings: 0,
       };
 
-      function getToken() {
-        return localStorage.getItem("token");
-      }
-
       function getUserRole() {
-        return localStorage.getItem("role");
+        const role = localStorage.getItem("role");
+        if (role) return role;
+        try {
+          const session = JSON.parse(
+            localStorage.getItem("userSession") || "null",
+          );
+          return session && session.role ? session.role : null;
+        } catch (e) {
+          return null;
+        }
       }
 
       function getFarmerId() {
-        return localStorage.getItem("farmer_id");
+        const id = localStorage.getItem("farmer_id");
+        if (id) return id;
+        try {
+          const session = JSON.parse(
+            localStorage.getItem("userSession") || "null",
+          );
+          return session && session.farmer_id ? session.farmer_id : null;
+        } catch (e) {
+          return null;
+        }
       }
 
       function getUserId() {
-        return localStorage.getItem("user_id");
+        const id = localStorage.getItem("user_id");
+        if (id) return id;
+        try {
+          const session = JSON.parse(
+            localStorage.getItem("userSession") || "null",
+          );
+          return session && session.user_id ? session.user_id : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function getToken() {
+        // Primary token storage
+        const token = localStorage.getItem("token");
+        if (token) return token;
+
+        // Fallback to session object used by login.js
+        try {
+          const session = JSON.parse(
+            localStorage.getItem("userSession") || "null",
+          );
+          return session && session.token ? session.token : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function showToast(message, type) {
+        const toast = document.getElementById("toast");
+        const msg = document.getElementById("toast-msg");
+        if (!toast || !msg) return;
+
+        msg.textContent = message;
+        toast.className = "toast" + (type ? " " + type : "");
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3200);
       }
 
       function apiFetch(path, options) {
         options = options || {};
         options.headers = options.headers || {};
+
         const token = getToken();
-        if (token) {
-          options.headers["Authorization"] = "Bearer " + token;
+        if (!token) {
+          // If we don't have a token, force login so backend stops sending 401s.
+          console.warn("apiFetch: no auth token found, redirecting to login.");
+          window.location.href =
+            "./pages/login.html?redirect=" +
+            encodeURIComponent(window.location.pathname);
+          return Promise.reject(new Error("Missing auth token"));
         }
+
+        options.headers["Authorization"] = "Bearer " + token;
 
         if (
           !options.headers["Content-Type"] &&
@@ -1489,7 +1645,15 @@
           }
           if (!res.ok) {
             const message =
-              (body && (body.error || body.message)) || res.statusText;
+              (body && (body.error || body.message || body.msg)) ||
+              res.statusText;
+            console.error("apiFetch error", path, res.status, message, body);
+            if (res.status === 401) {
+              // force relogin on unauthorized
+              window.location.href =
+                "./pages/login.html?redirect=" +
+                encodeURIComponent(window.location.pathname);
+            }
             throw new Error(message);
           }
           return body;
@@ -1498,13 +1662,20 @@
 
       function ensureAuthenticated() {
         if (!getToken() || getUserRole() !== "farmer" || !getFarmerId()) {
-          window.location.href = "../pages/login.html";
+          window.location.href = "./pages/login.html";
           return false;
         }
         return true;
       }
 
       function normalizeProduct(p) {
+        // Ensure we show a district name (not just an ID) when available
+        const district = p.district_name || p.district_id || "—";
+
+        // Normalize date strings to yyyy-mm-dd for date inputs
+        const harvest = p.harvest_date ? p.harvest_date.slice(0, 10) : "";
+        const expiry = p.expiration_date ? p.expiration_date.slice(0, 10) : "";
+
         return {
           id: p.product_id,
           name: p.product_name,
@@ -1512,9 +1683,9 @@
           price: Number(p.price_per_unit || 0),
           unit: p.unit || "kg",
           qty: Number(p.quantity_available || 0),
-          district: p.district_id ? String(p.district_id) : "—",
-          harvest: p.harvest_date || "",
-          expiry: p.expiration_date || "",
+          district: district,
+          harvest: harvest,
+          expiry: expiry,
           desc: p.description || "",
           status: p.status || "available",
           image: p.image_url
@@ -1527,7 +1698,12 @@
 
       function formatDate(s) {
         if (!s) return "—";
-        var d = new Date(s + "T00:00:00");
+        var d = new Date(s);
+        if (isNaN(d.getTime())) {
+          // Try parsing yyyy-mm-dd strings
+          d = new Date(s + "T00:00:00");
+        }
+        if (isNaN(d.getTime())) return "—";
         return d.toLocaleDateString("en-GB", {
           day: "numeric",
           month: "short",
@@ -1814,17 +1990,20 @@
           showToast("Please enter a valid quantity.");
           return;
         }
-        if (!harvest) {
-          showToast("Please enter the harvest date.");
-          return;
-        }
-        if (!expiry) {
-          showToast("Please enter the expiration date.");
-          return;
-        }
-        if (new Date(expiry) <= new Date(harvest)) {
-          showToast("Expiry must be after harvest date.");
-          return;
+        // Only require harvest/expiry on new products
+        if (editingId === null) {
+          if (!harvest) {
+            showToast("Please enter the harvest date.");
+            return;
+          }
+          if (!expiry) {
+            showToast("Please enter the expiration date.");
+            return;
+          }
+          if (new Date(expiry) <= new Date(harvest)) {
+            showToast("Expiry must be after harvest date.");
+            return;
+          }
         }
 
         try {
@@ -1951,6 +2130,8 @@
         e.preventDefault();
         closeDrawer();
         document.getElementById("page-dashboard").style.display = "none";
+        document.getElementById("page-orders").style.display = "none";
+        document.getElementById("page-payments").style.display = "none";
         document.getElementById("page-profile").style.display = "block";
         document.getElementById("topbar-title").textContent = "My Profile";
         document.getElementById("topbar-sub").textContent =
@@ -1969,6 +2150,8 @@
           closeDrawer();
         }
         document.getElementById("page-dashboard").style.display = "block";
+        document.getElementById("page-orders").style.display = "none";
+        document.getElementById("page-payments").style.display = "none";
         document.getElementById("page-profile").style.display = "none";
         document.getElementById("topbar-title").textContent =
           "Farmer Dashboard";
@@ -1980,6 +2163,44 @@
         document
           .querySelector('[onclick="openDashboard(event)"]')
           .classList.add("active");
+      }
+
+      function openOrders(e) {
+        e.preventDefault();
+        closeDrawer();
+        document.getElementById("page-dashboard").style.display = "none";
+        document.getElementById("page-profile").style.display = "none";
+        document.getElementById("page-payments").style.display = "none";
+        document.getElementById("page-orders").style.display = "block";
+        document.getElementById("topbar-title").textContent = "Orders";
+        document.getElementById("topbar-sub").textContent =
+          "Orders placed by buyers for your products.";
+        document.querySelectorAll(".sb-item").forEach(function (el) {
+          el.classList.remove("active");
+        });
+        document
+          .querySelector('[onclick="openOrders(event)"]')
+          .classList.add("active");
+        loadOrders();
+      }
+
+      function openPayments(e) {
+        e.preventDefault();
+        closeDrawer();
+        document.getElementById("page-dashboard").style.display = "none";
+        document.getElementById("page-profile").style.display = "none";
+        document.getElementById("page-orders").style.display = "none";
+        document.getElementById("page-payments").style.display = "block";
+        document.getElementById("topbar-title").textContent = "Payments";
+        document.getElementById("topbar-sub").textContent =
+          "Track payment status for your orders.";
+        document.querySelectorAll(".sb-item").forEach(function (el) {
+          el.classList.remove("active");
+        });
+        document
+          .querySelector('[onclick="openPayments(event)"]')
+          .classList.add("active");
+        loadOrders();
       }
 
       async function loadProfile() {
@@ -2085,7 +2306,7 @@
           localStorage.removeItem("district_id");
           showToast("Logging out...");
           setTimeout(function () {
-            window.location.href = "../pages/login.html";
+            window.location.href = "./pages/login.html";
           }, 800);
         }
       }
@@ -2112,6 +2333,205 @@
         } catch (err) {
           console.error(err);
           showToast("Failed to load products.", "error");
+        }
+      }
+
+      async function loadOrders() {
+        if (!ensureAuthenticated()) return;
+        try {
+          const farmerId = getFarmerId();
+          const serverOrders = await apiFetch(
+            "/farmers/orders/" + farmerId + "?farmer_id=" + farmerId,
+          );
+          farmerOrders = serverOrders || [];
+          renderOrders();
+          renderPayments();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load orders.", "error");
+        }
+      }
+
+      function renderOrders() {
+        var tbody = document.getElementById("orders-tbody");
+        var mob = document.getElementById("orders-mob-cards");
+        if (!tbody || !mob) return;
+
+        if (farmerOrders.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="7" style="padding:0;border:none;">' +
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No orders yet</div>' +
+            '<div class="empty-sub">Orders will appear here when buyers place them.</div>' +
+            "</div></td></tr>";
+
+          mob.innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No orders yet</div>' +
+            '<div class="empty-sub">Orders will appear here when buyers place them.</div>' +
+            "</div>";
+          return;
+        }
+
+        var rows = "";
+        var mobHtml = "";
+        for (var i = 0; i < farmerOrders.length; i++) {
+          var order = farmerOrders[i];
+          var paid = order.payment_status === "paid";
+          var status = order.order_status || "pending";
+          rows +=
+            "<tr>" +
+            "<td>#" +
+            order.order_id +
+            "</td>" +
+            "<td>" +
+            (order.buyer_name || "—") +
+            "</td>" +
+            "<td>" +
+            formatDate(order.order_date) +
+            "</td>" +
+            "<td>" +
+            Number(order.total_payment || 0).toLocaleString() +
+            " RWF</td>" +
+            "<td>" +
+            status.charAt(0).toUpperCase() +
+            status.slice(1) +
+            "</td>" +
+            "<td>" +
+            (paid ? "Paid" : "Pending") +
+            "</td>" +
+            '<td><button class="tbl-btn" ' +
+            (paid
+              ? "disabled"
+              : 'onclick="markOrderPaid(' + order.order_id + ')"') +
+            ">" +
+            (paid ? "Paid" : "Mark as paid") +
+            "</button></td>" +
+            "</tr>";
+
+          mobHtml +=
+            '<div class="mob-card">' +
+            '<div class="mob-card-body">' +
+            '<div class="mob-card-name">Order #' +
+            order.order_id +
+            "</div>" +
+            '<div class="mob-card-cat">' +
+            "Buyer: " +
+            (order.buyer_name || "—") +
+            "</div>" +
+            '<div class="mob-card-meta">' +
+            '<span class="mob-card-dist">' +
+            "Total: " +
+            Number(order.total_payment || 0).toLocaleString() +
+            " RWF</span>" +
+            '<span class="mob-card-price">' +
+            "Status: " +
+            (paid ? "Paid" : "Pending") +
+            "</span>" +
+            "</div>" +
+            '<div class="mob-card-acts">' +
+            (paid
+              ? ""
+              : '<button class="mob-act-btn" onclick="markOrderPaid(' +
+                order.order_id +
+                ')">Mark paid</button>') +
+            "</div>" +
+            "</div></div>";
+        }
+
+        tbody.innerHTML = rows;
+        mob.innerHTML = mobHtml;
+      }
+
+      function renderPayments() {
+        var tbody = document.getElementById("payments-tbody");
+        var mob = document.getElementById("payments-mob-cards");
+        if (!tbody || !mob) return;
+
+        if (farmerOrders.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" style="padding:0;border:none;">' +
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No payments yet</div>' +
+            '<div class="empty-sub">Payments will appear here once orders are processed.</div>' +
+            "</div></td></tr>";
+
+          mob.innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-icon">⊟</div>' +
+            '<div class="empty-text">No payments yet</div>' +
+            '<div class="empty-sub">Payments will appear here once orders are processed.</div>' +
+            "</div>";
+          return;
+        }
+
+        var rows = "";
+        var mobHtml = "";
+        for (var i = 0; i < farmerOrders.length; i++) {
+          var order = farmerOrders[i];
+          var paid = order.payment_status === "paid";
+          rows +=
+            "<tr>" +
+            "<td>#" +
+            order.order_id +
+            "</td>" +
+            "<td>" +
+            (order.buyer_name || "—") +
+            "</td>" +
+            "<td>" +
+            formatDate(order.order_date) +
+            "</td>" +
+            "<td>" +
+            Number(order.total_payment || 0).toLocaleString() +
+            " RWF</td>" +
+            "<td>" +
+            (paid ? "Paid" : "Pending") +
+            "</td>" +
+            "</tr>";
+
+          mobHtml +=
+            '<div class="mob-card">' +
+            '<div class="mob-card-body">' +
+            '<div class="mob-card-name">Order #' +
+            order.order_id +
+            "</div>" +
+            '<div class="mob-card-cat">' +
+            "Buyer: " +
+            (order.buyer_name || "—") +
+            "</div>" +
+            '<div class="mob-card-meta">' +
+            '<span class="mob-card-dist">' +
+            "Total: " +
+            Number(order.total_payment || 0).toLocaleString() +
+            " RWF</span>" +
+            '<span class="mob-card-price">' +
+            (paid ? "Paid" : "Pending") +
+            "</span>" +
+            "</div>" +
+            "</div></div>";
+        }
+
+        tbody.innerHTML = rows;
+        mob.innerHTML = mobHtml;
+      }
+
+      async function markOrderPaid(orderId) {
+        try {
+          var farmerId = getFarmerId();
+          await apiFetch(
+            "/farmers/orders/" + orderId + "/mark-paid?farmer_id=" + farmerId,
+            {
+              method: "PUT",
+            },
+          );
+          showToast("Order marked as paid.");
+          await loadOrders();
+        } catch (err) {
+          console.error(err);
+          showToast("Could not update payment status.", "error");
         }
       }
 

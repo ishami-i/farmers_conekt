@@ -13,13 +13,12 @@ var currentRole = null; // 'farmer' or 'buyer'
 var orderCounter = 1000; // gives each order a unique number
 
 // Base API endpoint (can be overridden by setting window.API_BASE_URL)
-// If the page is opened via file://, window.location.origin will be "null",
-// so fall back to localhost API during development.
-var API_BASE =
-  window.API_BASE_URL ||
-  (window.location.origin && window.location.origin !== "null"
-    ? window.location.origin
-    : "http://localhost:5000");
+// Default to localhost:5000 for backend during local development.
+var API_BASE = window.API_BASE_URL || "http://localhost:5000";
+
+// If the login page was reached with ?redirect=<url>, use it after successful auth.
+var urlParams = new URLSearchParams(window.location.search);
+var redirectAfterLogin = urlParams.get("redirect");
 
 // Which method is selected on the login / signup forms
 var loginMethod = { farmer: "email", buyer: "email" };
@@ -302,7 +301,7 @@ async function doSignup(role) {
         phone: phone || null,
         password: pass,
         role: role,
-        district_id: 1, // TODO: replace with actual district selection
+        district_id: null, // backend will accept null and user can update later
       };
 
       var response = await fetch(API_BASE + "/api/auth/register", {
@@ -313,9 +312,17 @@ async function doSignup(role) {
         body: JSON.stringify(payload),
       });
 
-      var data = await response.json();
+      var data;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        var text = await response.text();
+        data = { error: text || "Server error" };
+      }
       if (!response.ok) {
-        showToast(data.error || data.message || "Signup failed.", "error");
+        const message =
+          data.error || data.message || response.statusText || "Signup failed.";
+        showToast(message, "error");
         return;
       }
 
@@ -327,6 +334,18 @@ async function doSignup(role) {
       if (data.district_id)
         localStorage.setItem("district_id", data.district_id);
       localStorage.setItem("first_name", first);
+
+      // Support session management used by session.js
+      const sessionPayload = {
+        token: data.token,
+        email: email || phone,
+        role: role,
+        user_id: data.user_id,
+        farmer_id: data.farmer_id || null,
+        buyer_id: data.buyer_id || null,
+        loginTime: Date.now(),
+      };
+      localStorage.setItem("userSession", JSON.stringify(sessionPayload));
       localStorage.setItem(
         "session",
         JSON.stringify({
@@ -336,8 +355,9 @@ async function doSignup(role) {
         }),
       );
 
-      window.location.href =
+      const defaultRedirect =
         role === "farmer" ? "../farmer.html" : "buyer.html";
+      window.location.href = redirectAfterLogin || defaultRedirect;
       showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
     } catch (err) {
       console.error(err);
@@ -385,9 +405,17 @@ async function doLogin(role) {
         body: JSON.stringify(payload),
       });
 
-      var data = await response.json();
+      var data;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        var text = await response.text();
+        data = { error: text || "Server error" };
+      }
       if (!response.ok) {
-        showToast(data.error || "Login failed.", "error");
+        const message =
+          data.error || data.message || response.statusText || "Login failed.";
+        showToast(message, "error");
         return;
       }
 
@@ -398,6 +426,18 @@ async function doLogin(role) {
       if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
       if (data.district_id)
         localStorage.setItem("district_id", data.district_id);
+
+      // Support session management used by session.js
+      const sessionPayload = {
+        token: data.token,
+        email: credential,
+        role: role,
+        user_id: data.user_id,
+        farmer_id: data.farmer_id || null,
+        buyer_id: data.buyer_id || null,
+        loginTime: Date.now(),
+      };
+      localStorage.setItem("userSession", JSON.stringify(sessionPayload));
       localStorage.setItem(
         "session",
         JSON.stringify({
@@ -407,8 +447,9 @@ async function doLogin(role) {
         }),
       );
 
-      window.location.href =
+      const defaultRedirect =
         role === "farmer" ? "../farmer.html" : "buyer.html";
+      window.location.href = redirectAfterLogin || defaultRedirect;
       showToast("Welcome back!", "success");
     } catch (err) {
       console.error(err);
