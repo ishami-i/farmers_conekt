@@ -188,7 +188,7 @@ def get_buyer_orders(buyer_id):
 def delivery_status(order_id):
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     query = """
     SELECT

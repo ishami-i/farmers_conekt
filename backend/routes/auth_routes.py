@@ -12,6 +12,7 @@ auth_routes = Blueprint("auth_routes", __name__)
 def register():
 
     data = request.json
+    print("Received data:", data)  # Debug
 
     password = data["password"].encode("utf-8")
     hashed = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -24,12 +25,27 @@ def register():
     VALUES (%s,%s,%s,%s,%s)
     """
 
+    # Ensure all fields are correct types
+    name = data["name"]
+    email = data["email"]
+    role = data["role"]
+    phone = data.get("phone")
+
+    if not isinstance(name, str):
+        name = str(name)
+    if email is not None and not isinstance(email, str):
+        email = str(email)
+    if not isinstance(role, str):
+        role = str(role)
+    if phone is not None and not isinstance(phone, str):
+        phone = str(phone)
+
     cursor.execute(query, (
-        data["name"],
-        data["email"],
+        name,
+        email,
         hashed,
-        data["role"],
-        data.get("phone")
+        role,
+        phone
     ))
 
     user_id = cursor.lastrowid
@@ -52,6 +68,13 @@ def register():
         """
         cursor.execute(profile_query, (user_id, district_id))
         buyer_id = cursor.lastrowid
+    elif role == "transporter":
+        profile_query = """
+        INSERT INTO transporters (user_id, plate_number, capacity_kg)
+        VALUES (%s, %s, %s)
+        """
+        cursor.execute(profile_query, (user_id, data.get("vehicle_type", ""), data.get("capacity", 0)))
+        transporter_id = cursor.lastrowid
 
     connection.commit()
     connection.close()
@@ -70,6 +93,7 @@ def register():
         "role": role,
         "farmer_id": locals().get("farmer_id"),
         "buyer_id": locals().get("buyer_id"),
+        "transporter_id": locals().get("transporter_id"),
         "district_id": district_id,
     })
 
@@ -108,9 +132,10 @@ def login():
         }
     )
 
-    # Include role-specific identifiers (farmer_id/buyer_id) and district_id
+    # Include role-specific identifiers (farmer_id/buyer_id/transporter_id) and district_id
     farmer_id = None
     buyer_id = None
+    transporter_id = None
     district_id = None
 
     if user["role"] == "farmer":
@@ -127,12 +152,19 @@ def login():
             buyer_id = buyer.get("buyer_id")
             district_id = buyer.get("district_id")
 
+    if user["role"] == "transporter":
+        cursor.execute("SELECT transporter_id FROM transporters WHERE user_id=%s", (user["user_id"],))
+        transporter = cursor.fetchone()
+        if transporter:
+            transporter_id = transporter.get("transporter_id")
+
     return jsonify({
         "token": token,
         "role": user["role"],
         "user_id": user["user_id"],
         "farmer_id": farmer_id,
         "buyer_id": buyer_id,
+        "transporter_id": transporter_id,
         "district_id": district_id,
     })
 

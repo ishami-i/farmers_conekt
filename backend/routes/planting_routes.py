@@ -46,7 +46,7 @@ def create_planting_plan():
 def get_planned_supply():
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     query = """
     SELECT
@@ -75,7 +75,7 @@ def get_planned_supply():
 def farmer_adjustments():
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     # Get all planting plans
     cursor.execute("""
@@ -139,21 +139,21 @@ def farmer_adjustments():
                 f"Recommended quantity: {round(new_quantity, 2)} units."
             )
 
-            # 5️⃣ Check if notification already exists today
+# Check if notification already exists today
             cursor.execute("""
                 SELECT notification_id
                 FROM notifications
-    WHERE plan_id = %s
-    AND DATE(created_at) = CURDATE()
-""", (f["plan_id"],))
+                WHERE plan_id = %s
+                AND DATE(created_at) = CURDATE()
+            """, (f["plan_id"],))
 
-existing = cursor.fetchone()
+            existing = cursor.fetchone()
 
-            # Insert notification into DB
-            cursor.execute("""
-                INSERT INTO notifications (farmer_id, plan_id, message)
-                VALUES (%s, %s, %s)
-            """, (f["farmer_id"], f["plan_id"], message))
+            if not existing:
+                cursor.execute("""
+                    INSERT INTO notifications (farmer_id, plan_id, message)
+                    VALUES (%s, %s, %s)
+                """, (f["farmer_id"], f["plan_id"], message))
 
             results.append({
                 "farmer_id": f["farmer_id"],
@@ -183,7 +183,7 @@ def get_notifications():
     farmer_id = get_jwt_identity()
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     cursor.execute("""
         SELECT notification_id, message, is_read, created_at
