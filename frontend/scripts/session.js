@@ -10,7 +10,7 @@
 (function () {
   const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const SESSION_KEY = "userSession";
-  const PROTECTED_PAGES = ["farmer.html", "buyer.html"];
+  const PROTECTED_PAGES = ["farmer.html", "buyer.html", "transporter.html"];
 
   /**
    * Check if user has an active session

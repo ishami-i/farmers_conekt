@@ -118,7 +118,6 @@ def place_order():
 
     data = request.json
     items = data.get("items", [])
-    total = data.get("total", 0)
     pickup_location = data.get("pickup_location") or data.get("pickup_district") or ""
     dropoff_location = data.get("delivery_location") or data.get("delivery_district") or ""
 
@@ -134,23 +133,53 @@ def place_order():
             return jsonify({"error": "Buyer profile not found"}), 404
         buyer_id = buyer_row["buyer_id"]
 
-        order_query = "INSERT INTO orders (buyer_id, status, total_payment, payment_status, created_at) VALUES (%s, 'pending', %s, 'pending', NOW())"
-        cursor.execute(order_query, (buyer_id, total))
+        # Calculate product subtotal
+        product_subtotal = 0
+        for item in items:
+            product_subtotal += item["price"] * item["quantity"]
+
+        # Calculate delivery fee (fixed fee of 5.00 for now, can be made dynamic later)
+        delivery_fee = 5.00
+
+        # Total payment = products + delivery
+        total_payment = product_subtotal + delivery_fee
+
+        # Create order with breakdown
+        order_query = """
+        INSERT INTO orders (buyer_id, status, total_payment, payment_status, created_at)
+        VALUES (%s, 'pending', %s, 'pending', NOW())
+        """
+        cursor.execute(order_query, (buyer_id, total_payment))
         order_id = cursor.lastrowid
 
+        # Insert order details
         for item in items:
-            detail_query = "INSERT INTO order_details (order_id, product_id, price, quantity) VALUES (%s, %s, %s, %s)"
+            detail_query = """
+            INSERT INTO order_details (order_id, product_id, price, quantity)
+            VALUES (%s, %s, %s, %s)
+            """
             cursor.execute(detail_query, (order_id, item["product_id"], item["price"], item["quantity"]))
 
-        # Record delivery details
-        delivery_query = "INSERT INTO deliveries (order_id, pickup_location, dropoff_location) VALUES (%s, %s, %s)"
-        cursor.execute(delivery_query, (order_id, pickup_location, dropoff_location))
+        # Create delivery record with fee
+        delivery_query = """
+        INSERT INTO deliveries (order_id, pickup_location, dropoff_location, delivery_fee, status)
+        VALUES (%s, %s, %s, %s, 'pending')
+        """
+        cursor.execute(delivery_query, (order_id, pickup_location, dropoff_location, delivery_fee))
 
         connection.commit()
-        return jsonify({"message": "Order placed successfully", "order_id": order_id}), 201
+        return jsonify({
+            "message": "Order placed successfully",
+            "order_id": order_id,
+            "breakdown": {
+                "product_subtotal": product_subtotal,
+                "delivery_fee": delivery_fee,
+                "total": total_payment
+            }
+        }), 201
 
     except Exception as e:
-        connection.rollback() # Undo changes if anything fails
+        connection.rollback()
         return jsonify({"error": "Failed to place order", "details": str(e)}), 500
     finally:
         connection.close()

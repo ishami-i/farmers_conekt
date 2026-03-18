@@ -110,28 +110,43 @@ def accept_delivery():
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    query = """
-    UPDATE deliveries
-    SET transporter_id=%s,
-        status='in_transit'
-    WHERE delivery_id=%s
-    """
+    try:
+        # Get delivery fee before updating
+        cursor.execute("SELECT delivery_fee, order_id FROM deliveries WHERE delivery_id=%s", (data["delivery_id"],))
+        delivery_data = cursor.fetchone()
 
-    cursor.execute(query, (
-        transporter_id,
-        data["delivery_id"]
-    ))
+        if not delivery_data:
+            return jsonify({"error": "Delivery not found"}), 404
 
-    # also update order status to 'shipped'
-    cursor.execute(
-        "UPDATE orders SET status='shipped' WHERE order_id = (SELECT order_id FROM deliveries WHERE delivery_id=%s)",
-        (data["delivery_id"],),
-    )
+        delivery_fee = delivery_data['delivery_fee']
+        order_id = delivery_data['order_id']
 
-    connection.commit()
-    connection.close()
+        # Update delivery with transporter
+        query = """
+        UPDATE deliveries
+        SET transporter_id=%s,
+            status='in_transit'
+        WHERE delivery_id=%s
+        """
+        cursor.execute(query, (transporter_id, data["delivery_id"]))
 
-    return jsonify({"message": "Delivery accepted"})
+        # Update order status to 'shipped'
+        cursor.execute("UPDATE orders SET status='shipped' WHERE order_id=%s", (order_id,))
+
+        # Record transporter earning
+        cursor.execute("""
+            INSERT INTO transporter_earnings (transporter_id, delivery_id, order_id, amount, status)
+            VALUES (%s, %s, %s, %s, 'pending')
+        """, (transporter_id, data["delivery_id"], order_id, delivery_fee))
+
+        connection.commit()
+        return jsonify({"message": "Delivery accepted"})
+
+    except Exception as e:
+        connection.rollback()
+        return jsonify({"error": "Failed to accept delivery", "details": str(e)}), 500
+    finally:
+        connection.close()
 
 # allowing transporters to update delivery status
 
@@ -165,16 +180,22 @@ def update_delivery_status():
 
     query = """
     UPDATE deliveries
-    SET delivery_status=%s
+    SET status=%s
     WHERE delivery_id=%s
     """
 
     cursor.execute(query, (status, data["delivery_id"]))
 
-    # if delivered, also mark order delivered & paid
+    # if delivered, also mark order delivered and transporter earning as paid
     if status == "delivered":
         cursor.execute(
-            "UPDATE orders SET status='delivered', payment_status='paid' WHERE order_id=(SELECT order_id FROM deliveries WHERE delivery_id=%s)",
+            "UPDATE orders SET status='delivered' WHERE order_id=(SELECT order_id FROM deliveries WHERE delivery_id=%s)",
+            (data["delivery_id"],),
+        )
+
+        # Mark transporter earning as paid
+        cursor.execute(
+            "UPDATE transporter_earnings SET status='paid' WHERE delivery_id=%s",
             (data["delivery_id"],),
         )
 
@@ -182,4 +203,58 @@ def update_delivery_status():
     connection.close()
 
     return jsonify({"message": "Status updated"})
+
+# transporter earnings
+
+@transporter_routes.route("/earnings", methods=["GET"])
+@jwt_required()
+@role_required("transporter")
+def get_transporter_earnings():
+    user_id = get_jwt_identity()
+    transporter_id = _get_transporter_id_from_user(user_id)
+    if not transporter_id:
+        return jsonify({"error": "Transporter profile not found"}), 404
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Get earnings summary
+    cursor.execute("""
+        SELECT
+            SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_earned,
+            SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_earnings,
+            COUNT(*) as total_deliveries
+        FROM transporter_earnings
+        WHERE transporter_id = %s
+    """, (transporter_id,))
+    summary = cursor.fetchone()
+
+    # Get earnings history
+    cursor.execute("""
+        SELECT
+            te.earning_id,
+            te.amount,
+            te.status,
+            te.created_at,
+            te.delivery_id,
+            o.order_id,
+            o.total_payment
+        FROM transporter_earnings te
+        JOIN orders o ON te.order_id = o.order_id
+        WHERE te.transporter_id = %s
+        ORDER BY te.created_at DESC
+        LIMIT 50
+    """, (transporter_id,))
+    earnings_history = cursor.fetchall()
+
+    connection.close()
+
+    return jsonify({
+        "summary": {
+            "total_earned": summary["total_earned"] or 0,
+            "pending_earnings": summary["pending_earnings"] or 0,
+            "total_deliveries": summary["total_deliveries"] or 0
+        },
+        "earnings_history": earnings_history
+    })
 

@@ -124,6 +124,31 @@ CREATE TABLE reviews (
     FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE CASCADE
 );
 
+CREATE TABLE farmer_earnings (
+    earning_id INT AUTO_INCREMENT PRIMARY KEY,
+    farmer_id INT NOT NULL,
+    order_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    earning_type ENUM('product_sale', 'bonus') DEFAULT 'product_sale',
+    status ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
+
+CREATE TABLE transporter_earnings (
+    earning_id INT AUTO_INCREMENT PRIMARY KEY,
+    transporter_id INT NOT NULL,
+    delivery_id INT NOT NULL,
+    order_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id) ON DELETE CASCADE,
+    FOREIGN KEY (delivery_id) REFERENCES deliveries(delivery_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
+
 CREATE TABLE demand_analytics (
     analytics_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -135,6 +160,17 @@ CREATE TABLE demand_analytics (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    farmer_id INT,
+    plan_id INT,
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id),
+    FOREIGN KEY (plan_id) REFERENCES planting_plans(plan_id)
 );
 
 

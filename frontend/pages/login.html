@@ -108,6 +108,11 @@
               <h3>I'm a Buyer</h3>
               <p>Browse fresh produce and order directly from local farmers</p>
             </div>
+            <div class="role-card" onclick="goToAuth('transporter')">
+              <div class="role-icon">🚚</div>
+              <h3>I'm a Transporter</h3>
+              <p>Deliver orders and earn money transporting goods</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1050,6 +1055,303 @@
                 <span class="p-value" id="b-p-since">—</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+       SCREEN 4 — TRANSPORTER AUTH
+       Login and sign-up for transporters.
+  ════════════════════════════════ -->
+      <div class="screen" id="screen-transporter-auth">
+        <div class="card">
+          <div class="card-header">
+            <button class="back-link" onclick="goTo('screen-role')">
+              <svg><use href="#ico-arrow" /></svg> Back
+            </button>
+            <div class="brand">
+              <div class="brand-icon">🌿</div>
+              <div class="brand-name">FARMER <span>CONEKT</span></div>
+            </div>
+            <div class="tabs">
+              <button class="tab active" onclick="switchTab(this, 'tp-login')">
+                Sign In
+              </button>
+              <button class="tab" onclick="switchTab(this, 'tp-signup')">
+                Create Account
+              </button>
+            </div>
+          </div>
+
+          <!-- Transporter: Sign In -->
+          <div class="panel active" id="tp-login">
+            <h2 class="panel-title">Transporter Sign In</h2>
+            <p class="panel-sub">
+              Sign in with the email or phone you registered with.
+            </p>
+
+            <div class="method-toggle">
+              <button
+                class="method-btn active"
+                onclick="setLoginMethod('transporter', 'email', this)"
+              >
+                Use Email
+              </button>
+              <button
+                class="method-btn"
+                onclick="setLoginMethod('transporter', 'phone', this)"
+              >
+                Use Phone
+              </button>
+            </div>
+
+            <div class="form-group" id="tl-email-grp">
+              <label>Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-mail" /></svg
+                ></span>
+                <input
+                  type="email"
+                  id="tl-email"
+                  placeholder="transporter@email.com"
+                />
+              </div>
+            </div>
+
+            <div class="form-group" id="tl-phone-grp" style="display: none">
+              <label>Phone Number</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-phone" /></svg
+                ></span>
+                <input
+                  type="tel"
+                  id="tl-phone"
+                  placeholder="+250 000 000 000"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-wrap has-toggle">
+                <span class="input-icon"
+                  ><svg><use href="#ico-lock" /></svg
+                ></span>
+                <input
+                  type="password"
+                  id="tl-pass"
+                  placeholder="Your password"
+                />
+                <button class="toggle-pw" data-target="tl-pass">
+                  <svg><use href="#ico-eye" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="row-between">
+              <label class="check-label">
+                <input type="checkbox" />
+                <span class="check-box"
+                  ><svg><use href="#ico-check" /></svg
+                ></span>
+                Remember me
+              </label>
+              <a href="#" class="forgot" onclick="return false;"
+                >Forgot password?</a
+              >
+            </div>
+
+            <button
+              class="btn-submit"
+              id="tl-btn"
+              onclick="doLogin('transporter')"
+            >
+              <span class="btn-text">Sign In as Transporter</span>
+              <span class="spinner"></span>
+            </button>
+
+            <div class="divider">or</div>
+            <button class="btn-social">
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+              />
+              Continue with Google
+            </button>
+          </div>
+
+          <!-- Transporter: Sign Up -->
+          <div class="panel" id="tp-signup">
+            <h2 class="panel-title">Create Transporter Account</h2>
+            <p class="panel-sub">Fill in your details to join FARMER CONEKT.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name</label>
+                <div class="input-wrap">
+                  <span class="input-icon"
+                    ><svg><use href="#ico-user" /></svg
+                  ></span>
+                  <input type="text" id="ts-first" placeholder="F-Name" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <div class="input-wrap">
+                  <span class="input-icon"
+                    ><svg><use href="#ico-user" /></svg
+                  ></span>
+                  <input type="text" id="ts-last" placeholder="L-Name" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Choose login method: email or phone -->
+            <div class="method-toggle">
+              <button
+                class="method-btn active"
+                onclick="setSignupContact('transporter', 'email', this)"
+              >
+                Email
+              </button>
+              <button
+                class="method-btn"
+                onclick="setSignupContact('transporter', 'phone', this)"
+              >
+                Phone Number
+              </button>
+            </div>
+
+            <div class="form-group" id="ts-email-grp">
+              <label>Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-mail" /></svg
+                ></span>
+                <input
+                  type="email"
+                  id="ts-email"
+                  placeholder="you@transport.com"
+                />
+              </div>
+            </div>
+
+            <div class="form-group" id="ts-phone-grp" style="display: none">
+              <label>Phone Number (login)</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-phone" /></svg
+                ></span>
+                <input
+                  type="tel"
+                  id="ts-phone-c"
+                  placeholder="+250 000 000 000"
+                />
+              </div>
+            </div>
+
+            <!-- Always collect the secondary contact too -->
+            <div class="form-group" id="ts-extra-email" style="display: none">
+              <label>Email Address (optional)</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-mail" /></svg
+                ></span>
+                <input
+                  type="email"
+                  id="ts-email-extra"
+                  placeholder="you@transport.com"
+                />
+              </div>
+            </div>
+
+            <div class="form-group" id="ts-extra-phone">
+              <label>Phone Number (optional)</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-phone" /></svg
+                ></span>
+                <input
+                  type="tel"
+                  id="ts-phone"
+                  placeholder="+250 000 000 000"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-wrap has-toggle">
+                <span class="input-icon"
+                  ><svg><use href="#ico-lock" /></svg
+                ></span>
+                <input
+                  type="password"
+                  id="ts-pass"
+                  placeholder="Create password"
+                />
+                <button class="toggle-pw" data-target="ts-pass">
+                  <svg><use href="#ico-eye" /></svg>
+                </button>
+              </div>
+              <div class="pw-strength" id="ts-sw">
+                <div class="pw-fill" id="ts-sf"></div>
+                <span class="pw-label" id="ts-sl">Weak</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <div class="input-wrap">
+                <span class="input-icon"
+                  ><svg><use href="#ico-key" /></svg
+                ></span>
+                <input
+                  type="password"
+                  id="ts-confirm"
+                  placeholder="Confirm password"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Vehicle Type</label>
+              <div class="input-wrap">
+                <span class="input-icon">🚚</span>
+                <select id="ts-vehicle">
+                  <option value="">Select vehicle</option>
+                  <option>Motorcycle</option>
+                  <option>Truck</option>
+                  <option>Van</option>
+                  <option>Car</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Capacity (kg)</label>
+              <div class="input-wrap">
+                <span class="input-icon">⚖️</span>
+                <input
+                  type="number"
+                  id="ts-capacity"
+                  placeholder="e.g. 500"
+                  min="1"
+                />
+              </div>
+            </div>
+
+            <button
+              class="btn-submit"
+              id="ts-btn"
+              onclick="doSignup('transporter')"
+            >
+              <span class="btn-text">Create Transporter Account</span>
+              <span class="spinner"></span>
+            </button>
           </div>
         </div>
       </div>

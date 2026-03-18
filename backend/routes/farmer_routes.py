@@ -468,3 +468,64 @@ def delete_product(product_id):
     connection.close()
 
     return jsonify({"message": "Product deleted"})
+
+# farmer earnings
+
+@farmer_routes.route("/earnings", methods=["GET"])
+@jwt_required()
+@role_required("farmer")
+def get_farmer_earnings():
+    user_id = request.args.get("user_id")
+    if not user_id:
+        return jsonify({"error": "user_id parameter required"}), 400
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Get farmer_id from user_id
+    cursor.execute("SELECT farmer_id FROM farmers WHERE user_id = %s", (user_id,))
+    farmer_row = cursor.fetchone()
+    if not farmer_row:
+        connection.close()
+        return jsonify({"error": "Farmer profile not found"}), 404
+
+    farmer_id = farmer_row["farmer_id"]
+
+    # Get earnings summary
+    cursor.execute("""
+        SELECT
+            SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_earned,
+            SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_earnings,
+            COUNT(*) as total_orders
+        FROM farmer_earnings
+        WHERE farmer_id = %s
+    """, (farmer_id,))
+    summary = cursor.fetchone()
+
+    # Get earnings history
+    cursor.execute("""
+        SELECT
+            fe.earning_id,
+            fe.amount,
+            fe.status,
+            fe.created_at,
+            o.order_id,
+            o.total_payment
+        FROM farmer_earnings fe
+        JOIN orders o ON fe.order_id = o.order_id
+        WHERE fe.farmer_id = %s
+        ORDER BY fe.created_at DESC
+        LIMIT 50
+    """, (farmer_id,))
+    earnings_history = cursor.fetchall()
+
+    connection.close()
+
+    return jsonify({
+        "summary": {
+            "total_earned": summary["total_earned"] or 0,
+            "pending_earnings": summary["pending_earnings"] or 0,
+            "total_orders": summary["total_orders"] or 0
+        },
+        "earnings_history": earnings_history
+    })

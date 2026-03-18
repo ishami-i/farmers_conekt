@@ -21,8 +21,8 @@ var urlParams = new URLSearchParams(window.location.search);
 var redirectAfterLogin = urlParams.get("redirect");
 
 // Which method is selected on the login / signup forms
-var loginMethod = { farmer: "email", buyer: "email" };
-var signupMethod = { farmer: "email", buyer: "email" };
+var loginMethod = { farmer: "email", buyer: "email", transporter: "email" };
+var signupMethod = { farmer: "email", buyer: "email", transporter: "email" };
 
 // ─────────────────────────────────────
 // SMALL HELPER FUNCTIONS
@@ -83,7 +83,13 @@ function goTo(screenId) {
 
 // Go to farmer or buyer auth screen
 function goToAuth(role) {
-  goTo(role === "farmer" ? "screen-farmer-auth" : "screen-buyer-auth");
+  goTo(
+    role === "farmer"
+      ? "screen-farmer-auth"
+      : role === "transporter"
+        ? "screen-transporter-auth"
+        : "screen-buyer-auth",
+  );
 }
 
 // Switch between Sign In / Create Account tabs inside the auth card
@@ -188,6 +194,7 @@ function watchPasswordStrength(inputId, fillId, labelId, wrapId) {
 
 watchPasswordStrength("fs-pass", "fs-sf", "fs-sl", "fs-sw");
 watchPasswordStrength("bs-pass", "bs-sf", "bs-sl", "bs-sw");
+watchPasswordStrength("ts-pass", "ts-sf", "ts-sl", "ts-sw");
 
 // ─────────────────────────────────────
 // EMAIL / PHONE TOGGLE ON LOGIN FORMS
@@ -202,7 +209,7 @@ function setLoginMethod(role, method, clickedBtn) {
     });
   clickedBtn.classList.add("active");
 
-  var prefix = role === "farmer" ? "fl" : "bl";
+  var prefix = role === "farmer" ? "fl" : role === "transporter" ? "tl" : "bl";
   document.getElementById(prefix + "-email-grp").style.display =
     method === "email" ? "block" : "none";
   document.getElementById(prefix + "-phone-grp").style.display =
@@ -220,7 +227,7 @@ function setSignupContact(role, method, clickedBtn) {
     });
   clickedBtn.classList.add("active");
 
-  var p = role === "farmer" ? "fs" : "bs";
+  var p = role === "farmer" ? "fs" : role === "transporter" ? "ts" : "bs";
   // Show the chosen login-identity field
   document.getElementById(p + "-email-grp").style.display =
     method === "email" ? "block" : "none";
@@ -239,39 +246,79 @@ function setSignupContact(role, method, clickedBtn) {
 async function doSignup(role) {
   // Gather fields
   var first = document
-    .getElementById(role === "farmer" ? "fs-first" : "bs-first")
+    .getElementById(
+      role === "farmer"
+        ? "fs-first"
+        : role === "transporter"
+          ? "ts-first"
+          : "bs-first",
+    )
     .value.trim();
   var last = document
-    .getElementById(role === "farmer" ? "fs-last" : "bs-last")
+    .getElementById(
+      role === "farmer"
+        ? "fs-last"
+        : role === "transporter"
+          ? "ts-last"
+          : "bs-last",
+    )
     .value.trim();
   var pass = document.getElementById(
-    role === "farmer" ? "fs-pass" : "bs-pass",
+    role === "farmer"
+      ? "fs-pass"
+      : role === "transporter"
+        ? "ts-pass"
+        : "bs-pass",
   ).value;
   var confirm = document.getElementById(
-    role === "farmer" ? "fs-confirm" : "bs-confirm",
+    role === "farmer"
+      ? "fs-confirm"
+      : role === "transporter"
+        ? "ts-confirm"
+        : "bs-confirm",
   ).value;
 
   var method = signupMethod[role];
   var email =
     method === "email"
       ? document
-          .getElementById(role === "farmer" ? "fs-email" : "bs-email")
+          .getElementById(
+            role === "farmer"
+              ? "fs-email"
+              : role === "transporter"
+                ? "ts-email"
+                : "bs-email",
+          )
           .value.trim()
       : document
           .getElementById(
-            role === "farmer" ? "fs-email-extra" : "bs-email-extra",
+            role === "farmer"
+              ? "fs-email-extra"
+              : role === "transporter"
+                ? "ts-email-extra"
+                : "bs-email-extra",
           )
           .value.trim();
   var phone =
     method === "phone"
       ? document
-          .getElementById(role === "farmer" ? "fs-phone-c" : "bs-phone-c")
+          .getElementById(
+            role === "farmer"
+              ? "fs-phone-c"
+              : role === "transporter"
+                ? "ts-phone-c"
+                : "bs-phone-c",
+          )
           .value.trim()
       : document
-          .getElementById(role === "farmer" ? "fs-phone" : "bs-phone")
+          .getElementById(
+            role === "farmer"
+              ? "fs-phone"
+              : role === "transporter"
+                ? "ts-phone"
+                : "bs-phone",
+          )
           .value.trim();
-
-  // Basic validation
   if (!first || !last || !pass || !confirm) {
     showToast("Please fill in all fields.", "error");
     return;
@@ -293,77 +340,113 @@ async function doSignup(role) {
     return;
   }
 
-  withLoading(role === "farmer" ? "fs-btn" : "bs-btn", async function () {
-    try {
-      var payload = {
-        name: first + " " + last,
-        email: email || null,
-        phone: phone || null,
-        password: pass,
-        role: role,
-        district_id: null, // backend will accept null and user can update later
-      };
-
-      var response = await fetch(API_BASE + "/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      var data;
+  withLoading(
+    role === "farmer" ? "fs-btn" : role === "transporter" ? "ts-btn" : "bs-btn",
+    async function () {
       try {
-        data = await response.json();
-      } catch (jsonErr) {
-        var text = await response.text();
-        data = { error: text || "Server error" };
-      }
-      if (!response.ok) {
-        const message =
-          data.error || data.message || response.statusText || "Signup failed.";
-        showToast(message, "error");
-        return;
-      }
+        var payload = {
+          name: first + " " + last,
+          email: email || null,
+          phone: phone || null,
+          password: pass,
+          role: role,
+          district_id: null, // backend will accept null and user can update later
+        };
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("user_id", data.user_id);
-      if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
-      if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
-      if (data.district_id)
-        localStorage.setItem("district_id", data.district_id);
-      localStorage.setItem("first_name", first);
+        console.log(
+          "Signup payload role:",
+          payload.role,
+          "Expected role:",
+          role,
+        );
 
-      // Support session management used by session.js
-      const sessionPayload = {
-        token: data.token,
-        email: email || phone,
-        role: role,
-        user_id: data.user_id,
-        farmer_id: data.farmer_id || null,
-        buyer_id: data.buyer_id || null,
-        loginTime: Date.now(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(sessionPayload));
-      localStorage.setItem(
-        "session",
-        JSON.stringify({
+        // Add transporter-specific fields
+        if (role === "transporter") {
+          var vehicle = document.getElementById("ts-vehicle").value;
+          var capacity = document.getElementById("ts-capacity").value;
+          if (!vehicle) {
+            showToast("Please select a vehicle type.", "error");
+            return;
+          }
+          if (!capacity || capacity < 1) {
+            showToast("Please enter a valid capacity.", "error");
+            return;
+          }
+          payload.vehicle_type = vehicle;
+          payload.capacity = parseInt(capacity);
+        }
+
+        var response = await fetch(API_BASE + "/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        var data;
+        try {
+          data = await response.json();
+        } catch (jsonErr) {
+          var text = await response.text();
+          data = { error: text || "Server error" };
+        }
+        if (!response.ok) {
+          const message =
+            data.error ||
+            data.message ||
+            response.statusText ||
+            "Signup failed.";
+          showToast(message, "error");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("user_id", data.user_id);
+        if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
+        if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
+        if (data.transporter_id)
+          localStorage.setItem("transporter_id", data.transporter_id);
+        if (data.district_id)
+          localStorage.setItem("district_id", data.district_id);
+        localStorage.setItem("first_name", first);
+
+        // Support session management used by session.js
+        const sessionPayload = {
+          token: data.token,
           email: email || phone,
           role: role,
           user_id: data.user_id,
-        }),
-      );
+          farmer_id: data.farmer_id || null,
+          buyer_id: data.buyer_id || null,
+          transporter_id: data.transporter_id || null,
+          loginTime: Date.now(),
+        };
+        localStorage.setItem("userSession", JSON.stringify(sessionPayload));
+        localStorage.setItem(
+          "session",
+          JSON.stringify({
+            email: email || phone,
+            role: role,
+            user_id: data.user_id,
+          }),
+        );
 
-      const defaultRedirect =
-        role === "farmer" ? "../farmer.html" : "buyer.html";
-      window.location.href = redirectAfterLogin || defaultRedirect;
-      showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
-    } catch (err) {
-      console.error(err);
-      showToast("Signup failed. Please try again.", "error");
-    }
-  });
+        const defaultRedirect =
+          role === "farmer"
+            ? "../farmer.html"
+            : role === "transporter"
+              ? "../transporter.html"
+              : "buyer.html";
+        window.location.href = redirectAfterLogin || defaultRedirect;
+        showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
+      } catch (err) {
+        console.error(err);
+        showToast("Signup failed. Please try again.", "error");
+      }
+    },
+  );
 }
 
 // ─────────────────────────────────────
@@ -375,13 +458,29 @@ async function doLogin(role) {
   var credential =
     method === "email"
       ? document
-          .getElementById(role === "farmer" ? "fl-email" : "bl-email")
+          .getElementById(
+            role === "farmer"
+              ? "fl-email"
+              : role === "transporter"
+                ? "tl-email"
+                : "bl-email",
+          )
           .value.trim()
       : document
-          .getElementById(role === "farmer" ? "fl-phone" : "bl-phone")
+          .getElementById(
+            role === "farmer"
+              ? "fl-phone"
+              : role === "transporter"
+                ? "tl-phone"
+                : "bl-phone",
+          )
           .value.trim();
   var password = document.getElementById(
-    role === "farmer" ? "fl-pass" : "bl-pass",
+    role === "farmer"
+      ? "fl-pass"
+      : role === "transporter"
+        ? "tl-pass"
+        : "bl-pass",
   ).value;
 
   if (!credential || !password) {
@@ -389,73 +488,86 @@ async function doLogin(role) {
     return;
   }
 
-  withLoading(role === "farmer" ? "fl-btn" : "bl-btn", async function () {
-    try {
-      var payload = {
-        email: method === "email" ? credential : null,
-        phone: method === "phone" ? credential : null,
-        password: password,
-      };
-
-      var response = await fetch(API_BASE + "/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      var data;
+  withLoading(
+    role === "farmer" ? "fl-btn" : role === "transporter" ? "tl-btn" : "bl-btn",
+    async function () {
       try {
-        data = await response.json();
-      } catch (jsonErr) {
-        var text = await response.text();
-        data = { error: text || "Server error" };
-      }
-      if (!response.ok) {
-        const message =
-          data.error || data.message || response.statusText || "Login failed.";
-        showToast(message, "error");
-        return;
-      }
+        var payload = {
+          email: method === "email" ? credential : null,
+          phone: method === "phone" ? credential : null,
+          password: password,
+        };
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("user_id", data.user_id);
-      if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
-      if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
-      if (data.district_id)
-        localStorage.setItem("district_id", data.district_id);
+        var response = await fetch(API_BASE + "/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
 
-      // Support session management used by session.js
-      const sessionPayload = {
-        token: data.token,
-        email: credential,
-        role: role,
-        user_id: data.user_id,
-        farmer_id: data.farmer_id || null,
-        buyer_id: data.buyer_id || null,
-        loginTime: Date.now(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(sessionPayload));
-      localStorage.setItem(
-        "session",
-        JSON.stringify({
+        var data;
+        try {
+          data = await response.json();
+        } catch (jsonErr) {
+          var text = await response.text();
+          data = { error: text || "Server error" };
+        }
+        if (!response.ok) {
+          const message =
+            data.error ||
+            data.message ||
+            response.statusText ||
+            "Login failed.";
+          showToast(message, "error");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("user_id", data.user_id);
+        if (data.farmer_id) localStorage.setItem("farmer_id", data.farmer_id);
+        if (data.buyer_id) localStorage.setItem("buyer_id", data.buyer_id);
+        if (data.transporter_id)
+          localStorage.setItem("transporter_id", data.transporter_id);
+        if (data.district_id)
+          localStorage.setItem("district_id", data.district_id);
+
+        // Support session management used by session.js
+        const sessionPayload = {
+          token: data.token,
           email: credential,
           role: role,
           user_id: data.user_id,
-        }),
-      );
+          farmer_id: data.farmer_id || null,
+          buyer_id: data.buyer_id || null,
+          transporter_id: data.transporter_id || null,
+          loginTime: Date.now(),
+        };
+        localStorage.setItem("userSession", JSON.stringify(sessionPayload));
+        localStorage.setItem(
+          "session",
+          JSON.stringify({
+            email: credential,
+            role: role,
+            user_id: data.user_id,
+          }),
+        );
 
-      const defaultRedirect =
-        role === "farmer" ? "../farmer.html" : "buyer.html";
-      window.location.href = redirectAfterLogin || defaultRedirect;
-      showToast("Welcome back!", "success");
-    } catch (err) {
-      console.error(err);
-      showToast("Login failed. Please try again.", "error");
-    }
-  });
+        const defaultRedirect =
+          role === "farmer"
+            ? "../farmer.html"
+            : role === "transporter"
+              ? "../transporter.html"
+              : "buyer.html";
+        window.location.href = redirectAfterLogin || defaultRedirect;
+        showToast("Welcome back!", "success");
+      } catch (err) {
+        console.error(err);
+        showToast("Login failed. Please try again.", "error");
+      }
+    },
+  );
 }
 
 // ─────────────────────────────────────
