@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from middleware.role_required import role_required
 from database.db import get_db_connection
 
@@ -42,13 +42,19 @@ def browse_marketplace():
     SELECT
         p.product_id,
         p.product_name,
+        p.product_category,
         p.price_per_unit,
+        p.unit,
         p.quantity_available,
         p.image_url,
-        d.district_name
+        p.harvest_date,
+        p.expiration_date,
+        d.district_name,
+        u.full_name AS farmer_name
     FROM products p
-    JOIN districts d
-        ON p.district_id = d.district_id
+    JOIN districts d ON p.district_id = d.district_id
+    JOIN farmers f ON p.farmer_id = f.farmer_id
+    JOIN users u ON f.user_id = u.user_id
     WHERE p.status = 'available'
     """
 
@@ -111,24 +117,34 @@ def product_details(product_id):
 def place_order():
 
     data = request.json
-
-    buyer_id = get_jwt_identity()
     items = data.get("items", [])
+    total = data.get("total", 0)
+    pickup_location = data.get("pickup_location") or data.get("pickup_district") or ""
+    dropoff_location = data.get("delivery_location") or data.get("delivery_district") or ""
 
     connection = get_db_connection()
     cursor = connection.cursor()
 
     try:
-        order_query = "INSERT INTO orders (buyer_id, status, total_payment, created_at) VALUES (%s, 'pending', %s, NOW())"
-        cursor.execute(order_query, (buyer_id, data["total"]))
+        # Determine buyer_id from the logged-in user
+        user_id = get_jwt_identity()
+        cursor.execute("SELECT buyer_id FROM buyers WHERE user_id = %s", (user_id,))
+        buyer_row = cursor.fetchone()
+        if not buyer_row:
+            return jsonify({"error": "Buyer profile not found"}), 404
+        buyer_id = buyer_row["buyer_id"]
+
+        order_query = "INSERT INTO orders (buyer_id, status, total_payment, payment_status, created_at) VALUES (%s, 'pending', %s, 'pending', NOW())"
+        cursor.execute(order_query, (buyer_id, total))
         order_id = cursor.lastrowid
 
         for item in items:
             detail_query = "INSERT INTO order_details (order_id, product_id, price, quantity) VALUES (%s, %s, %s, %s)"
             cursor.execute(detail_query, (order_id, item["product_id"], item["price"], item["quantity"]))
 
-        delivery_query = "INSERT INTO deliveries (order_id, pickup_district_id, delivery_district_id) VALUES (%s, %s, %s)"
-        cursor.execute(delivery_query, (order_id, data["pickup_district"], data["delivery_district"]))
+        # Record delivery details
+        delivery_query = "INSERT INTO deliveries (order_id, pickup_location, dropoff_location) VALUES (%s, %s, %s)"
+        cursor.execute(delivery_query, (order_id, pickup_location, dropoff_location))
 
         connection.commit()
         return jsonify({"message": "Order placed successfully", "order_id": order_id}), 201

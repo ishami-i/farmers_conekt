@@ -85,26 +85,38 @@ def update_farmer_profile(user_id):
     # Update farmers table with district and bio
     farmer_fields = []
     farmer_values = []
-    if "district_id" in data:
+
+    # Accept either district_id or district name from frontend
+    district_input = None
+    if "district_id" in data and data.get("district_id"):
         district_input = data.get("district_id")
-        # If a name was submitted instead of an ID, resolve it
-        if district_input and not str(district_input).isdigit():
-            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
-            row = cursor.fetchone()
-            district_input = row["district_id"] if row else None
-        farmer_fields.append("district_id=%s")
-        farmer_values.append(district_input)
-    if "district" in data and not data.get("district_id"):
+    elif "district" in data and data.get("district"):
         district_input = data.get("district")
-        if district_input and not str(district_input).isdigit():
-            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
+
+    if district_input:
+        # If district_input is a name, attempt to resolve it (or create it)
+        if not str(district_input).isdigit():
+            cursor.execute(
+                "SELECT district_id FROM districts WHERE district_name = %s",
+                (district_input,),
+            )
             row = cursor.fetchone()
-            district_input = row["district_id"] if row else None
+            if row:
+                district_input = row["district_id"]
+            else:
+                cursor.execute(
+                    "INSERT INTO districts (district_name) VALUES (%s)",
+                    (district_input,),
+                )
+                district_input = cursor.lastrowid
+
         farmer_fields.append("district_id=%s")
         farmer_values.append(district_input)
+
     if "bio" in data:
         farmer_fields.append("bio=%s")
         farmer_values.append(data.get("bio"))
+
     if farmer_fields:
         query = f"UPDATE farmers SET {', '.join(farmer_fields)} WHERE user_id = %s"
         cursor.execute(query, (*farmer_values, user_id))
@@ -159,13 +171,24 @@ def upload_product():
         if str(district_input).isdigit():
             district_id = int(district_input)
         else:
-            # Resolve district name to ID
+            # Resolve district name to ID, create it if missing
             connection = get_db_connection()
             cursor = connection.cursor()
-            cursor.execute("SELECT district_id FROM districts WHERE district_name = %s", (district_input,))
+            cursor.execute(
+                "SELECT district_id FROM districts WHERE district_name = %s",
+                (district_input,),
+            )
             row = cursor.fetchone()
+            if row:
+                district_id = row["district_id"]
+            else:
+                cursor.execute(
+                    "INSERT INTO districts (district_name) VALUES (%s)",
+                    (district_input,),
+                )
+                district_id = cursor.lastrowid
+            connection.commit()
             connection.close()
-            district_id = row["district_id"] if row else None
 
     product_name = data.get("product_name")
     category = data.get("category")
@@ -276,11 +299,13 @@ def get_farmer_products(farmer_id):
     connection = get_db_connection()
     cursor = connection.cursor()
 
+    # Include district name so frontend can show user-friendly location info
     query = """
-    SELECT *
-    FROM products
-    WHERE farmer_id = %s
-    ORDER BY created_at DESC
+    SELECT p.*, d.district_name
+    FROM products p
+    LEFT JOIN districts d ON p.district_id = d.district_id
+    WHERE p.farmer_id = %s
+    ORDER BY p.created_at DESC
     """
 
     cursor.execute(query, (farmer_id,))
@@ -289,6 +314,109 @@ def get_farmer_products(farmer_id):
     connection.close()
 
     return jsonify(products)
+
+# farmer can view orders that include their products
+@farmer_routes.route("/orders/<int:farmer_id>", methods=["GET"])
+@jwt_required()
+@role_required("farmer")
+def get_farmer_orders(farmer_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+    SELECT
+        o.order_id,
+        o.status AS order_status,
+        o.payment_status,
+        o.total_payment,
+        o.created_at AS order_date,
+        u.full_name AS buyer_name,
+        d.pickup_location,
+        d.dropoff_location,
+        p.product_id,
+        p.product_name,
+        od.quantity,
+        od.price
+    FROM orders o
+    JOIN buyers b ON o.buyer_id = b.buyer_id
+    JOIN users u ON b.user_id = u.user_id
+    JOIN order_details od ON o.order_id = od.order_id
+    JOIN products p ON od.product_id = p.product_id
+    LEFT JOIN deliveries d ON o.order_id = d.order_id
+    WHERE p.farmer_id = %s
+    ORDER BY o.created_at DESC
+    """
+
+    cursor.execute(query, (farmer_id,))
+    rows = cursor.fetchall()
+
+    connection.close()
+
+    # Aggregate rows into orders with nested items
+    orders = []
+    order_map = {}
+    for row in rows:
+        oid = row["order_id"]
+        if oid not in order_map:
+            order_map[oid] = {
+                "order_id": oid,
+                "order_status": row.get("order_status"),
+                "payment_status": row.get("payment_status"),
+                "total_payment": row.get("total_payment"),
+                "order_date": row.get("order_date"),
+                "buyer_name": row.get("buyer_name"),
+                "pickup_location": row.get("pickup_location"),
+                "dropoff_location": row.get("dropoff_location"),
+                "items": [],
+            }
+            orders.append(order_map[oid])
+
+        order_map[oid]["items"].append({
+            "product_id": row.get("product_id"),
+            "product_name": row.get("product_name"),
+            "quantity": row.get("quantity"),
+            "price": row.get("price"),
+        })
+
+    return jsonify(orders)
+
+# allow farmer to mark order as paid
+@farmer_routes.route("/orders/<int:order_id>/mark-paid", methods=["PUT"])
+@jwt_required()
+@role_required("farmer")
+def mark_order_paid(order_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Ensure the order is associated with this farmer via any order detail
+    farmer_id = request.args.get("farmer_id")
+    if not farmer_id:
+        return jsonify({"error": "Missing farmer_id"}), 400
+
+    cursor.execute(
+        """
+        SELECT 1
+        FROM order_details od
+        JOIN products p ON od.product_id = p.product_id
+        WHERE od.order_id = %s AND p.farmer_id = %s
+        LIMIT 1
+        """,
+        (order_id, farmer_id),
+    )
+    found = cursor.fetchone()
+    if not found:
+        connection.close()
+        return jsonify({"error": "Order not found or not associated with farmer"}), 404
+
+    cursor.execute(
+        "UPDATE orders SET payment_status = 'paid', status = 'completed' WHERE order_id = %s",
+        (order_id,),
+    )
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Order marked as paid"})
 
 # allowing farmer to update product
 
