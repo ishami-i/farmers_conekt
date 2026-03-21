@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FarmerConekt – Transporter Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/buyer.css" />
+  </head>
+  <body>
+    <header id="header">
+      <div class="header-content">
+        <h1 class="header-title">Farmer Conekt</h1>
+        <p class="sub-header">Delivering orders made simple</p>
+      </div>
+      <nav id="nav">
+        <ul class="nav-links" id="nav-links" aria-label="Main navigation">
+          <li><a href="./home.html">🏠 Home</a></li>
+          <li><a href="./transporter.html" class="active-nav">Dashboard</a></li>
+          <li>
+            <a href="./pages/login.html" onclick="confirmLogout()">Log Out</a>
+          </li>
+        </ul>
+      </nav>
+      <button
+        class="light/dark-toggle"
+        id="light-dark-toggle"
+        aria-label="toggle light and dark mode"
+        aria-pressed="false"
+      >
+        <span class="light-mode">Light</span>
+        <span class="dark-mode">Dark</span>
+      </button>
+    </header>
+
+    <div style="display: flex; min-height: calc(100vh - 80px)">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-text">FarmerConekt</div>
+        </div>
+
+        <div class="buyer-profile">
+          <div
+            class="buyer-avatar"
+            onclick="document.getElementById('avatar-input').click()"
+            title="Click to upload photo"
+          >
+            🚚
+            <img id="avatar-preview" src="" style="display: none" />
+          </div>
+          <input
+            type="file"
+            id="avatar-input"
+            accept="image/*"
+            onchange="previewAvatar(event)"
+          />
+          <div class="buyer-name">Transporter</div>
+          <div class="buyer-email" id="transporter-email">Loading...</div>
+        </div>
+
+        <nav class="nav-section">
+          <div class="nav-label">Deliveries</div>
+          <a
+            class="nav-item active"
+            href="#"
+            onclick="
+              switchTab('dashboard', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">🏠</span> Dashboard
+          </a>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('available', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">📦</span> Available
+          </a>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('mine', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">🚚</span> My Deliveries
+          </a>
+          <div class="nav-label" style="margin-top: 16px">Account</div>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('profile', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">👤</span> My Profile
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="logout-btn" onclick="confirmLogout()">
+            🚪 Log Out
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <h2 id="page-title">Transporter Dashboard</h2>
+            <p id="page-subtitle">Manage deliveries and earn.</p>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div id="dashboard-tab" class="tab-content active">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value" id="stat-available">0</div>
+                <div class="stat-label">Available</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🚚</div>
+                <div class="stat-value" id="stat-assigned">0</div>
+                <div class="stat-label">Assigned</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="stat-earnings">0 RWF</div>
+                <div class="stat-label">Potential Earnings</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="available-tab" class="tab-content" style="display: none">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">Available Deliveries</div>
+                  <div class="section-sub">
+                    Accept a delivery to start earning.
+                  </div>
+                </div>
+              </div>
+              <div id="available-list" class="items-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📭</div>
+                  <div class="empty-text">No deliveries available</div>
+                  <div class="empty-sub">
+                    New orders will appear here when buyers place them.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="mine-tab" class="tab-content" style="display: none">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">My Deliveries</div>
+                  <div class="section-sub">
+                    Track your accepted deliveries and mark them delivered.
+                  </div>
+                </div>
+              </div>
+              <div id="mine-list" class="items-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📭</div>
+                  <div class="empty-text">No assigned deliveries</div>
+                  <div class="empty-sub">
+                    Accept deliveries from the Available tab to begin.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="profile-tab" class="tab-content" style="display: none">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">My Profile</div>
+                  <div class="section-sub">
+                    Manage your transporter profile.
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 24px">
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1.5rem;
+                  "
+                >
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="profile-email"
+                      readonly
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                        background: var(--cream);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Full Name</label
+                    >
+                    <input
+                      type="text"
+                      id="profile-name"
+                      placeholder="Your full name"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Phone</label
+                    >
+                    <input
+                      type="tel"
+                      id="profile-phone"
+                      placeholder="Your phone number"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Vehicle</label
+                    >
+                    <input
+                      type="text"
+                      id="profile-vehicle"
+                      placeholder="e.g. Truck / Motorbike"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                </div>
+                <button
+                  onclick="saveProfile()"
+                  class="checkout-btn"
+                  style="margin-top: 2rem; max-width: 200px"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast">
+      <span id="toast-msg">Done!</span>
+    </div>
+
+    <script src="./scripts/toggle.js"></script>
+    <script src="./scripts/session.js"></script>
+    <script src="./scripts/transporter.js"></script>
+  </body>
+</html>

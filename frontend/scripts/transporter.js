@@ -1,11 +1,3 @@
-/**
- * Transporter Dashboard Script
- * - Auth guard for transporter role
- * - Loads available deliveries and assigned deliveries
- * - Allows accepting deliveries and marking delivered
- * - Basic UI navigation (tabs) and toast notifications
- */
-
 const API_BASE = window.API_BASE_URL || "http://localhost:5000";
 
 function getToken() {
@@ -32,7 +24,8 @@ function authFetch(path, options = {}) {
 
   const token = getToken();
   if (!token) {
-    window.location.href = "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
+    window.location.href =
+      "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
     return Promise.reject(new Error("Missing auth token"));
   }
 
@@ -51,7 +44,9 @@ function authFetch(path, options = {}) {
     if (!res.ok) {
       const message = (body && (body.error || body.message)) || res.statusText;
       if (res.status === 401) {
-        window.location.href = "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
+        window.location.href =
+          "./login.html?redirect=" +
+          encodeURIComponent(window.location.pathname);
       }
       throw new Error(message);
     }
@@ -72,7 +67,8 @@ function showToast(msg, type) {
 function ensureTransporter() {
   const session = getSession();
   if (!session || session.role !== "transporter") {
-    window.location.href = "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
+    window.location.href =
+      "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
     return false;
   }
   return true;
@@ -81,14 +77,19 @@ function ensureTransporter() {
 function displayUserInfo() {
   const session = getSession();
   if (!session) return;
-  document.getElementById("transporter-email").textContent = session.email || "";
+  document.getElementById("transporter-email").textContent =
+    session.email || "";
   const name = (session.email || "").split("@")[0];
   document.querySelector(".topbar-left h2").textContent = `Welcome, ${name}!`;
 }
 
 function switchTab(tabName, element) {
-  document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach((tab) => (tab.style.display = "none"));
+  document
+    .querySelectorAll(".tab-content")
+    .forEach((tab) => tab.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-content")
+    .forEach((tab) => (tab.style.display = "none"));
 
   const tab = document.getElementById(tabName + "-tab");
   if (tab) {
@@ -96,7 +97,9 @@ function switchTab(tabName, element) {
     tab.style.display = "block";
   }
 
-  document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((item) => item.classList.remove("active"));
   if (element && element.closest) {
     const navItem = element.closest(".nav-item");
     if (navItem) navItem.classList.add("active");
@@ -116,8 +119,10 @@ function switchTab(tabName, element) {
     profile: "Update your contact info",
   };
 
-  document.getElementById("page-title").textContent = titles[tabName] || "Transporter Dashboard";
-  document.getElementById("page-subtitle").textContent = subtitles[tabName] || "";
+  document.getElementById("page-title").textContent =
+    titles[tabName] || "Transporter Dashboard";
+  document.getElementById("page-subtitle").textContent =
+    subtitles[tabName] || "";
 
   if (tabName === "available") {
     loadAvailable();
@@ -130,13 +135,19 @@ function switchTab(tabName, element) {
 function updateStats(deliveries, assigned) {
   document.getElementById("stat-available").textContent = deliveries.length;
   document.getElementById("stat-assigned").textContent = assigned.length;
-  const earnings = assigned.reduce((sum, d) => sum + (Number(d.total_payment) || 0), 0);
-  document.getElementById("stat-earnings").textContent = earnings.toLocaleString() + " RWF";
+  const earnings = assigned.reduce(
+    (sum, d) => sum + (Number(d.total_payment) || 0),
+    0,
+  );
+  document.getElementById("stat-earnings").textContent =
+    earnings.toLocaleString() + " RWF";
 }
 
 async function loadAvailable() {
   try {
-    const deliveries = await authFetch("/api/transporters/available-deliveries");
+    const deliveries = await authFetch(
+      "/api/transporters/available-deliveries",
+    );
     renderAvailable(deliveries || []);
     const assigned = (await authFetch("/api/transporters/my-deliveries")) || [];
     updateStats(deliveries || [], assigned);
@@ -150,7 +161,8 @@ async function loadAssigned() {
   try {
     const assigned = (await authFetch("/api/transporters/my-deliveries")) || [];
     renderAssigned(assigned);
-    const available = (await authFetch("/api/transporters/available-deliveries")) || [];
+    const available =
+      (await authFetch("/api/transporters/available-deliveries")) || [];
     updateStats(available, assigned);
   } catch (err) {
     console.error(err);
@@ -334,10 +346,28 @@ function saveProfile() {
 }
 
 function loadProfile() {
-  const profile = JSON.parse(localStorage.getItem("transporterProfile") || "{}") || {};
+  const profile =
+    JSON.parse(localStorage.getItem("transporterProfile") || "{}") || {};
   document.getElementById("profile-name").value = profile.name || "";
   document.getElementById("profile-phone").value = profile.phone || "";
   document.getElementById("profile-vehicle").value = profile.vehicle || "";
+}
+
+function confirmLogout() {
+  if (window.confirm("Are you sure you want to log out?")) {
+    // Clear all auth data
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("transporter_id");
+    localStorage.removeItem("userSession");
+    localStorage.removeItem("session");
+    localStorage.removeItem("transporterProfile");
+    showToast("Logging out...", "success");
+    setTimeout(() => {
+      window.location.href = "./pages/login.html";
+    }, 800);
+  }
 }
 
 // Initialize

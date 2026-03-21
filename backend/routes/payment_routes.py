@@ -1,76 +1,149 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from database.db import get_db_connection
+import requests
+import os
+from dotenv import load_dotenv
+from datetime import datetime
+
+load_dotenv()
 
 payment_routes = Blueprint("payment_routes", __name__)
 
-@payment_routes.route("/process", methods=["POST"])
-@jwt_required()
-def process_payment():
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
+PAYSTACK_BASE_URL = os.getenv("PAYSTACK_BASE_URL")
+
+
+# ============================
+# 1️⃣ Initialize Payment
+# ============================
+@payment_routes.route("/initialize", methods=["POST"])
+def initialize_payment():
     data = request.json
+
     order_id = data.get("order_id")
-    amount = data.get("amount")
+    email = data.get("email")
+
+    if not order_id or not email:
+        return jsonify({"error": "order_id and email required"}), 400
 
     connection = get_db_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
 
-    try:
-        # Update order payment status
-        cursor.execute("UPDATE orders SET payment_status = %s, payment_date = NOW() WHERE order_id = %s", ("paid", order_id))
+    cursor.execute("SELECT total_payment FROM orders WHERE order_id = %s", (order_id,))
+    order = cursor.fetchone()
 
-        # Get order details and calculate earnings distribution
-        cursor.execute("""
-            SELECT o.total_payment, d.delivery_fee, d.delivery_id
-            FROM orders o
-            JOIN deliveries d ON o.order_id = d.order_id
-            WHERE o.order_id = %s
-        """, (order_id,))
-        order_data = cursor.fetchone()
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
 
-        if order_data:
-            total_payment = order_data['total_payment']
-            delivery_fee = order_data['delivery_fee']
-            delivery_id = order_data['delivery_id']
+    amount = int(order["total_payment"] * 100)  # Paystack uses kobo/cents
 
-            # Calculate product subtotal (total - delivery fee)
-            product_subtotal = total_payment - delivery_fee
+    url = f"{PAYSTACK_BASE_URL}/transaction/initialize"
 
-            # Get farmer_id from order details
-            cursor.execute("""
-                SELECT DISTINCT p.farmer_id
-                FROM order_details od
-                JOIN products p ON od.product_id = p.product_id
-                WHERE od.order_id = %s
-                LIMIT 1
-            """, (order_id,))
-            farmer_data = cursor.fetchone()
+    headers = {
+        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json"
+    }
 
-            if farmer_data:
-                farmer_id = farmer_data['farmer_id']
+    payload = {
+        "email": email,
+        "amount": amount,
+        "metadata": {
+            "order_id": order_id
+        }
+    }
 
-                # Record farmer earning
-                cursor.execute("""
-                    INSERT INTO farmer_earnings (farmer_id, order_id, amount, status)
-                    VALUES (%s, %s, %s, 'paid')
-                """, (farmer_id, order_id, product_subtotal))
+    response = requests.post(url, json=payload, headers=headers)
+    res_data = response.json()
 
-        connection.commit()
-        return jsonify({"message": "Payment processed successfully", "order_id": order_id})
+    if not res_data.get("status"):
+        return jsonify({"error": "Failed to initialize payment"}), 500
 
-    except Exception as e:
-        connection.rollback()
-        return jsonify({"error": "Payment processing failed", "details": str(e)}), 500
-    finally:
-        connection.close()
+    reference = res_data["data"]["reference"]
+    authorization_url = res_data["data"]["authorization_url"]
 
-@payment_routes.route("/status/<int:order_id>", methods=["GET"])
-@jwt_required()
-def payment_status(order_id):
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    
-    cursor.execute("SELECT payment_status FROM orders WHERE order_id = %s", (order_id,))
-    result = cursor.fetchone()
+    # Save reference
+    cursor.execute("""
+        UPDATE orders
+        SET payment_reference = %s,
+            payment_status = 'pending'
+        WHERE order_id = %s
+    """, (reference, order_id))
+
+    connection.commit()
     connection.close()
-    
-    return jsonify(result or {"payment_status": "not_found"})
+
+    return jsonify({
+        "authorization_url": authorization_url,
+        "reference": reference
+    })
+
+
+# ============================
+# 2️⃣ Verify Payment
+# ============================
+@payment_routes.route("/verify/<reference>", methods=["GET"])
+def verify_payment(reference):
+
+    url = f"{PAYSTACK_BASE_URL}/transaction/verify/{reference}"
+
+    headers = {
+        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"
+    }
+
+    response = requests.get(url, headers=headers)
+    res_data = response.json()
+
+    if not res_data.get("status"):
+        return jsonify({"error": "Verification failed"}), 400
+
+    payment_data = res_data["data"]
+
+    status = payment_data["status"]
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    if status == "success":
+        db_status = "paid"
+    else:
+        db_status = "failed"
+
+    cursor.execute("""
+        UPDATE orders
+        SET payment_status = %s,
+            payment_date = %s
+        WHERE payment_reference = %s
+    """, (db_status, datetime.now(), reference))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "payment_status": db_status,
+        "paystack_status": status
+    })
+
+
+# ============================
+# 3️⃣ Get Order Payment Info
+# ============================
+@payment_routes.route("/order/<int:order_id>", methods=["GET"])
+def get_order_payment(order_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT order_id, total_payment, payment_status,
+               payment_reference, payment_date
+        FROM orders
+        WHERE order_id = %s
+    """, (order_id,))
+
+    order = cursor.fetchone()
+    connection.close()
+
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+
+    return jsonify(order)
