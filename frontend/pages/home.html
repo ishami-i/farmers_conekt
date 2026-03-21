@@ -22,8 +22,19 @@ the farmer goes on his or her dashboard.
         </div>
         <nav id="nav">
             <ul class="nav-links" id="nav-links" aria-label="Main navigation">
-                <li class="home-navigation" id="home-navigation"><a href="./home.html">Home</a></li>
-                <li class="login-navigation" id="login-navigation"><a href="./login.html">Log in</a></li>
+                <li><a href="./home.html">🏠 Home</a></li>
+                <li id="dashboard-link" style="display: none;">
+                    <a href="./buyer.html">📊 Dashboard</a>
+                </li>
+                <li id="cart-link" style="display: none;">
+                    <a href="./buyer.html" onclick="switchTab('cart', event)">🛒 Cart <span id="cart-count" class="nav-badge">0</span></a>
+                </li>
+                <li id="login-link">
+                    <a href="./login.html">🔐 Log In</a>
+                </li>
+                <li id="logout-link" style="display: none;">
+                    <a href="#" onclick="confirmLogout(); return false;">🚪 Log Out</a>
+                </li>
             </ul>
         </nav>
         <button class="toggle-button" id="toggle-button" aria-label="toggle navigation menu" aria-expanded="false" aria-controls="nav-links">

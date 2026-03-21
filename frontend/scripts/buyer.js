@@ -689,16 +689,16 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 3200);
 }
 
+/**
+ * Confirm logout and clear session
+ */
 function confirmLogout() {
-  if (confirm("Are you sure you want to log out?")) {
-    showToast("Logging out...");
-    setTimeout(() => {
-      if (window.logoutUser) {
-        window.logoutUser();
-      } else {
-        window.location.href = "./login.html";
-      }
-    }, 1500);
+  if (confirm('Are you sure you want to log out?')) {
+    localStorage.removeItem('userSession');
+    localStorage.removeItem('token');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('rememberedEmail');
+    window.location.href = './login.html';
   }
 }
 
