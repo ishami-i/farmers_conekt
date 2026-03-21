@@ -342,30 +342,29 @@ body {
     text-align: center;
 }
 
+/* Style logout nav item */
+.logout-item {
+  color: var(--danger, #fbf6f5);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.logout-item:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid var(--danger, #f2f0ef);
+  padding-left: calc(12px - 4px);
+}
+
+/* Remove/hide the old sidebar-footer on desktop */
 .sidebar-footer {
-    padding: 16px 24px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    width: 100%;
-    margin-top: auto;
+  display: none;
 }
 
-.logout-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: rgba(255,255,255,0.7);
-    font-size: 14px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-family: inherit;
-    width: 100%;
-    transition: color 0.2s;
-    padding: 10px 0;
-}
-
-.logout-btn:hover {
-    color: var(--red);
+/* Show sidebar-footer only on mobile if needed */
+@media (max-width: 768px) {
+  .sidebar-footer {
+    display: block;
+  }
 }
 
 /* ============= MAIN CONTENT ============= */
@@ -1217,5 +1216,12 @@ body {
     .tab-btn {
         padding: 12px 14px;
         font-size: 12px;
+    }
+}
+
+/* Ensure visible on desktop */
+@media (min-width: 768px) {
+    .sidebar-footer {
+        display: block !important;
     }
 }

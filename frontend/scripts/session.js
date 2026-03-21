@@ -4,7 +4,6 @@
  * 1. Checking if user is logged in
  * 2. Protecting routes (farmer.html, buyer.html)
  * 3. Managing session timeouts
- * 4. Logout functionality
  */
 
 (function () {
@@ -116,6 +115,31 @@
   }
 
   /**
+   * Display navigation links based on session
+   */
+  function updateNavigation() {
+    const session = getUserSession();
+    const loginLink = document.getElementById('login-link');
+    const logoutLink = document.getElementById('logout-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    const cartLink = document.getElementById('cart-link');
+
+    if (session) {
+      // User is logged in
+      if (loginLink) loginLink.style.display = 'none';
+      if (logoutLink) logoutLink.style.display = 'block';
+      if (dashboardLink) dashboardLink.style.display = 'block';
+      if (cartLink) cartLink.style.display = 'block';
+    } else {
+      // User is not logged in
+      if (loginLink) loginLink.style.display = 'block';
+      if (logoutLink) logoutLink.style.display = 'none';
+      if (dashboardLink) dashboardLink.style.display = 'none';
+      if (cartLink) cartLink.style.display = 'none';
+    }
+  }
+
+  /**
    * Set up session monitoring and auto-logout
    */
   function monitorSession() {
@@ -153,14 +177,21 @@
    */
   document.addEventListener("DOMContentLoaded", () => {
     checkAuthentication();
+    updateNavigation();
     displayUserInfo();
     monitorSession();
   });
 
   // Also check immediately (in case DOMContentLoaded already fired)
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", checkAuthentication);
+    document.addEventListener("DOMContentLoaded", () => {
+      checkAuthentication();
+      updateNavigation();
+      displayUserInfo();
+    });
   } else {
     checkAuthentication();
+    updateNavigation();
+    displayUserInfo();
   }
 })();

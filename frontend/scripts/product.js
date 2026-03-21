@@ -99,5 +99,66 @@
     window.getProducts = function() {
         return products;
     };
-    
+
+    function addToCart(productId, productName, price) {
+        const session = getSession();
+        if (!session) {
+            alert('Please log in to add items to cart');
+            window.location.href = './login.html';
+            return;
+        }
+
+        // Get cart from localStorage
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // Check if product already in cart
+        const existingItem = cart.find(item => item.productId === productId);
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                productId,
+                productName,
+                price,
+                quantity: 1,
+                addedAt: new Date().toISOString()
+            });
+        }
+        
+        // Save cart
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Update cart badge
+        updateCartBadge();
+        
+        // Show toast notification (stay on page)
+        showToast(`✓ ${productName} added to cart!`);
+        
+        // ❌ DO NOT redirect - remove any window.location.href calls
+    }
+
+    function updateCartBadge() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        
+        const badge = document.getElementById('cart-count');
+        if (badge) {
+            badge.textContent = cartCount;
+            badge.style.display = cartCount > 0 ? 'inline-block' : 'none';
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        if (toast && toastMsg) {
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', updateCartBadge);
 })();
