@@ -100,20 +100,26 @@
         return products;
     };
 
+    /**
+     * Add product to cart
+     * Requires login - redirects to login if not logged in
+     * Stays on home page after adding
+     */
     function addToCart(productId, productName, price) {
         const session = getSession();
+
         if (!session) {
-            alert('Please log in to add items to cart');
-            window.location.href = './login.html';
+            // ❌ NOT logged in - redirect to login
+            alert("Please log in to add items to cart");
+            window.location.href = "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
             return;
         }
 
-        // Get cart from localStorage
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        
-        // Check if product already in cart
-        const existingItem = cart.find(item => item.productId === productId);
-        
+        // ✅ User is logged in - add to cart
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        const existingItem = cart.find((item) => item.productId === productId);
+
         if (existingItem) {
             existingItem.quantity += 1;
         } else {
@@ -122,20 +128,20 @@
                 productName,
                 price,
                 quantity: 1,
-                addedAt: new Date().toISOString()
+                addedAt: new Date().toISOString(),
             });
         }
-        
-        // Save cart
-        localStorage.setItem('cart', JSON.stringify(cart));
-        
-        // Update cart badge
+
+        // Save cart to localStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Update cart badge in navigation
         updateCartBadge();
-        
-        // Show toast notification (stay on page)
+
+        // Show notification
         showToast(`✓ ${productName} added to cart!`);
-        
-        // ❌ DO NOT redirect - remove any window.location.href calls
+
+        // ✅ DO NOT redirect - stay on home page
     }
 
     function updateCartBadge() {
@@ -149,16 +155,29 @@
         }
     }
 
+    /**
+     * Show toast notification
+     */
     function showToast(message) {
-        const toast = document.getElementById('toast');
-        const toastMsg = document.getElementById('toast-msg');
-        if (toast && toastMsg) {
-            toastMsg.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        let toast = document.getElementById("toast");
+        
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "toast";
+            toast.className = "toast";
+            document.body.appendChild(toast);
         }
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', updateCartBadge);
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCartBadge();
+    });
 })();

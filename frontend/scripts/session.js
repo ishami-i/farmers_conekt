@@ -2,14 +2,14 @@
  * Session Management Script
  * Handles:
  * 1. Checking if user is logged in
- * 2. Protecting routes (farmer.html, buyer.html)
+ * 2. Protecting routes (buyer.html only - NOT home.html)
  * 3. Managing session timeouts
  */
 
 (function () {
   const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const SESSION_KEY = "userSession";
-  const PROTECTED_PAGES = ["farmer.html", "buyer.html", "transporter.html"];
+  const PROTECTED_PAGES = ["buyer.html", "farmer.html", "transporter.html"];
 
   /**
    * Check if user has an active session
@@ -17,7 +17,6 @@
    */
   function getUserSession() {
     try {
-      // Primary: use the structured session object used by login.js
       const sessionData = localStorage.getItem(SESSION_KEY);
       if (sessionData) {
         const session = JSON.parse(sessionData);
@@ -26,18 +25,17 @@
 
         // Check if session has expired
         if (sessionAge > SESSION_TIMEOUT) {
-          logout();
+          localStorage.removeItem(SESSION_KEY);
           return null;
         }
 
         return session;
       }
 
-      // Fallback: legacy session storage key used by older scripts
+      // Fallback: legacy session storage key
       const legacy = localStorage.getItem("session");
       if (!legacy) return null;
       const parsed = JSON.parse(legacy);
-      // Create a minimal session object with a login timestamp
       return {
         ...parsed,
         loginTime: Date.now(),
@@ -51,7 +49,6 @@
 
   /**
    * Check if current page is protected
-   * @returns {boolean} True if current page requires authentication
    */
   function isProtectedPage() {
     const pathname = window.location.pathname;
@@ -64,22 +61,26 @@
    */
   function redirectToLogin() {
     const returnUrl = window.location.pathname + window.location.search;
-    window.location.href =
-      "./login.html?redirect=" + encodeURIComponent(returnUrl);
+    window.location.href = "./login.html?redirect=" + encodeURIComponent(returnUrl);
   }
 
   /**
    * Logout user and clear session
    */
-  function logout() {
-    localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem("rememberedEmail");
-    window.location.href = "./login.html";
-  }
+  window.confirmLogout = function () {
+    if (confirm("Are you sure you want to log out?")) {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem("token");
+      localStorage.removeItem("cart");
+      localStorage.removeItem("rememberedEmail");
+      window.location.href = "./home.html";
+    }
+  };
 
   /**
    * Check authentication on page load
-   * Redirects to login if accessing protected page without session
+   * Only protects buyer.html, farmer.html, transporter.html
+   * home.html is PUBLIC
    */
   function checkAuthentication() {
     if (isProtectedPage()) {
@@ -88,101 +89,80 @@
         redirectToLogin();
         return false;
       }
-      // Session exists and is valid
       return true;
     }
   }
 
   /**
-   * Display current user info in protected pages
+   * Display current user info
    */
   function displayUserInfo() {
     const session = getUserSession();
     if (!session) return;
 
-    // Update farmer profile name if element exists
     const farmerNameEl = document.querySelector(".farmer-name");
     if (farmerNameEl) {
       farmerNameEl.textContent = session.email.split("@")[0];
     }
 
-    // Update topbar user info if element exists
     const topbarNameEl = document.querySelector(".topbar-left h2");
     if (topbarNameEl) {
-      const greeting = `Welcome, ${session.email.split("@")[0]}!`;
-      topbarNameEl.textContent = greeting;
+      topbarNameEl.textContent = `Welcome, ${session.email.split("@")[0]}!`;
     }
   }
 
   /**
-   * Display navigation links based on session
+   * Update navigation based on login status
    */
   function updateNavigation() {
     const session = getUserSession();
-    const loginLink = document.getElementById('login-link');
-    const logoutLink = document.getElementById('logout-link');
-    const dashboardLink = document.getElementById('dashboard-link');
-    const cartLink = document.getElementById('cart-link');
+    const loginLink = document.getElementById("login-link");
+    const logoutLink = document.getElementById("logout-link");
+    const dashboardLink = document.getElementById("dashboard-link");
+    const cartLink = document.getElementById("cart-link");
 
     if (session) {
-      // User is logged in
-      if (loginLink) loginLink.style.display = 'none';
-      if (logoutLink) logoutLink.style.display = 'block';
-      if (dashboardLink) dashboardLink.style.display = 'block';
-      if (cartLink) cartLink.style.display = 'block';
+      // ✅ User is logged in - show Cart & Logout, hide Login
+      if (loginLink) loginLink.style.display = "none";
+      if (logoutLink) logoutLink.style.display = "block";
+      if (dashboardLink) dashboardLink.style.display = "block";
+      if (cartLink) cartLink.style.display = "block";
+      updateCartBadge();
     } else {
-      // User is not logged in
-      if (loginLink) loginLink.style.display = 'block';
-      if (logoutLink) logoutLink.style.display = 'none';
-      if (dashboardLink) dashboardLink.style.display = 'none';
-      if (cartLink) cartLink.style.display = 'none';
+      // ❌ User NOT logged in - show Login, hide Cart & Logout
+      if (loginLink) loginLink.style.display = "block";
+      if (logoutLink) logoutLink.style.display = "none";
+      if (dashboardLink) dashboardLink.style.display = "none";
+      if (cartLink) cartLink.style.display = "none";
     }
   }
 
   /**
-   * Set up session monitoring and auto-logout
+   * Update cart badge count
    */
-  function monitorSession() {
-    if (!isProtectedPage()) return;
+  function updateCartBadge() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    // Check session every 5 minutes
-    setInterval(
-      () => {
-        const session = getUserSession();
-        if (!session) {
-          alert("Your session has expired. Please log in again.");
-          redirectToLogin();
-        }
-      },
-      5 * 60 * 1000,
-    );
+    const badge = document.getElementById("cart-count");
+    if (badge) {
+      badge.textContent = cartCount;
+      badge.style.display = cartCount > 0 ? "inline" : "none";
+    }
   }
 
   /**
-   * Make logout function globally accessible
-   */
-  window.logoutUser = function () {
-    logout();
-  };
-
-  /**
-   * Make session check globally accessible
+   * Make functions globally accessible
    */
   window.getSession = function () {
     return getUserSession();
   };
 
+  window.updateCartBadge = updateCartBadge;
+
   /**
    * Initialize on page load
    */
-  document.addEventListener("DOMContentLoaded", () => {
-    checkAuthentication();
-    updateNavigation();
-    displayUserInfo();
-    monitorSession();
-  });
-
-  // Also check immediately (in case DOMContentLoaded already fired)
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       checkAuthentication();
@@ -194,4 +174,9 @@
     updateNavigation();
     displayUserInfo();
   }
+
+  // Listen for storage changes (cart updates from other tabs)
+  window.addEventListener("storage", () => {
+    updateNavigation();
+  });
 })();

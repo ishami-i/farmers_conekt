@@ -60,6 +60,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   setupSidebarToggle();
 });
 
+/**
+ * On page load, check if user was redirected to cart tab
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get("tab");
+
+  if (tab === "cart") {
+    switchTab("cart");
+  }
+});
+
 // ============= SIDEBAR TOGGLE (Mobile) =============
 function setupSidebarToggle() {
   const sidebar = document.getElementById("sidebar");
@@ -192,32 +204,23 @@ function displayUserInfo() {
 
 // ============= TAB SWITCHING =============
 function switchTab(tabName, element) {
-  if (element && element.preventDefault) {
-    element.preventDefault();
-  }
-
   // Hide all tabs
   document.querySelectorAll(".tab-content").forEach((tab) => {
-    tab.classList.remove("active");
-  });
-
-  // Remove active from all nav items
-  document.querySelectorAll(".nav-item").forEach((item) => {
-    item.classList.remove("active");
+    tab.style.display = "none";
   });
 
   // Show selected tab
-  const tab = document.getElementById(tabName + "-tab");
-  if (tab) {
-    tab.classList.add("active");
+  const selectedTab = document.getElementById(`${tabName}-tab`);
+  if (selectedTab) {
+    selectedTab.style.display = "block";
   }
 
-  // Mark nav item as active
-  if (element && element.closest) {
-    const navItem = element.closest(".nav-item");
-    if (navItem) {
-      navItem.classList.add("active");
-    }
+  // Update active nav item
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.classList.remove("active");
+  });
+  if (element) {
+    element.classList.add("active");
   }
 
   // Update page title

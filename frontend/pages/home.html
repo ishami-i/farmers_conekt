@@ -23,15 +23,20 @@ the farmer goes on his or her dashboard.
         <nav id="nav">
             <ul class="nav-links" id="nav-links" aria-label="Main navigation">
                 <li><a href="./home.html">🏠 Home</a></li>
-                <li id="dashboard-link" style="display: none;">
-                    <a href="./buyer.html">📊 Dashboard</a>
-                </li>
+
+                <!-- Cart link - only visible when logged in -->
                 <li id="cart-link" style="display: none;">
-                    <a href="./buyer.html" onclick="switchTab('cart', event)">🛒 Cart <span id="cart-count" class="nav-badge">0</span></a>
+                    <a href="./buyer.html?tab=cart">
+                        🛒 Cart <span id="cart-count" class="nav-badge">0</span>
+                    </a>
                 </li>
+
+                <!-- Login link - visible when NOT logged in -->
                 <li id="login-link">
                     <a href="./login.html">🔐 Log In</a>
                 </li>
+
+                <!-- Logout link - visible when logged in -->
                 <li id="logout-link" style="display: none;">
                     <a href="#" onclick="confirmLogout(); return false;">🚪 Log Out</a>
                 </li>
@@ -105,5 +110,6 @@ the farmer goes on his or her dashboard.
     <script src="../scripts/product.js"></script>
     <script src="../scripts/filters.js"></script>
     <script src="../scripts/session.js"></script>
+    <script src="../scripts/buyer.js"></script>
 </body>
 </html>
