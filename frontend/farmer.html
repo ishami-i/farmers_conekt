@@ -1104,6 +1104,9 @@
         <a class="sb-item active" href="#" onclick="openDashboard(event)">
           <span class="sb-icon">&#9781;</span> Dashboard
         </a>
+        <a class="sb-item" href="#" onclick="openPlanting(event)">
+          <span class="sb-icon">🌱</span> Planting Plans
+        </a>
         <a class="sb-item" href="#" onclick="openOrders(event)">
           <span class="sb-icon">&#9635;</span> Orders
         </a>
@@ -1347,6 +1350,37 @@
       </div>
     </main>
 
+    <!-- PLANTING PLANS VIEW -->
+    <div id="page-planting" style="display: none; padding: 28px 32px">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Planting Plans</div>
+            <div class="section-sub">
+              Plan what you will plant to avoid overproduction
+            </div>
+          </div>
+          <button class="btn-add-product" onclick="openPlantingModal()">
+            + Add Plan
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="product-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>District</th>
+                <th>Expected Harvest</th>
+              </tr>
+            </thead>
+            <tbody id="planting-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ADD / EDIT PRODUCT MODAL -->
     <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
       <div class="modal-box" id="modal-box">
@@ -1522,6 +1556,38 @@
           <button class="btn-save" id="btn-save" onclick="saveProduct()">
             Save Product
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANTING MODAL -->
+    <div class="modal-overlay" id="planting-modal">
+      <div class="modal-box">
+        <div class="modal-head">
+          <span class="modal-title">Add Planting Plan</span>
+          <button class="modal-close" onclick="closePlantingModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Product</label>
+            <select id="plan-product" class="form-input"></select>
+          </div>
+
+          <div class="form-group">
+            <label>Quantity (kg)</label>
+            <input id="plan-quantity" type="number" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Expected Harvest Date</label>
+            <input id="plan-date" type="date" class="form-input" />
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button onclick="closePlantingModal()">Cancel</button>
+          <button onclick="savePlanting()">Save Plan</button>
         </div>
       </div>
     </div>
@@ -1895,6 +1961,38 @@
           (dashboardStats.total_earnings || 0) + " RWF";
       }
 
+      function openPlanting(e) {
+        e.preventDefault();
+
+        document.getElementById("page-dashboard").style.display = "none";
+        document.getElementById("page-orders").style.display = "none";
+        document.getElementById("page-payments").style.display = "none";
+        document.getElementById("page-profile").style.display = "none";
+        document.getElementById("page-planting").style.display = "block";
+
+        document.getElementById("topbar-title").textContent = "Planting Plans";
+        document.getElementById("topbar-sub").textContent =
+          "Plan your future harvest smartly";
+
+        document
+          .querySelectorAll(".sb-item")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelector('[onclick="openPlanting(event)"]')
+          .classList.add("active");
+
+        loadPlantingPlans();
+      }
+
+      function openPlantingModal() {
+        document.getElementById("planting-modal").classList.add("open");
+        loadProductsForDropdown();
+      }
+
+      function closePlantingModal() {
+        document.getElementById("planting-modal").classList.remove("open");
+      }
+
       function openModal() {
         editingId = null;
         document.getElementById("modal-title").textContent = "Add New Product";
@@ -1958,6 +2056,82 @@
           if (el) el.value = "";
         });
         resetCropImage();
+      }
+
+      async function loadProductsForDropdown() {
+        const farmerId = getFarmerId();
+
+        const data = await apiFetch("/farmers/farmer/" + farmerId);
+
+        let select = document.getElementById("plan-product");
+        select.innerHTML = "";
+
+        data.forEach((p) => {
+          let option = document.createElement("option");
+          option.value = p.product_id;
+          option.textContent = p.product_name;
+          select.appendChild(option);
+        });
+      }
+
+      async function savePlanting() {
+        try {
+          const farmerId = getFarmerId();
+          const productId = document.getElementById("plan-product").value;
+          const quantity = document.getElementById("plan-quantity").value;
+          const date = document.getElementById("plan-date").value;
+
+          if (!productId || !quantity || !date) {
+            showToast("Fill all fields");
+            return;
+          }
+
+          await apiFetch("/planting/create", {
+            method: "POST",
+            body: JSON.stringify({
+              farmer_id: farmerId,
+              product_id: productId,
+              planted_quantity: quantity,
+              expected_harvest_date: date,
+            }),
+          });
+
+          showToast("Planting plan saved");
+
+          closePlantingModal();
+          loadPlantingPlans();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to save plan", "error");
+        }
+      }
+
+      async function loadPlantingPlans() {
+        const farmerId = getFarmerId();
+
+        const data = await apiFetch("/planting/farmer/" + farmerId);
+
+        let tbody = document.getElementById("planting-tbody");
+
+        if (!data.length) {
+          tbody.innerHTML = "<tr><td colspan='4'>No plans yet</td></tr>";
+          return;
+        }
+
+        let rows = "";
+
+        data.forEach((p) => {
+          rows += `
+      <tr>
+        <td>${p.product_name}</td>
+        <td>${p.planted_quantity} kg</td>
+        <td>${p.district_name}</td>
+        <td>${formatDate(p.expected_harvest_date)}</td>
+      </tr>
+    `;
+        });
+
+        tbody.innerHTML = rows;
       }
 
       async function saveProduct() {
