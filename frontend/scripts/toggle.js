@@ -1,39 +1,36 @@
 /**
  * Toggle Script
  * Handles:
- * 1. Hamburger menu toggle for mobile navigation
+ * 1. Mobile navigation (hamburger menu)
  * 2. Light/Dark mode toggle
  */
 
-(function() {
-  // ============= HAMBURGER MENU TOGGLE =============
+(function () {
+  // ===== HAMBURGER MENU TOGGLE =====
   const toggleButton = document.getElementById('toggle-button');
   const navMenu = document.getElementById('nav');
+  const navLinks = document.querySelectorAll('.nav-links a');
 
-  // Toggle mobile navigation menu
-  if (toggleButton) {
-    toggleButton.addEventListener('click', function() {
-      toggleButton.classList.toggle('active');
+  // Toggle mobile navigation
+  if (toggleButton && navMenu) {
+    toggleButton.addEventListener('click', () => {
+      const isActive = toggleButton.classList.toggle('active');
       navMenu.classList.toggle('active');
-      
-      // Update aria attributes for accessibility
-      const isExpanded = toggleButton.classList.contains('active');
-      toggleButton.setAttribute('aria-expanded', isExpanded);
+
+      // Accessibility: update aria-expanded
+      toggleButton.setAttribute('aria-expanded', isActive);
     });
   }
 
-  // Close menu when a nav link is clicked
-  const navLinks = document.querySelectorAll('.nav-links a');
+  // Close menu when a navigation link is clicked
   navLinks.forEach(link => {
-    link.addEventListener('click', function() {
-      if (toggleButton) {
-        toggleButton.classList.remove('active');
-      }
-      if (navMenu) {
-        navMenu.classList.remove('active');
-      }
-      if (toggleButton) {
-        toggleButton.setAttribute('aria-expanded', false);
-      }
+    link.addEventListener('click', () => {
+      if (!toggleButton || !navMenu) return;
+
+      toggleButton.classList.remove('active');
+      navMenu.classList.remove('active');
+      toggleButton.setAttribute('aria-expanded', 'false');
     });
   });
+
+})();
