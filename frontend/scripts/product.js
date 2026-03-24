@@ -141,7 +141,6 @@
         // Show notification
         showToast(`✓ ${productName} added to cart!`);
 
-        // ✅ DO NOT redirect - stay on home page
     }
 
     function updateCartBadge() {

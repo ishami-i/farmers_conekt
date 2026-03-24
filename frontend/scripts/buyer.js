@@ -60,18 +60,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   setupSidebarToggle();
 });
 
-/**
- * On page load, check if user was redirected to cart tab
- */
-document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tab = urlParams.get("tab");
-
-  if (tab === "cart") {
-    switchTab("cart");
-  }
-});
-
 // ============= SIDEBAR TOGGLE (Mobile) =============
 function setupSidebarToggle() {
   const sidebar = document.getElementById("sidebar");
@@ -267,7 +255,6 @@ function makingorders() {
   cart = [];
   saveBuyerData();
   render();
-  switchTab("orders", null);
   showToast("Order placed successfully! 🎉");
 }
 
