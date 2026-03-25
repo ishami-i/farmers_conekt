@@ -1,12 +1,12 @@
-CREATE DATABASE farmers_conekt;
+CREATE DATABASE IF NOT EXISTS farmers_conekt;
 USE farmers_conekt;
 
-CREATE TABLE districts (
+CREATE TABLE IF NOT EXISTS districts (
     district_id INT AUTO_INCREMENT PRIMARY KEY,
     district_name VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) UNIQUE,
@@ -16,7 +16,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE farmers (
+CREATE TABLE IF NOT EXISTS farmers (
     farmer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     district_id INT,
@@ -26,7 +26,7 @@ CREATE TABLE farmers (
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE SET NULL
 );
 
-CREATE TABLE buyers (
+CREATE TABLE IF NOT EXISTS buyers (
     buyer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     district_id INT,
@@ -34,7 +34,7 @@ CREATE TABLE buyers (
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE SET NULL
 );
 
-CREATE TABLE transporters (
+CREATE TABLE IF NOT EXISTS transporters (
     transporter_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     plate_number VARCHAR(20) UNIQUE,
@@ -44,7 +44,7 @@ CREATE TABLE transporters (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
     district_id INT NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE products (
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE planting_plans (
+CREATE TABLE IF NOT EXISTS planting_plans (
     plan_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE planting_plans (
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     buyer_id INT,
     status ENUM('pending','confirmed','shipped','delivered','cancelled') DEFAULT 'pending',
@@ -90,7 +90,7 @@ CREATE TABLE orders (
     FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE SET NULL
 );
 
-CREATE TABLE order_details (
+CREATE TABLE IF NOT EXISTS order_details (
     order_detail_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     order_id INT NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE order_details (
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
-CREATE TABLE deliveries (
+CREATE TABLE IF NOT EXISTS deliveries (
     delivery_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     transporter_id INT,
@@ -113,30 +113,29 @@ CREATE TABLE deliveries (
     FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id) ON DELETE SET NULL
 );
 
-CREATE TABLE reviews (
+CREATE TABLE IF NOT EXISTS reviews (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
     buyer_id INT NOT NULL,
     comment TEXT,
-    rating TINYINT CHECK (rating BETWEEN 1 AND 5),
+    ratings TINYINT CHECK (ratings BETWEEN 1 AND 5),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
     FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE CASCADE
 );
 
-CREATE TABLE farmer_earnings (
+CREATE TABLE IF NOT EXISTS farmer_earnings (
     earning_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT NOT NULL,
     order_id INT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
-    earning_type ENUM('product_sale', 'bonus') DEFAULT 'product_sale',
     status ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
-CREATE TABLE transporter_earnings (
+CREATE TABLE IF NOT EXISTS transporter_earnings (
     earning_id INT AUTO_INCREMENT PRIMARY KEY,
     transporter_id INT NOT NULL,
     delivery_id INT NOT NULL,
@@ -149,7 +148,7 @@ CREATE TABLE transporter_earnings (
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
-CREATE TABLE demand_analytics (
+CREATE TABLE IF NOT EXISTS demand_analytics (
     analytics_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     district_id INT NOT NULL,
@@ -162,11 +161,12 @@ CREATE TABLE demand_analytics (
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,
     farmer_id INT,
     plan_id INT,
     message TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id),

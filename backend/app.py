@@ -14,7 +14,13 @@ from routes.payment_routes import payment_routes
 
 app = Flask(__name__)
 
-CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5000"])
+# Configure CORS with more explicit settings to handle preflight requests
+CORS(app, 
+     origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5000"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=True,
+     max_age=3600)
 
 # JWT configuration
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
