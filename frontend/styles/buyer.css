@@ -66,13 +66,9 @@ body {
 }
 
 #nav .nav-links {
-    display: none;
+    display: flex;
     list-style: none;
     gap: 1.5rem;
-}
-
-#nav .nav-links.active {
-    display: flex;
 }
 
 #nav .nav-links a {
@@ -364,6 +360,10 @@ body {
 @media (max-width: 768px) {
   .sidebar-footer {
     display: block;
+  }
+
+  .toggle-button {
+    display: flex;
   }
 }
 
