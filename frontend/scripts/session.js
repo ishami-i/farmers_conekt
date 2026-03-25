@@ -56,13 +56,13 @@
     return PROTECTED_PAGES.includes(currentPage);
   }
 
-  // /**
-  //  * Redirect to login page
-  //  */
-  // function redirectToLogin() {
-  //   const returnUrl = window.location.pathname + window.location.search;
-  //   window.location.href = "./login.html?redirect=" + encodeURIComponent(returnUrl);
-  // }
+  /**
+   * Redirect to login page
+   */
+  function redirectToLogin() {
+    const returnUrl = window.location.pathname + window.location.search;
+    window.location.href = "./login.html?redirect=" + encodeURIComponent(returnUrl);
+  }
 
   /**
    * Logout user and clear session
@@ -73,7 +73,7 @@
       localStorage.removeItem("token");
       localStorage.removeItem("cart");
       localStorage.removeItem("rememberedEmail");
-      window.location.href = "./home.html";
+      window.location.href = "./login.html";
     }
   };
 

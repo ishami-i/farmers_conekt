@@ -441,7 +441,36 @@
   </div><!-- end #page-layout -->
 
   <!-- ===== FOOTER ===== -->
-  <footer id="footer"></footer>
+  <footer id="footer">
+    <div class="footer-section">
+      <h3>🌿 Farmer Conekt</h3>
+      <p>Connecting farmers, buyers, and transporters across Rwanda. Fresh produce, straight from the source.</p>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Links</h3>
+      <a href="./home.html">🏠 Home</a>
+      <a href="./login.html">🔐 Log In</a>
+      <a href="./home.html#browse">🛒 Browse Products</a>
+    </div>
+    <div class="footer-section">
+      <h3>For Users</h3>
+      <a href="./login.html">Farmer Login</a>
+      <a href="./login.html">Buyer Login</a>
+      <a href="./login.html">Transporter Login</a>
+    </div>
+    <div class="footer-section">
+      <h3>Contact</h3>
+      <p>📧 support@farmerconekt.rw</p>
+      <p>📞 +250 700 000 000</p>
+      <p>📍 Kigali, Rwanda</p>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="footer-year"></span> Farmer Conekt. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("footer-year").textContent = new Date().getFullYear();
+  </script>
 
   <!-- ===== TOAST NOTIFICATION ===== -->
   <div class="toast" id="toast">
