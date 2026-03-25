@@ -361,6 +361,10 @@ body {
   .sidebar-footer {
     display: block;
   }
+
+  .toggle-button {
+    display: flex;
+  }
 }
 
 /* ============= MAIN CONTENT ============= */
