@@ -518,65 +518,42 @@ function closePaymentModal() {
 async function handlePaymentSubmit(e) {
   e.preventDefault();
   const fullNameInput = document.getElementById("full-name");
-  const phoneInput = document.getElementById("momo-number");
+  const emailInput = document.getElementById("payment-email");
   const fullName = fullNameInput.value.trim();
-  const phoneNumber = phoneInput.value.trim();
+  const email = emailInput.value.trim();
 
   // Validation
-  if (!fullName || fullName.length < 3) {
-    showToast("Please enter a valid full name");
-    return;
-  }
-
-  if (!phoneNumber || phoneNumber.length < 10) {
-    showToast("Please enter a valid phone number");
+  if (!email || !email.includes("@")) {
+    showToast("Please enter a valid email address");
     return;
   }
 
   // Show loading state
   const btn = e.target.querySelector('button[type="submit"]');
   const originalText = btn.textContent;
-  btn.textContent = "Processing...";
+  btn.textContent = "Creating order...";
   btn.disabled = true;
 
-  // Simulate payment processing delay
-  setTimeout(async () => {
-    try {
-      await completeOrder(fullName, phoneNumber);
-    } catch (err) {
-      showToast(err.message || "Order failed. Please try again.", "error");
-    } finally {
-      // Reset UI
-      btn.textContent = originalText;
-      btn.disabled = false;
-      closePaymentModal();
-    }
-  }, 2000);
-}
-
-async function completeOrder(fullName, phoneNumber) {
-  const orderId = "ORD-" + Date.now();
-  const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * (item.qty || 1),
-    0,
-  );
-  const tax = Math.round(subtotal * 0.05);
-  const total = subtotal + 5000 + tax;
-
-  const items = cart.map((item) => ({
-    product_id: item.pid || item.id,
-    price: item.price,
-    quantity: item.qty || 1,
-  }));
-
-  // Attempt to place order on the backend if user is authenticated
-  let backendOrder = null;
   try {
-    backendOrder = await authFetch("/api/buyers/place-order", {
+    // Step 1: Calculate cart total (matches backend)
+    const subtotal = cart.reduce(
+      (sum, item) => sum + item.price * (item.qty || 1),
+      0,
+    );
+    const deliveryFee = 5.0;
+    const totalPayment = subtotal + deliveryFee;
+
+    // Step 2: Place order on backend
+    const items = cart.map((item) => ({
+      product_id: item.pid || item.id || 1, // Fallback if no product_id
+      price: item.price,
+      quantity: item.qty || 1,
+    }));
+
+    const orderResponse = await authFetch("/api/buyers/place-order", {
       method: "POST",
       body: JSON.stringify({
         items,
-        total,
         pickup_location:
           (JSON.parse(localStorage.getItem("buyerProfile") || "{}") || {})
             .location ||
@@ -589,47 +566,86 @@ async function completeOrder(fullName, phoneNumber) {
           "",
       }),
     });
+
+    const orderId = orderResponse.order_id;
+
+    // Step 3: Initialize Paystack payment
+    const initResponse = await authFetch("/api/payments/initialize", {
+      method: "POST",
+      body: JSON.stringify({
+        order_id: orderId,
+        email: email,
+      }),
+    });
+
+    const { authorization_url, reference } = initResponse;
+
+    // Step 4: Open Paystack popup
+    const paystackPublicKey = "pk_test_placeholder_replace_with_real_key"; // Load from env or config
+    window.paystackHandler = PaystackPop.setup({
+      key: paystackPublicKey,
+      email: email,
+      amount: Math.round(totalPayment * 100), // Convert to kobo
+      currency: "XAF", // or 'GHS' etc., check Paystack docs for RWF
+      ref: reference,
+      callback: function (response) {
+        verifyPayment(reference);
+      },
+      onClose: function () {
+        showToast("Payment cancelled");
+      },
+    });
+    paystackHandler.openIframe();
   } catch (err) {
+    console.error("Payment error:", err);
     showToast(
-      err.message ||
-        "Could not place order. Please check your connection and try again.",
+      err.message || "Payment initialization failed. Please try again.",
       "error",
     );
-    return;
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
   }
-
-  if (!backendOrder || !backendOrder.order_id) {
-    showToast("Order could not be completed. Please try again.", "error");
-    return;
-  }
-
-  const order = {
-    id: backendOrder.order_id,
-    date: new Date().toISOString(),
-    items: cart.map((item) => ({ ...item, qty: item.qty || 1 })),
-    total: total,
-    status: "pending",
-    payment: {
-      method: "Mobile Money",
-      phone: phoneNumber,
-      status: "paid",
-    },
-    customer: {
-      name: fullName,
-    },
-  };
-
-  orders.unshift(order);
-  cart = [];
-  saveBuyerData();
-
-  // Refresh order history from server, if possible
-  await loadOrdersFromAPI();
-
-  render();
-  switchTab("orders", null);
-  showToast("Payment successful! Order placed. 🎉");
 }
+
+async function verifyPayment(reference) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/payments/verify/${reference}`,
+    );
+    const result = await response.json();
+
+    if (result.paystack_status === "success") {
+      showToast("Payment successful! Order confirmed. 🎉");
+      cart = [];
+      saveBuyerData();
+      await loadOrdersFromAPI();
+      render();
+      switchTab("orders", null);
+      closePaymentModal();
+    } else {
+      showToast(
+        "Payment verification failed. Please contact support.",
+        "error",
+      );
+    }
+  } catch (err) {
+    showToast("Verification failed. Please check your order status.", "error");
+  }
+}
+
+// Auto-verify if returning from Paystack
+if (window.location.search.includes("reference=")) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const ref = urlParams.get("reference");
+  if (ref) {
+    verifyPayment(ref);
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+// completeOrder replaced by Paystack flow in handlePaymentSubmit
 
 // ============= ORDER FILTERING =============
 function filterOrders(status) {
@@ -683,12 +699,12 @@ function showToast(msg) {
  * Confirm logout and clear session
  */
 function confirmLogout() {
-  if (confirm('Are you sure you want to log out?')) {
-    localStorage.removeItem('userSession');
-    localStorage.removeItem('token');
-    localStorage.removeItem('cart');
-    localStorage.removeItem('rememberedEmail');
-    window.location.href = './login.html';
+  if (confirm("Are you sure you want to log out?")) {
+    localStorage.removeItem("userSession");
+    localStorage.removeItem("token");
+    localStorage.removeItem("cart");
+    localStorage.removeItem("rememberedEmail");
+    window.location.href = "./login.html";
   }
 }
 

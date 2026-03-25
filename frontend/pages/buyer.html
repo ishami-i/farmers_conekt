@@ -24,7 +24,14 @@
           <li><a href="./buyer.html" class="active-nav">📊 Dashboard</a></li>
           <li><a href="./home.html">🌾 Browse Products</a></li>
           <li>
-            <a href="#" onclick="confirmLogout(); return false;">🚪 Log Out</a>
+            <a
+              href="#"
+              onclick="
+                confirmLogout();
+                return false;
+              "
+              >🚪 Log Out</a
+            >
           </li>
         </ul>
       </nav>
@@ -76,7 +83,8 @@
               closeSidebarOnMobile();
             "
           >
-            <span class="nav-icon">🛒</span> My Cart <span id="cart-badge" class="nav-badge"></span>
+            <span class="nav-icon">🛒</span> My Cart
+            <span id="cart-badge" class="nav-badge"></span>
           </a>
           <a
             class="nav-item"
@@ -102,7 +110,10 @@
           <a
             class="nav-item logout-item"
             href="#"
-            onclick="confirmLogout(); return false;"
+            onclick="
+              confirmLogout();
+              return false;
+            "
           >
             <span class="nav-icon">🚪</span> Log Out
           </a>
@@ -375,23 +386,20 @@
 
           <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
             <div class="form-group">
-              <label for="full-name">Full Name</label>
+              <label for="full-name">Full Name (Optional)</label>
               <input
                 type="text"
                 id="full-name"
                 placeholder="Enter your full name"
-                required
               />
             </div>
             <div class="form-group">
-              <label for="momo-number">MoMo Number (MTN/Airtel)</label>
+              <label for="payment-email">Email Address</label>
               <input
-                type="tel"
-                id="momo-number"
-                placeholder="078..."
+                type="email"
+                id="payment-email"
+                placeholder="buyer@example.com"
                 required
-                pattern="[0-9]{10}"
-                maxlength="10"
               />
             </div>
             <div class="form-actions">
@@ -409,6 +417,7 @@
       </div>
     </div>
 
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     <script src="../scripts/toggle.js"></script>
     <script src="../scripts/buyer.js"></script>
     <script src="../scripts/session.js"></script>
