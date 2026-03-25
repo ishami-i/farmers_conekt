@@ -2,14 +2,14 @@
  * Session Management Script
  * Handles:
  * 1. Checking if user is logged in
- * 2. Protecting routes (buyer.html only - NOT home.html)
+ * 2. Protecting routes (farmer.html and transporter.html only)
  * 3. Managing session timeouts
  */
 
 (function () {
   const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const SESSION_KEY = "userSession";
-  const PROTECTED_PAGES = ["buyer.html", "farmer.html", "transporter.html"];
+  const PROTECTED_PAGES = ["farmer.html", "transporter.html"];
 
   /**
    * Check if user has an active session
@@ -79,8 +79,8 @@
 
   /**
    * Check authentication on page load
-   * Only protects buyer.html, farmer.html, transporter.html
-   * home.html is PUBLIC
+   * Only protects farmer.html and transporter.html.
+   * home.html is PUBLIC; buyer tabs within it are hidden by JS when not logged in.
    */
   function checkAuthentication() {
     if (isProtectedPage()) {
