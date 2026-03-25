@@ -438,7 +438,7 @@ async function doSignup(role) {
             ? "../farmer.html"
             : role === "transporter"
               ? "../transporter.html"
-              : "buyer.html";
+              : "home.html";
         window.location.href = redirectAfterLogin || defaultRedirect;
         showToast("Welcome to FARMER CONEKT, " + first + "!", "success");
       } catch (err) {
@@ -559,7 +559,7 @@ async function doLogin(role) {
             ? "../farmer.html"
             : role === "transporter"
               ? "../transporter.html"
-              : "buyer.html";
+              : "home.html";
         window.location.href = redirectAfterLogin || defaultRedirect;
         showToast("Welcome back!", "success");
       } catch (err) {

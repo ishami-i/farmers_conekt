@@ -87,13 +87,17 @@
     // Save back to localStorage
     localStorage.setItem("buyerCart", JSON.stringify(cart));
 
-    // Feedback
+    // Ask user whether to go to cart; switch tab if on home.html (merged page)
     if (
       confirm(
-        `${product.name} added to cart! \nDo you want to go to the Dashboard to checkout?`,
+        `${product.name} added to cart! \nDo you want to go to the Cart to checkout?`,
       )
     ) {
-      window.location.href = "./buyer.html";
+      if (typeof window.switchTab === "function") {
+        window.switchTab("cart", null);
+      } else {
+        window.location.href = "./home.html?tab=cart";
+      }
     }
   };
 

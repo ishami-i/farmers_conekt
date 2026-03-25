@@ -8,7 +8,7 @@
   const validPages = [
     'home.html',
     'farmer.html',
-    'buyer.html',
+    'transporter.html',
     'login.html',
     '404.html'
   ];

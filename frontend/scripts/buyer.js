@@ -50,14 +50,31 @@ function getSession() {
 window.getSession = getSession;
 
 // ============= INITIALIZATION =============
-// Load saved cart/orders, fetch latest backend orders, and render UI.
+// On DOMContentLoaded, check whether the user is logged in.
+// If logged in, activate the buyer dashboard (sidebar, topbar, tabs).
+// The product-browsing section is always visible to everyone.
 document.addEventListener("DOMContentLoaded", async function () {
-  loadBuyerData();
-  displayUserInfo();
-  loadProductsFromAPI();
-  await loadOrdersFromAPI();
-  render();
-  setupSidebarToggle();
+  const session = getSession();
+  if (session) {
+    // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
+    document.body.classList.add("logged-in");
+
+    loadBuyerData();
+    displayUserInfo();
+    loadProductsFromAPI();
+    await loadOrdersFromAPI();
+    render();
+    setupSidebarToggle();
+
+    // Honor a ?tab= URL parameter (e.g. from the cart nav-link).
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab");
+    if (tabParam) {
+      switchTab(tabParam, null);
+      // Clean up the URL without reloading
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
 });
 
 // ============= SIDEBAR TOGGLE (Mobile) =============
@@ -214,25 +231,29 @@ function switchTab(tabName, element) {
   // Update page title
   const titles = {
     dashboard: "Buyer Dashboard",
+    browse: "Browse Products",
     cart: "Shopping Cart",
     orders: "My Orders",
     profile: "My Profile",
   };
-  document.getElementById("page-title").textContent =
-    titles[tabName] || "Dashboard";
+  const titleEl = document.getElementById("page-title");
+  if (titleEl) titleEl.textContent = titles[tabName] || "Dashboard";
 
   const subtitles = {
     dashboard: "Welcome back to your shopping hub",
+    browse: "Find fresh produce from local farmers",
     cart: "Review and manage your items",
     orders: "Track and manage your orders",
     profile: "Manage your account information",
   };
-  document.getElementById("page-subtitle").textContent =
-    subtitles[tabName] || "";
+  const subtitleEl = document.getElementById("page-subtitle");
+  if (subtitleEl) subtitleEl.textContent = subtitles[tabName] || "";
 
   // Ensure the latest cart/orders state renders when switching tabs
   render();
 }
+// Expose globally so other scripts (e.g. filters.js) can call it.
+window.switchTab = switchTab;
 
 function makingorders() {
   const orderId = "ORD-" + Date.now();
@@ -295,7 +316,7 @@ function renderCart() {
                 <div class="empty-icon">🛒</div>
                 <div class="empty-text">Your cart is empty</div>
                 <div class="empty-sub">Add some fresh produce to get started</div>
-                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
+                <button class="empty-cta" onclick="switchTab('browse', null)">🌾 Browse Products</button>
             </div>
         `;
     summary.style.display = "none";
@@ -412,7 +433,7 @@ function renderDashboardOrders() {
                 <div class="empty-icon">📭</div>
                 <div class="empty-text">No orders yet</div>
                 <div class="empty-sub">Start shopping to place your first order</div>
-                <button class="empty-cta" onclick="window.location.href='./home.html'">🌾 Browse Products</button>
+                <button class="empty-cta" onclick="switchTab('browse', null)">🌾 Browse Products</button>
             </div>
         `;
     return;
@@ -704,7 +725,7 @@ function confirmLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("cart");
     localStorage.removeItem("rememberedEmail");
-    window.location.href = "./login.html";
+    window.location.href = "./home.html";
   }
 }
 
