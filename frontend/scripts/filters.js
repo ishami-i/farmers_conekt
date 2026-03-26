@@ -357,28 +357,66 @@
       return;
     }
 
-    // Generate product cards HTML
+    // Generate modern e-commerce product cards HTML
     productsContainer.innerHTML = products
       .map(
         (product) => `
-      <div class="product-card">
-        <div class="product-image">
-          <img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" onerror="this.src='../styles/placeholder.jpg'"/>
+      <div class="ecom-product-card" data-product-id="${product.id}">
+        <div class="ecom-product-image-wrapper">
+          <img 
+            src="${escapeHTML(product.image)}" 
+            alt="${escapeHTML(product.name)}" 
+            class="ecom-product-image"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%2395d5b2%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2224%22%3E🥬%3C/text%3E%3C/svg%3E'"/>
+          <div class="ecom-badge-discount" style="display: ${(product.discount || 0) > 0 ? 'block' : 'none'}">
+            -${product.discount || 0}%
+          </div>
         </div>
-        <div class="product-info">
-          <h3 class="product-name">${escapeHTML(product.name)}</h3>
-          <p class="product-category">Category: ${escapeHTML(capitalizeFirst(product.category))}</p>
-          <p class="product-harvest-time">Harvest Time: ${escapeHTML(capitalizeFirst(product.harvestTime))}</p>
-          <p class="product-price">Price: ${escapeHTML(product.price)} RWF per unit</p>
-          <p class="product-location">Location: ${escapeHTML(product.province || "N/A")}, ${escapeHTML(product.district || "N/A")}</p>
-          <div class="product-actions">
-            <button class="btn-view" onclick="window.orderProduct(${product.id})">Order</button>
+        
+        <div class="ecom-product-body">
+          <div class="ecom-product-category">${escapeHTML(capitalizeFirst(product.category))}</div>
+          <h3 class="ecom-product-name">${escapeHTML(product.name)}</h3>
+          
+          <div class="ecom-product-meta">
+            <span class="ecom-meta-item">📍 ${escapeHTML(product.district || "N/A")}</span>
+            <span class="ecom-meta-item">⏱️ ${escapeHTML(capitalizeFirst(product.harvestTime))}</span>
+          </div>
+          
+          <div class="ecom-product-price-section">
+            <span class="ecom-price">${product.price.toLocaleString()} RWF</span>
+            <span class="ecom-unit">per ${product.unit || 'unit'}</span>
+          </div>
+          
+          <div class="ecom-product-footer">
+            <div class="ecom-qty-selector">
+              <button class="ecom-qty-btn" onclick="window.quickAddToCart(${product.id}, -1)">−</button>
+              <input type="number" class="ecom-qty-input" id="qty-${product.id}" value="1" min="1" onchange="window.validateQuantity(${product.id})">
+              <button class="ecom-qty-btn" onclick="window.quickAddToCart(${product.id}, 1)">+</button>
+            </div>
+            <button class="ecom-add-btn" onclick="window.quickAddToCart(${product.id}, 0)">
+              <span class="ecom-cart-icon">🛒</span>
+              <span class="ecom-add-text">Add</span>
+            </button>
           </div>
         </div>
       </div>
     `,
       )
       .join("");
+
+    // Attach event listeners for quantity inputs
+    attachQuantityInputListeners();
+  }
+
+  // Attach listeners for quantity input fields
+  function attachQuantityInputListeners() {
+    const qtyInputs = document.querySelectorAll('.ecom-qty-input');
+    qtyInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        const val = parseInt(this.value) || 1;
+        if (val < 1) this.value = 1;
+      });
+    });
   }
 
   // ============= LOAD PRODUCTS FROM THE BACKEND =============
@@ -409,10 +447,14 @@
         unit: p.unit || "kg",
         farmer: p.farmer_name || "Farmer",
       }));
+      
+      // Update window.allProducts reference
+      window.allProducts = allProducts;
     } catch (err) {
       console.error("Failed to load products from API:", err);
       // Fallback to sample products
       allProducts = [];
+      window.allProducts = [];
     }
   }
 
@@ -435,6 +477,7 @@
 
   // Export functions for external use if needed
   window.applyFilters = applyAllFilters;
+  window.allProducts = allProducts;  // Expose allProducts to window for quick add to cart
   window.filterProducts = {
     setProducts: (products) => {
       allProducts = products;

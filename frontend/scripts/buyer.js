@@ -54,6 +54,10 @@ window.getSession = getSession;
 // If logged in, activate the buyer dashboard (sidebar, topbar, tabs).
 // The product-browsing section is always visible to everyone.
 document.addEventListener("DOMContentLoaded", async function () {
+  // Load buyer data first (cart from localStorage)
+  loadBuyerData();
+  updateCartBadge();
+  
   // Load products for everyone (browsing is public)
   loadProductsFromAPI();
 
@@ -62,7 +66,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
     document.body.classList.add("logged-in");
 
-    loadBuyerData();
     displayUserInfo();
     await loadOrdersFromAPI();
     render();
@@ -287,6 +290,7 @@ function makingorders() {
 // ============= RENDERING =============
 function render() {
   updateStats();
+  updateCartBadge();
   renderCart();
   renderOrders();
   renderDashboardOrders();
@@ -474,6 +478,87 @@ function renderDashboardOrders() {
 }
 
 // ============= CART OPERATIONS =============
+
+// Modern quick add to cart for e-commerce
+window.quickAddToCart = function(productId, action) {
+  const allProducts = window.allProducts || [];
+  const product = allProducts.find((p) => p.id === productId);
+  
+  if (!product) {
+    showToast("Product not found", "error");
+    return;
+  }
+
+  const qtyInput = document.getElementById(`qty-${productId}`);
+  let quantity = parseInt(qtyInput?.value) || 1;
+
+  if (action === -1) {
+    // Decrease quantity
+    quantity = Math.max(1, quantity - 1);
+  } else if (action === 1) {
+    // Increase quantity
+    quantity = quantity + 1;
+  } else if (action === 0) {
+    // Add to cart with current quantity
+    const existingIndex = cart.findIndex((item) => item.id === productId);
+
+    if (existingIndex >= 0) {
+      cart[existingIndex].qty = (cart[existingIndex].qty || 1) + quantity;
+    } else {
+      const cartItem = {
+        id: product.id,
+        pid: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        unit: product.unit || "kg",
+        farmer: product.farmer || "Local Farmer",
+        location: `${product.district || "Unknown"}, ${product.province || "Region"}`,
+        province: product.province,
+        district: product.district,
+        harvestTime: product.harvestTime,
+        image: product.image,
+        qty: quantity,
+      };
+      cart.push(cartItem);
+    }
+
+    saveBuyerData();
+    updateCartBadge();
+    render();
+    showToast(`✓ ${product.name} added to cart!`);
+    
+    // Reset quantity input
+    if (qtyInput) qtyInput.value = 1;
+    return;
+  }
+
+  // Update quantity input
+  if (qtyInput) {
+    qtyInput.value = Math.max(1, quantity);
+  }
+};
+
+// Validate and fix quantity input
+window.validateQuantity = function(productId) {
+  const qtyInput = document.getElementById(`qty-${productId}`);
+  if (qtyInput) {
+    const val = parseInt(qtyInput.value) || 1;
+    qtyInput.value = Math.max(1, val);
+  }
+};
+
+// Update cart badge with item count
+function updateCartBadge() {
+  const cartCount = document.getElementById("cart-count");
+  const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  
+  if (cartCount) {
+    cartCount.textContent = totalItems;
+    cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
+  }
+}
+
 function addToCart(name, farmer, price, location, quantity) {
   const existingItem = cart.find(
     (item) => item.name === name && item.farmer === farmer,
@@ -486,6 +571,7 @@ function addToCart(name, farmer, price, location, quantity) {
   }
 
   saveBuyerData();
+  updateCartBadge();
   render();
   showToast(`${name} added to cart!`);
 }
@@ -497,6 +583,7 @@ function updateCartQuantity(idx, change) {
   } else {
     cart[idx].qty = newQty;
     saveBuyerData();
+    updateCartBadge();
     render();
   }
 }
@@ -505,6 +592,7 @@ function removeFromCart(idx) {
   const item = cart[idx];
   cart.splice(idx, 1);
   saveBuyerData();
+  updateCartBadge();
   render();
   showToast(`${item.name} removed from cart`);
 }
@@ -730,9 +818,19 @@ function previewAvatar(e) {
   reader.readAsDataURL(file);
 }
 
-function showToast(msg) {
+function showToast(msg, type = "success") {
   const t = document.getElementById("toast");
-  document.getElementById("toast-msg").textContent = msg;
+  const msgEl = document.getElementById("toast-msg");
+  
+  msgEl.textContent = msg;
+  t.className = "show"; // Reset classes
+  
+  if (type === "error") {
+    t.style.background = "var(--red)";
+  } else {
+    t.style.background = "var(--green-mid)";
+  }
+  
   t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 3200);
 }

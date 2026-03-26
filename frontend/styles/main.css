@@ -758,3 +758,334 @@
       color: #b0b0b0;
     }
   }
+
+  /* ============= MODERN E-COMMERCE PRODUCT CARDS ============= */
+  .ecom-product-card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(26, 60, 46, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+  }
+
+  .ecom-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(26, 60, 46, 0.16);
+  }
+
+  .ecom-product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, var(--cream-dark) 0%, var(--cream) 100%);
+    overflow: hidden;
+  }
+
+  .ecom-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .ecom-product-card:hover .ecom-product-image {
+    transform: scale(1.08);
+  }
+
+  .ecom-badge-discount {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--red);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(224, 92, 92, 0.3);
+  }
+
+  .ecom-product-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .ecom-product-category {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--green-deep);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ecom-product-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .ecom-product-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex: 1;
+  }
+
+  .ecom-meta-item {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ecom-product-price-section {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--cream-dark);
+    padding-bottom: 12px;
+  }
+
+  .ecom-price {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--green-mid);
+  }
+
+  .ecom-unit {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .ecom-product-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ecom-qty-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--cream-dark);
+    border-radius: 6px;
+    background: var(--cream);
+    overflow: hidden;
+  }
+
+  .ecom-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--green-mid);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ecom-qty-btn:hover {
+    background: var(--green-light);
+    color: var(--white);
+  }
+
+  .ecom-qty-input {
+    width: 40px;
+    height: 32px;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+  }
+
+  .ecom-qty-input:focus {
+    outline: none;
+  }
+
+  /* Hide number input spinner */
+  .ecom-qty-input::-webkit-outer-spin-button,
+  .ecom-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .ecom-qty-input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  .ecom-add-btn {
+    flex: 1;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--green-bright);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .ecom-add-btn:hover {
+    background: var(--green-mid);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+  }
+
+  .ecom-add-btn:active {
+    transform: translateY(0);
+  }
+
+  .ecom-cart-icon {
+    font-size: 1.1rem;
+  }
+
+  .ecom-add-text {
+    display: inline;
+  }
+
+  /* Cart badge styling */
+  .nav-badge {
+    display: inline-block;
+    background: var(--red);
+    color: var(--white);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    animation: badgePulse 0.3s ease;
+  }
+
+  @keyframes badgePulse {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Toast notification styling */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--green-mid);
+    color: var(--white);
+    padding: 14px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(26, 60, 46, 0.3);
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    max-width: 300px;
+    top: auto;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Responsive design for e-commerce cards */
+  @media (max-width: 768px) {
+    .ecom-product-image-wrapper {
+      height: 180px;
+    }
+
+    .ecom-product-body {
+      padding: 12px;
+    }
+
+    .ecom-product-name {
+      font-size: 1rem;
+    }
+
+    .ecom-price {
+      font-size: 1.2rem;
+    }
+
+    .ecom-product-footer {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ecom-qty-selector {
+      width: 100%;
+    }
+
+    .ecom-add-btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ecom-product-image-wrapper {
+      height: 150px;
+    }
+
+    .ecom-product-body {
+      padding: 10px;
+    }
+
+    .ecom-product-name {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .ecom-meta-item {
+      font-size: 0.8rem;
+    }
+
+    .ecom-price {
+      font-size: 1.1rem;
+    }
+
+    #toast {
+      bottom: 10px;
+      right: 10px;
+      left: 10px;
+      max-width: none;
+    }
+  }
+  }
