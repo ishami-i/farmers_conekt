@@ -54,6 +54,9 @@ window.getSession = getSession;
 // If logged in, activate the buyer dashboard (sidebar, topbar, tabs).
 // The product-browsing section is always visible to everyone.
 document.addEventListener("DOMContentLoaded", async function () {
+  // Load products for everyone (browsing is public)
+  loadProductsFromAPI();
+
   const session = getSession();
   if (session) {
     // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
@@ -61,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     loadBuyerData();
     displayUserInfo();
-    loadProductsFromAPI();
     await loadOrdersFromAPI();
     render();
     setupSidebarToggle();
@@ -74,6 +76,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       // Clean up the URL without reloading
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+  } else {
+    // For non-logged-in users, still render the browse tab
+    render();
   }
 });
 
@@ -294,6 +299,12 @@ function updateStats() {
   const delivered = orders.filter((o) => o.status === "delivered").length;
   document.getElementById("stat-delivered").textContent = delivered;
 
+  const totalSpent = orders.reduce((sum, o) => sum + o.total, 0);
+  const totalSpentEl = document.getElementById("stat-spent");
+  if (totalSpentEl) {
+    totalSpentEl.textContent = totalSpent.toLocaleString();
+  }
+
   // Update cart badge
   const badge = document.getElementById("cart-badge");
   if (badge) {
@@ -503,6 +514,15 @@ function checkout() {
     showToast("Your cart is empty");
     return;
   }
+
+  // Check if user is logged in
+  const session = getSession();
+  if (!session) {
+    showToast("Please log in to place an order");
+    window.location.href = "./login.html";
+    return;
+  }
+
   openPaymentModal();
 }
 
@@ -590,33 +610,31 @@ async function handlePaymentSubmit(e) {
 
     const orderId = orderResponse.order_id;
 
-    // Step 3: Initialize Paystack payment
+    // Step 3: Initialize Flutterwave payment
     const initResponse = await authFetch("/api/payments/initialize", {
       method: "POST",
       body: JSON.stringify({
         order_id: orderId,
         email: email,
+        customer_name:
+          (JSON.parse(localStorage.getItem("buyerProfile") || "{}") || {})
+            .name || "",
+        phone:
+          (JSON.parse(localStorage.getItem("buyerProfile") || "{}") || {})
+            .phone || "",
       }),
     });
 
-    const { authorization_url, reference } = initResponse;
+    const { payment_link, tx_ref } = initResponse;
 
-    // Step 4: Open Paystack popup
-    const paystackPublicKey = "pk_test_placeholder_replace_with_real_key"; // Load from env or config
-    window.paystackHandler = PaystackPop.setup({
-      key: paystackPublicKey,
-      email: email,
-      amount: Math.round(totalPayment * 100), // Convert to kobo
-      currency: "XAF", // or 'GHS' etc., check Paystack docs for RWF
-      ref: reference,
-      callback: function (response) {
-        verifyPayment(reference);
-      },
-      onClose: function () {
-        showToast("Payment cancelled");
-      },
-    });
-    paystackHandler.openIframe();
+    // Step 4: Redirect to Flutterwave payment
+    if (payment_link) {
+      // Store the tx_ref in session storage for verification after redirect
+      sessionStorage.setItem("pending_payment_ref", tx_ref);
+      window.location.href = payment_link;
+    } else {
+      showToast("Failed to get payment link", "error");
+    }
   } catch (err) {
     console.error("Payment error:", err);
     showToast(
@@ -629,14 +647,12 @@ async function handlePaymentSubmit(e) {
   }
 }
 
-async function verifyPayment(reference) {
+async function verifyPayment(tx_ref) {
   try {
-    const response = await fetch(
-      `${API_BASE}/api/payments/verify/${reference}`,
-    );
+    const response = await fetch(`${API_BASE}/api/payments/verify/${tx_ref}`);
     const result = await response.json();
 
-    if (result.paystack_status === "success") {
+    if (result.flutterwave_status === "successful") {
       showToast("Payment successful! Order confirmed. 🎉");
       cart = [];
       saveBuyerData();
@@ -655,12 +671,17 @@ async function verifyPayment(reference) {
   }
 }
 
-// Auto-verify if returning from Paystack
-if (window.location.search.includes("reference=")) {
+// Auto-verify if returning from Flutterwave
+// Check for tx_ref in URL or session storage
+const pendingRef = sessionStorage.getItem("pending_payment_ref");
+if (pendingRef) {
+  sessionStorage.removeItem("pending_payment_ref");
+  verifyPayment(pendingRef);
+} else if (window.location.search.includes("tx_ref=")) {
   const urlParams = new URLSearchParams(window.location.search);
-  const ref = urlParams.get("reference");
-  if (ref) {
-    verifyPayment(ref);
+  const txRef = urlParams.get("tx_ref");
+  if (txRef) {
+    verifyPayment(txRef);
     // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
@@ -725,7 +746,9 @@ function confirmLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("cart");
     localStorage.removeItem("rememberedEmail");
-    window.location.href = "./home.html";
+    localStorage.removeItem("buyerCart");
+    localStorage.removeItem("buyerOrders");
+    window.location.href = "./login.html";
   }
 }
 

@@ -37,15 +37,6 @@
 
   // ============= GLOBAL ORDER FUNCTION =============
   window.orderProduct = function (id) {
-    // Check if user is logged in
-    const session = window.getSession ? window.getSession() : null;
-    if (!session) {
-      alert("Please log in first to add items to your cart");
-      window.location.href =
-        "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
-      return;
-    }
-
     const product = allProducts.find((p) => p.id === id);
     if (!product) return;
 

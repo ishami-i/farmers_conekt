@@ -4,13 +4,15 @@ import requests
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+import uuid
 
 load_dotenv()
 
 payment_routes = Blueprint("payment_routes", __name__)
 
-PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
-PAYSTACK_BASE_URL = os.getenv("PAYSTACK_BASE_URL")
+FLUTTERWAVE_SECRET_KEY = os.getenv("FLUTTERWAVE_SECRET_KEY")
+FLUTTERWAVE_BASE_URL = os.getenv("FLUTTERWAVE_BASE_URL", "https://api.flutterwave.com")
+CURRENCY = os.getenv("FLUTTERWAVE_CURRENCY", "RWF")
 
 
 # ============================
@@ -33,95 +35,130 @@ def initialize_payment():
     order = cursor.fetchone()
 
     if not order:
+        connection.close()
         return jsonify({"error": "Order not found"}), 404
 
-    amount = int(order["total_payment"] * 100)  # Paystack uses kobo/cents
+    amount = order["total_payment"]
 
-    url = f"{PAYSTACK_BASE_URL}/transaction/initialize"
+    # Generate unique transaction reference
+    tx_ref = f"farmersconekt_{order_id}_{int(datetime.now().timestamp())}"
+
+    url = f"{FLUTTERWAVE_BASE_URL}/v3/payments"
 
     headers = {
-        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Authorization": f"Bearer {FLUTTERWAVE_SECRET_KEY}",
         "Content-Type": "application/json"
     }
 
     payload = {
-        "email": email,
+        "tx_ref": tx_ref,
         "amount": amount,
-        "metadata": {
+        "currency": CURRENCY,
+        "payment_options": "card,mobilemoney,ussd",
+        "redirect_url": "http://localhost:5000/api/payments/callback",
+        "meta": {
             "order_id": order_id
+        },
+        "customer": {
+            "email": email,
+            "phone_number": data.get("phone", ""),
+            "name": data.get("customer_name", "")
+        },
+        "customizations": {
+            "title": "Farmer Conekt",
+            "description": f"Payment for Order #{order_id}",
+            "logo": "https://example.com/logo.png"
         }
     }
 
-    response = requests.post(url, json=payload, headers=headers)
-    res_data = response.json()
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        res_data = response.json()
 
-    if not res_data.get("status"):
-        return jsonify({"error": "Failed to initialize payment"}), 500
+        if not res_data.get("status") == "success":
+            connection.close()
+            return jsonify({"error": "Failed to initialize payment", "details": res_data.get("message")}), 500
 
-    reference = res_data["data"]["reference"]
-    authorization_url = res_data["data"]["authorization_url"]
+        payment_link = res_data["data"]["link"]
+        transaction_id = res_data["data"]["id"]
 
-    # Save reference
-    cursor.execute("""
-        UPDATE orders
-        SET payment_reference = %s,
-            payment_status = 'pending'
-        WHERE order_id = %s
-    """, (reference, order_id))
+        # Save transaction reference
+        cursor.execute("""
+            UPDATE orders
+            SET payment_reference = %s,
+                payment_status = 'pending'
+            WHERE order_id = %s
+        """, (tx_ref, order_id))
 
-    connection.commit()
-    connection.close()
+        connection.commit()
+        connection.close()
 
-    return jsonify({
-        "authorization_url": authorization_url,
-        "reference": reference
-    })
+        return jsonify({
+            "payment_link": payment_link,
+            "tx_ref": tx_ref,
+            "transaction_id": transaction_id
+        })
+
+    except Exception as e:
+        connection.close()
+        return jsonify({"error": f"Payment initialization failed: {str(e)}"}), 500
 
 
 # ============================
 # 2️⃣ Verify Payment
 # ============================
-@payment_routes.route("/verify/<reference>", methods=["GET"])
-def verify_payment(reference):
-
-    url = f"{PAYSTACK_BASE_URL}/transaction/verify/{reference}"
+@payment_routes.route("/verify/<tx_ref>", methods=["GET"])
+def verify_payment(tx_ref):
+    """
+    Verify payment using transaction reference (tx_ref)
+    """
+    url = f"{FLUTTERWAVE_BASE_URL}/v3/transactions/verify_by_reference?tx_ref={tx_ref}"
 
     headers = {
-        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"
+        "Authorization": f"Bearer {FLUTTERWAVE_SECRET_KEY}"
     }
 
-    response = requests.get(url, headers=headers)
-    res_data = response.json()
+    try:
+        response = requests.get(url, headers=headers)
+        res_data = response.json()
 
-    if not res_data.get("status"):
-        return jsonify({"error": "Verification failed"}), 400
+        if not res_data.get("status") == "success":
+            return jsonify({"error": "Verification failed", "details": res_data.get("message")}), 400
 
-    payment_data = res_data["data"]
+        payment_data = res_data["data"][0] if isinstance(res_data["data"], list) else res_data["data"]
+        status = payment_data.get("status", "unknown")
 
-    status = payment_data["status"]
+        connection = get_db_connection()
+        cursor = connection.cursor()
 
-    connection = get_db_connection()
-    cursor = connection.cursor()
+        # Map Flutterwave status to our status
+        if status == "successful":
+            db_status = "paid"
+        elif status == "failed":
+            db_status = "failed"
+        else:
+            db_status = "pending"
 
-    if status == "success":
-        db_status = "paid"
-    else:
-        db_status = "failed"
+        cursor.execute("""
+            UPDATE orders
+            SET payment_status = %s,
+                payment_date = %s
+            WHERE payment_reference = %s
+        """, (db_status, datetime.now(), tx_ref))
 
-    cursor.execute("""
-        UPDATE orders
-        SET payment_status = %s,
-            payment_date = %s
-        WHERE payment_reference = %s
-    """, (db_status, datetime.now(), reference))
+        connection.commit()
+        connection.close()
 
-    connection.commit()
-    connection.close()
+        return jsonify({
+            "payment_status": db_status,
+            "flutterwave_status": status,
+            "transaction_id": payment_data.get("id"),
+            "amount": payment_data.get("amount"),
+            "currency": payment_data.get("currency")
+        })
 
-    return jsonify({
-        "payment_status": db_status,
-        "paystack_status": status
-    })
+    except Exception as e:
+        return jsonify({"error": f"Verification failed: {str(e)}"}), 500
 
 
 # ============================
@@ -146,4 +183,27 @@ def get_order_payment(order_id):
     if not order:
         return jsonify({"error": "Order not found"}), 404
 
-    return jsonify(order)
+    return jsonify({
+        "order_id": order["order_id"],
+        "total_payment": order["total_payment"],
+        "payment_status": order["payment_status"],
+        "payment_reference": order["payment_reference"],
+        "payment_date": order["payment_date"].isoformat() if order["payment_date"] else None
+    })
+
+
+# ============================
+# 4️⃣ Payment Callback (Optional)
+# ============================
+@payment_routes.route("/callback", methods=["GET", "POST"])
+def payment_callback():
+    """
+    Flutterwave redirects here after payment attempt
+    """
+    tx_ref = request.args.get("tx_ref") or request.json.get("tx_ref")
+
+    if not tx_ref:
+        return jsonify({"error": "Missing transaction reference"}), 400
+
+    # Verify the payment
+    return verify_payment(tx_ref)
