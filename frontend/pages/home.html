@@ -5,512 +5,630 @@
   freely; logged-in buyers also get a sidebar with Dashboard, Cart,
   Orders, and Profile tabs without needing to navigate to a separate page.
 -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Farmer Conekt</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="../styles/main.css" />
-  <link rel="stylesheet" href="../styles/buyer.css" />
-  <style>
-    /* Page layout container */
-    #page-layout {
-      display: flex;
-      flex: 1;
-      position: relative;
-      min-height: calc(100vh - 80px);
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farmer Conekt</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/buyer.css" />
+    <style>
+      /* Page layout container */
+      #page-layout {
+        display: flex;
+        flex: 1;
+        position: relative;
+        min-height: calc(100vh - 80px);
+      }
 
-    /* Sidebar is hidden by default (shown only when logged in) */
-    .sidebar { display: none; }
-    body.logged-in .sidebar { display: flex; }
+      /* Sidebar is hidden by default (shown only when logged in) */
+      .sidebar {
+        display: none;
+      }
+      body.logged-in .sidebar {
+        display: flex;
+      }
 
-    /* Topbar is hidden by default (shown only when logged in) */
-    #topbar { display: none; }
-    body.logged-in #topbar { display: flex; }
+      /* Topbar is hidden by default (shown only when logged in) */
+      #topbar {
+        display: none;
+      }
+      body.logged-in #topbar {
+        display: flex;
+      }
 
-    /* When there is no sidebar, main content takes full width */
-    body:not(.logged-in) .main {
-      margin-left: 0 !important;
-      width: 100% !important;
-    }
+      /* When there is no sidebar, main content takes full width */
+      body:not(.logged-in) .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
 
-    /* Browse tab uses block display; buyer.css hides .tab-content by default */
-    #browse-tab { display: none; }
-    #browse-tab.active { display: block; }
+      /* Browse tab uses block display; buyer.css hides .tab-content by default */
+      #browse-tab {
+        display: none;
+      }
+      #browse-tab.active {
+        display: block;
+      }
 
-    /* Remove extra padding from browse tab so filters/products
+      /* Remove extra padding from browse tab so filters/products
        keep their own margins from main.css */
-    #browse-tab .filters-section,
-    #browse-tab .products-section { margin-top: 0; }
-  </style>
-</head>
-<body>
-  <!-- ===== HEADER ===== -->
-  <header id="header">
-    <div class="header-content">
-      <h1 class="header-title" id="header-title">Farmer Conekt</h1>
-      <p class="sub-header" id="sub-header">where every product is saved from damages</p>
-    </div>
-    <nav id="nav">
-      <ul class="nav-links" id="nav-links" aria-label="Main navigation">
-        <li><a href="./home.html">🏠 Home</a></li>
-
-        <!-- Dashboard link – only visible when logged in -->
-        <li id="dashboard-link" style="display: none;">
-          <a href="#" onclick="switchTab('dashboard', null); return false;">📊 Dashboard</a>
-        </li>
-
-        <!-- Cart link – only visible when logged in -->
-        <li id="cart-link" style="display: none;">
-          <a href="#" onclick="switchTab('cart', null); return false;">
-            🛒 Cart <span id="cart-count" class="nav-badge">0</span>
-          </a>
-        </li>
-
-        <!-- Login link – visible when NOT logged in -->
-        <li id="login-link">
-          <a href="./login.html">🔐 Log In</a>
-        </li>
-
-        <!-- Logout link – visible when logged in -->
-        <li id="logout-link" style="display: none;">
-          <a href="#" onclick="confirmLogout(); return false;">🚪 Log Out</a>
-        </li>
-      </ul>
-    </nav>
-    <button
-      class="toggle-button"
-      id="toggle-button"
-      aria-label="toggle navigation menu"
-      aria-expanded="false"
-      aria-controls="nav-links"
-    >
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
-  </header>
-
-  <!-- ===== PAGE LAYOUT (sidebar + main content) ===== -->
-  <div id="page-layout">
-
-    <!-- SIDEBAR – only rendered/visible when logged in -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-logo">
-        <div class="logo-text">FarmerConekt</div>
+      #browse-tab .filters-section,
+      #browse-tab .products-section {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== HEADER ===== -->
+    <header id="header">
+      <div class="header-content">
+        <h1 class="header-title" id="header-title">Farmer Conekt</h1>
+        <p class="sub-header" id="sub-header">
+          where every product is saved from damages
+        </p>
       </div>
+      <nav id="nav">
+        <ul class="nav-links" id="nav-links" aria-label="Main navigation">
+          <li><a href="./home.html">🏠 Home</a></li>
 
-      <div class="buyer-profile">
-        <div
-          class="buyer-avatar"
-          onclick="document.getElementById('avatar-input').click()"
-          title="Click to upload photo"
-        >
-          👤
-          <img id="avatar-preview" src="" style="display: none;" />
-        </div>
-        <input
-          type="file"
-          id="avatar-input"
-          accept="image/*"
-          onchange="previewAvatar(event)"
-        />
-        <div class="buyer-name">My Profile</div>
-        <div class="buyer-email" id="buyer-email">Loading...</div>
-      </div>
+          <!-- Dashboard link – only visible when logged in -->
+          <li id="dashboard-link" style="display: none">
+            <a
+              href="#"
+              onclick="
+                switchTab('dashboard', null);
+                return false;
+              "
+              >📊 Dashboard</a
+            >
+          </li>
 
-      <nav class="nav-section">
-        <div class="nav-label">Shopping</div>
-        <a class="nav-item" href="#" onclick="switchTab('dashboard', this); closeSidebarOnMobile();">
-          <span class="nav-icon">⊟</span> Dashboard
-        </a>
-        <a class="nav-item active" href="#" onclick="switchTab('browse', this); closeSidebarOnMobile();">
-          <span class="nav-icon">🌾</span> Browse Products
-        </a>
-        <a class="nav-item" href="#" onclick="switchTab('cart', this); closeSidebarOnMobile();">
-          <span class="nav-icon">🛒</span> My Cart
-          <span id="cart-badge" class="nav-badge"></span>
-        </a>
-        <a class="nav-item" href="#" onclick="switchTab('orders', this); closeSidebarOnMobile();">
-          <span class="nav-icon">◱</span> My Orders
-        </a>
-        <div class="nav-label" style="margin-top: 16px;">Account</div>
-        <a class="nav-item" href="#" onclick="switchTab('profile', this); closeSidebarOnMobile();">
-          <span class="nav-icon">👤</span> My Profile
-        </a>
-        <a class="nav-item logout-item" href="#" onclick="confirmLogout(); return false;">
-          <span class="nav-icon">🚪</span> Log Out
-        </a>
+          <!-- Cart link – only visible when logged in -->
+          <li id="cart-link" style="display: none">
+            <a
+              href="#"
+              onclick="
+                switchTab('cart', null);
+                return false;
+              "
+            >
+              🛒 Cart <span id="cart-count" class="nav-badge">0</span>
+            </a>
+          </li>
+
+          <!-- Login link – visible when NOT logged in -->
+          <li id="login-link">
+            <a href="./login.html">🔐 Log In</a>
+          </li>
+
+          <!-- Logout link – visible when logged in -->
+          <li id="logout-link" style="display: none">
+            <a
+              href="#"
+              onclick="
+                confirmLogout();
+                return false;
+              "
+              >🚪 Log Out</a
+            >
+          </li>
+        </ul>
       </nav>
-    </aside>
+      <button
+        class="toggle-button"
+        id="toggle-button"
+        aria-label="toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-links"
+      >
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </header>
 
-    <!-- SIDEBAR OVERLAY (mobile) -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- MAIN CONTENT AREA -->
-    <div class="main" id="main">
-
-      <!-- TOPBAR – only visible when logged in -->
-      <div class="topbar" id="topbar">
-        <div class="topbar-left">
-          <h2 id="page-title">Browse Products</h2>
-          <p id="page-subtitle">Find fresh produce from local farmers</p>
+    <!-- ===== PAGE LAYOUT (sidebar + main content) ===== -->
+    <div id="page-layout">
+      <!-- SIDEBAR – only rendered/visible when logged in -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-text">FarmerConekt</div>
         </div>
-        <div class="topbar-right"></div>
-      </div>
 
-      <!-- ===== BROWSE TAB (default – visible to all visitors) ===== -->
-      <div id="browse-tab" class="tab-content active">
-        <section class="filters-section" id="filters-section">
-          <div class="product-filters" id="product-filters">
-            <label for="search-products">Search Products:</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input
-                type="text"
-                id="search-products"
-                name="search"
-                placeholder="Search by product name..."
-              />
-              <button
-                id="search-btn"
-                class="apply-filters"
-                style="width: auto; padding: 0.75rem 1.5rem;"
-              >🔍 Search</button>
-            </div>
-
-            <label for="category-filter">Filter by Category:</label>
-            <select id="category-filter" name="category">
-              <option value="all">All</option>
-              <option value="fruits">Fruits</option>
-              <option value="vegetables">Vegetables</option>
-              <option value="grains">Grains</option>
-              <option value="animal-products">Animal products</option>
-              <option value="meat">Meat</option>
-            </select>
-
-            <label for="harvest-time">Filter by Harvest Time:</label>
-            <select id="harvest-time" name="harvest-time">
-              <option value="all">All</option>
-              <option value="pre-harvest">Preharvest</option>
-              <option value="post-harvest">Postharvest</option>
-              <option value="harvested">Harvested(week)</option>
-            </select>
-
-            <label for="price-filter">Filter by Price:</label>
-            <select id="price-filter" name="price">
-              <option value="all">All</option>
-              <option value="low-to-high">Low to High</option>
-              <option value="high-to-low">High to Low</option>
-            </select>
-
-            <label for="districtSelect">Filter by District:</label>
-            <select id="districtSelect">
-              <option value="">-- Choose District --</option>
-            </select>
-
-            <button class="apply-filters" id="apply-filters">Apply Filters</button>
+        <div class="buyer-profile">
+          <div
+            class="buyer-avatar"
+            onclick="document.getElementById('avatar-input').click()"
+            title="Click to upload photo"
+          >
+            👤
+            <img id="avatar-preview" src="" style="display: none" />
           </div>
-        </section>
-
-        <!-- Products grid -->
-        <section class="products-section" id="products-section">
-          <div class="products-container" id="products-container">
-            <!-- products will be dynamically loaded here -->
-          </div>
-        </section>
-      </div>
-
-      <!-- ===== DASHBOARD TAB ===== -->
-      <div id="dashboard-tab" class="tab-content">
-        <div class="page-body">
-          <div class="dashboard-grid">
-            <div class="stat-card">
-              <div class="stat-icon">🛒</div>
-              <div class="stat-value" id="stat-cart">0</div>
-              <div class="stat-label">Items in Cart</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">📦</div>
-              <div class="stat-value" id="stat-orders">0</div>
-              <div class="stat-label">Total Orders</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">✓</div>
-              <div class="stat-value" id="stat-delivered">0</div>
-              <div class="stat-label">Delivered Orders</div>
-            </div>
-          </div>
-
-          <!-- Recent Orders -->
-          <div class="section-card">
-            <div class="section-header">
-              <div>
-                <div class="section-title">Recent Orders</div>
-                <div class="section-subtitle">Your latest purchases</div>
-              </div>
-            </div>
-            <div id="dashboard-orders" class="items-list">
-              <div class="empty-state">
-                <div class="empty-icon">📭</div>
-                <div class="empty-text">No orders yet</div>
-                <div class="empty-sub">Start shopping to place your first order</div>
-              </div>
-            </div>
-          </div>
+          <input
+            type="file"
+            id="avatar-input"
+            accept="image/*"
+            onchange="previewAvatar(event)"
+          />
+          <div class="buyer-name">My Profile</div>
+          <div class="buyer-email" id="buyer-email">Loading...</div>
         </div>
-      </div>
 
-      <!-- ===== CART TAB ===== -->
-      <div id="cart-tab" class="tab-content">
-        <div class="page-body">
-          <div class="section-card">
-            <div class="section-header">
-              <div>
-                <div class="section-title">Shopping Cart</div>
-                <div class="section-subtitle">Review and manage your items</div>
-              </div>
-            </div>
-            <div id="cart-items" class="items-list">
-              <div class="empty-state">
-                <div class="empty-icon">🛒</div>
-                <div class="empty-text">Your cart is empty</div>
-                <div class="empty-sub">Add some fresh produce to get started</div>
-              </div>
-            </div>
-            <div id="cart-summary" style="display: none;"></div>
+        <nav class="nav-section">
+          <div class="nav-label">Shopping</div>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('dashboard', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">⊟</span> Dashboard
+          </a>
+          <a
+            class="nav-item active"
+            href="#"
+            onclick="
+              switchTab('browse', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">🌾</span> Browse Products
+          </a>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('cart', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">🛒</span> My Cart
+            <span id="cart-badge" class="nav-badge"></span>
+          </a>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('orders', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">◱</span> My Orders
+          </a>
+          <div class="nav-label" style="margin-top: 16px">Account</div>
+          <a
+            class="nav-item"
+            href="#"
+            onclick="
+              switchTab('profile', this);
+              closeSidebarOnMobile();
+            "
+          >
+            <span class="nav-icon">👤</span> My Profile
+          </a>
+          <a
+            class="nav-item logout-item"
+            href="#"
+            onclick="
+              confirmLogout();
+              return false;
+            "
+          >
+            <span class="nav-icon">🚪</span> Log Out
+          </a>
+        </nav>
+      </aside>
+
+      <!-- SIDEBAR OVERLAY (mobile) -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- MAIN CONTENT AREA -->
+      <div class="main" id="main">
+        <!-- TOPBAR – only visible when logged in -->
+        <div class="topbar" id="topbar">
+          <div class="topbar-left">
+            <h2 id="page-title">Browse Products</h2>
+            <p id="page-subtitle">Find fresh produce from local farmers</p>
           </div>
+          <div class="topbar-right"></div>
         </div>
-      </div>
 
-      <!-- ===== ORDERS TAB ===== -->
-      <div id="orders-tab" class="tab-content">
-        <div class="page-body">
-          <div class="tabs" style="padding: 0; margin: 0 0 1.5rem 0;">
-            <button class="tab-btn active" onclick="filterOrders('all')">All</button>
-            <button class="tab-btn" onclick="filterOrders('pending')">Pending</button>
-            <button class="tab-btn" onclick="filterOrders('confirmed')">Confirmed</button>
-            <button class="tab-btn" onclick="filterOrders('shipped')">Shipped</button>
-            <button class="tab-btn" onclick="filterOrders('delivered')">Delivered</button>
-          </div>
+        <!-- ===== BROWSE TAB (default – visible to all visitors) ===== -->
+        <div id="browse-tab" class="tab-content active">
+          <section class="filters-section" id="filters-section">
+            <div class="product-filters" id="product-filters">
+              <label for="search-products">Search Products:</label>
+              <div style="display: flex; gap: 0.5rem">
+                <input
+                  type="text"
+                  id="search-products"
+                  name="search"
+                  placeholder="Search by product name..."
+                />
+                <button
+                  id="search-btn"
+                  class="apply-filters"
+                  style="width: auto; padding: 0.75rem 1.5rem"
+                >
+                  🔍 Search
+                </button>
+              </div>
 
-          <div class="section-card">
-            <div class="section-header">
-              <div>
-                <div class="section-title">Order History</div>
-                <div class="section-subtitle">Track and manage your orders</div>
-              </div>
-            </div>
-            <div id="orders-list" class="items-list">
-              <div class="empty-state">
-                <div class="empty-icon">📦</div>
-                <div class="empty-text">No orders found</div>
-                <div class="empty-sub">You haven't placed any orders yet</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              <label for="category-filter">Filter by Category:</label>
+              <select id="category-filter" name="category">
+                <option value="all">All</option>
+                <option value="fruits">Fruits</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="grains">Grains</option>
+                <option value="animal-products">Animal products</option>
+                <option value="meat">Meat</option>
+              </select>
 
-      <!-- ===== PROFILE TAB ===== -->
-      <div id="profile-tab" class="tab-content">
-        <div class="page-body">
-          <div class="section-card">
-            <div class="section-header">
-              <div>
-                <div class="section-title">My Profile</div>
-                <div class="section-subtitle">Manage your account information</div>
-              </div>
-            </div>
-            <div style="padding: 24px;">
-              <div
-                style="
-                  display: grid;
-                  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                  gap: 1.5rem;
-                "
-              >
-                <div>
-                  <label
-                    style="
-                      display: block;
-                      font-weight: 600;
-                      color: var(--text-dark);
-                      margin-bottom: 0.5rem;
-                    "
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    id="profile-email"
-                    readonly
-                    style="
-                      width: 100%;
-                      padding: 0.75rem;
-                      border: 1px solid var(--cream-dark);
-                      border-radius: var(--radius-sm);
-                      background: var(--cream);
-                    "
-                  />
-                </div>
-                <div>
-                  <label
-                    style="
-                      display: block;
-                      font-weight: 600;
-                      color: var(--text-dark);
-                      margin-bottom: 0.5rem;
-                    "
-                    >Full Name</label
-                  >
-                  <input
-                    type="text"
-                    id="profile-name"
-                    placeholder="Your full name"
-                    style="
-                      width: 100%;
-                      padding: 0.75rem;
-                      border: 1px solid var(--cream-dark);
-                      border-radius: var(--radius-sm);
-                    "
-                  />
-                </div>
-                <div>
-                  <label
-                    style="
-                      display: block;
-                      font-weight: 600;
-                      color: var(--text-dark);
-                      margin-bottom: 0.5rem;
-                    "
-                    >Phone</label
-                  >
-                  <input
-                    type="tel"
-                    id="profile-phone"
-                    placeholder="Your phone number"
-                    style="
-                      width: 100%;
-                      padding: 0.75rem;
-                      border: 1px solid var(--cream-dark);
-                      border-radius: var(--radius-sm);
-                    "
-                  />
-                </div>
-                <div>
-                  <label
-                    style="
-                      display: block;
-                      font-weight: 600;
-                      color: var(--text-dark);
-                      margin-bottom: 0.5rem;
-                    "
-                    >Location</label
-                  >
-                  <input
-                    type="text"
-                    id="profile-location"
-                    placeholder="Your location"
-                    style="
-                      width: 100%;
-                      padding: 0.75rem;
-                      border: 1px solid var(--cream-dark);
-                      border-radius: var(--radius-sm);
-                    "
-                  />
-                </div>
-              </div>
-              <button
-                onclick="saveProfile()"
-                class="checkout-btn"
-                style="margin-top: 2rem; max-width: 200px;"
-              >
-                Save Changes
+              <label for="harvest-time">Filter by Harvest Time:</label>
+              <select id="harvest-time" name="harvest-time">
+                <option value="all">All</option>
+                <option value="pre-harvest">Preharvest</option>
+                <option value="post-harvest">Postharvest</option>
+                <option value="harvested">Harvested(week)</option>
+              </select>
+
+              <label for="price-filter">Filter by Price:</label>
+              <select id="price-filter" name="price">
+                <option value="all">All</option>
+                <option value="low-to-high">Low to High</option>
+                <option value="high-to-low">High to Low</option>
+              </select>
+
+              <label for="districtSelect">Filter by District:</label>
+              <select id="districtSelect">
+                <option value="">-- Choose District --</option>
+              </select>
+
+              <button class="apply-filters" id="apply-filters">
+                Apply Filters
               </button>
             </div>
+          </section>
+
+          <!-- Products grid -->
+          <section class="products-section" id="products-section">
+            <div class="products-container" id="products-container">
+              <!-- products will be dynamically loaded here -->
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div id="dashboard-tab" class="tab-content">
+          <div class="page-body">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-value" id="stat-cart">0</div>
+                <div class="stat-label">Items in Cart</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value" id="stat-orders">0</div>
+                <div class="stat-label">Total Orders</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">✓</div>
+                <div class="stat-value" id="stat-delivered">0</div>
+                <div class="stat-label">Delivered Orders</div>
+              </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">Recent Orders</div>
+                  <div class="section-subtitle">Your latest purchases</div>
+                </div>
+              </div>
+              <div id="dashboard-orders" class="items-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📭</div>
+                  <div class="empty-text">No orders yet</div>
+                  <div class="empty-sub">
+                    Start shopping to place your first order
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CART TAB ===== -->
+        <div id="cart-tab" class="tab-content">
+          <div class="page-body">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">Shopping Cart</div>
+                  <div class="section-subtitle">
+                    Review and manage your items
+                  </div>
+                </div>
+              </div>
+              <div id="cart-items" class="items-list">
+                <div class="empty-state">
+                  <div class="empty-icon">🛒</div>
+                  <div class="empty-text">Your cart is empty</div>
+                  <div class="empty-sub">
+                    Add some fresh produce to get started
+                  </div>
+                </div>
+              </div>
+              <div id="cart-summary" style="display: none"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ORDERS TAB ===== -->
+        <div id="orders-tab" class="tab-content">
+          <div class="page-body">
+            <div class="tabs" style="padding: 0; margin: 0 0 1.5rem 0">
+              <button class="tab-btn active" onclick="filterOrders('all')">
+                All
+              </button>
+              <button class="tab-btn" onclick="filterOrders('pending')">
+                Pending
+              </button>
+              <button class="tab-btn" onclick="filterOrders('confirmed')">
+                Confirmed
+              </button>
+              <button class="tab-btn" onclick="filterOrders('shipped')">
+                Shipped
+              </button>
+              <button class="tab-btn" onclick="filterOrders('delivered')">
+                Delivered
+              </button>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">Order History</div>
+                  <div class="section-subtitle">
+                    Track and manage your orders
+                  </div>
+                </div>
+              </div>
+              <div id="orders-list" class="items-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📦</div>
+                  <div class="empty-text">No orders found</div>
+                  <div class="empty-sub">You haven't placed any orders yet</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PROFILE TAB ===== -->
+        <div id="profile-tab" class="tab-content">
+          <div class="page-body">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <div class="section-title">My Profile</div>
+                  <div class="section-subtitle">
+                    Manage your account information
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 24px">
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1.5rem;
+                  "
+                >
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="profile-email"
+                      readonly
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                        background: var(--cream);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Full Name</label
+                    >
+                    <input
+                      type="text"
+                      id="profile-name"
+                      placeholder="Your full name"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Phone</label
+                    >
+                    <input
+                      type="tel"
+                      id="profile-phone"
+                      placeholder="Your phone number"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style="
+                        display: block;
+                        font-weight: 600;
+                        color: var(--text-dark);
+                        margin-bottom: 0.5rem;
+                      "
+                      >Location</label
+                    >
+                    <input
+                      type="text"
+                      id="profile-location"
+                      placeholder="Your location"
+                      style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--cream-dark);
+                        border-radius: var(--radius-sm);
+                      "
+                    />
+                  </div>
+                </div>
+                <button
+                  onclick="saveProfile()"
+                  class="checkout-btn"
+                  style="margin-top: 2rem; max-width: 200px"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-    </div><!-- end .main -->
-  </div><!-- end #page-layout -->
-
-  <!-- ===== FOOTER ===== -->
-  <footer id="footer">
-    <div class="footer-section">
-      <h3>Quick Links</h3>
-      <a href="./home.html">🏠 Home</a>
-      <a href="./login.html">🔐 Log In</a>
-      <a href="./home.html#browse">🛒 Browse Products</a>
+      <!-- end .main -->
     </div>
-    <div class="footer-section">
-      <h3>About</h3>
-      <p>Farmer Conekt connects local farmers with buyers, reducing food waste and supporting Rwanda's agriculture.</p>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; <span id="footer-year"></span> Farmer Conekt. All rights reserved.</p>
-    </div>
-  </footer>
-  <script>
-    document.getElementById("footer-year").textContent = new Date().getFullYear();
-  </script>
+    <!-- end #page-layout -->
 
-  <!-- ===== TOAST NOTIFICATION ===== -->
-  <div class="toast" id="toast">
-    <span id="toast-msg">Done!</span>
-  </div>
-
-  <!-- ===== PAYMENT MODAL ===== -->
-  <div class="modal-overlay" id="payment-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Confirm Payment</h3>
-        <button class="close-modal" onclick="closePaymentModal()">×</button>
+    <!-- ===== FOOTER ===== -->
+    <footer id="footer">
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <a href="./home.html">🏠 Home</a>
+        <a href="./login.html">🔐 Log In</a>
+        <a href="./home.html#browse">🛒 Browse Products</a>
       </div>
-      <div class="modal-body">
-        <p>Please enter your details to complete the purchase.</p>
+      <div class="footer-section">
+        <h3>About</h3>
+        <p>
+          Farmer Conekt connects local farmers with buyers, reducing food waste
+          and supporting Rwanda's agriculture.
+        </p>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          &copy; <span id="footer-year"></span> Farmer Conekt. All rights
+          reserved.
+        </p>
+      </div>
+    </footer>
+    <script>
+      document.getElementById("footer-year").textContent =
+        new Date().getFullYear();
+    </script>
 
-        <div class="order-summary-mini">
-          <div class="row">
-            <span>Total Amount:</span>
-            <span class="highlight" id="modal-total-amount">0 RWF</span>
-          </div>
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div class="toast" id="toast">
+      <span id="toast-msg">Done!</span>
+    </div>
+
+    <!-- ===== PAYMENT MODAL ===== -->
+    <div class="modal-overlay" id="payment-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Confirm Payment</h3>
+          <button class="close-modal" onclick="closePaymentModal()">×</button>
         </div>
+        <div class="modal-body">
+          <p>Please enter your details to complete the purchase.</p>
 
-        <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
-          <div class="form-group">
-            <label for="full-name">Full Name (Optional)</label>
-            <input type="text" id="full-name" placeholder="Enter your full name" />
+          <div class="order-summary-mini">
+            <div class="row">
+              <span>Total Amount:</span>
+              <span class="highlight" id="modal-total-amount">0 RWF</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="payment-email">Email Address</label>
-            <input
-              type="email"
-              id="payment-email"
-              placeholder="buyer@example.com"
-              required
-            />
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn-secondary" onclick="closePaymentModal()">Cancel</button>
-            <button type="submit" class="btn-primary">Pay Now</button>
-          </div>
-        </form>
+
+          <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
+            <div class="form-group">
+              <label for="full-name">Full Name (Optional)</label>
+              <input
+                type="text"
+                id="full-name"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="payment-email">Email Address</label>
+              <input
+                type="email"
+                id="payment-email"
+                placeholder="buyer@example.com"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="closePaymentModal()"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary">Pay Now</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://js.paystack.co/v1/inline.js"></script>
-  <script src="../scripts/404-handler.js"></script>
-  <script src="../scripts/toggle.js"></script>
-  <script src="../scripts/product.js"></script>
-  <script src="../scripts/session.js"></script>
-  <script src="../scripts/filters.js"></script>
-  <script src="../scripts/buyer.js"></script>
-</body>
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="../scripts/404-handler.js"></script>
+    <script src="../scripts/toggle.js"></script>
+    <script src="../scripts/product.js"></script>
+    <script src="../scripts/session.js"></script>
+    <script src="../scripts/filters.js"></script>
+    <script src="../scripts/buyer.js"></script>
+  </body>
 </html>
