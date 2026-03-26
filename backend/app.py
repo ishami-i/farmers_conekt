@@ -11,6 +11,7 @@ from routes.analytics_routes import analytics_routes
 from routes.planting_routes import planting_routes
 from config import JWT_SECRET_KEY
 from routes.payment_routes import payment_routes
+from routes.payment_routes import payment_bp
 
 app = Flask(__name__)
 
@@ -42,6 +43,7 @@ app.register_blueprint(transporter_routes, url_prefix="/api/transporters")
 app.register_blueprint(analytics_routes, url_prefix="/api/analytics")
 app.register_blueprint(planting_routes, url_prefix="/api/planting")
 app.register_blueprint(payment_routes, url_prefix="/api/payments")
+app.register_blueprint(payment_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True)
