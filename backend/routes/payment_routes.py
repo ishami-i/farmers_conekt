@@ -29,7 +29,7 @@ def initialize_payment():
         return jsonify({"error": "order_id and email required"}), 400
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     cursor.execute("SELECT total_payment FROM orders WHERE order_id = %s", (order_id,))
     order = cursor.fetchone()
@@ -38,7 +38,8 @@ def initialize_payment():
         connection.close()
         return jsonify({"error": "Order not found"}), 404
 
-    amount = order["total_payment"]
+    # Convert Decimal to float for JSON serialization
+    amount = float(order["total_payment"])
 
     # Generate unique transaction reference
     tx_ref = f"farmersconekt_{order_id}_{int(datetime.now().timestamp())}"
@@ -50,12 +51,19 @@ def initialize_payment():
         "Content-Type": "application/json"
     }
 
+    # Final return URL after Flutterwave completes payment
+    # Force buyer dashboard tab to orders so they land in the right place.
+    redirect_url = os.getenv(
+        "FLUTTERWAVE_REDIRECT_URL",
+        "http://localhost:8000/pages/home.html?tab=orders",
+    )
+
     payload = {
         "tx_ref": tx_ref,
         "amount": amount,
         "currency": CURRENCY,
         "payment_options": "card,mobilemoney,ussd",
-        "redirect_url": "http://localhost:5000/api/payments/callback",
+        "redirect_url": redirect_url,
         "meta": {
             "order_id": order_id
         },
@@ -77,10 +85,22 @@ def initialize_payment():
 
         if not res_data.get("status") == "success":
             connection.close()
-            return jsonify({"error": "Failed to initialize payment", "details": res_data.get("message")}), 500
+            # Include more details in error message for debugging
+            error_msg = res_data.get("message") or "Unknown error"
+            return jsonify({
+                "error": "Failed to initialize payment", 
+                "details": error_msg,
+                "flutterwave_response": res_data
+            }), 500
 
-        payment_link = res_data["data"]["link"]
-        transaction_id = res_data["data"]["id"]
+        payment_link = res_data.get("data", {}).get("link")
+        
+        if not payment_link:
+            connection.close()
+            return jsonify({
+                "error": "Invalid Flutterwave response - missing payment link",
+                "flutterwave_response": res_data
+            }), 500
 
         # Save transaction reference
         cursor.execute("""
@@ -93,10 +113,11 @@ def initialize_payment():
         connection.commit()
         connection.close()
 
+        # Extract transaction reference from URL or use tx_ref
         return jsonify({
             "payment_link": payment_link,
             "tx_ref": tx_ref,
-            "transaction_id": transaction_id
+            "transaction_id": res_data.get("data", {}).get("id", tx_ref)
         })
 
     except Exception as e:
@@ -168,7 +189,7 @@ def verify_payment(tx_ref):
 def get_order_payment(order_id):
 
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor()
 
     cursor.execute("""
         SELECT order_id, total_payment, payment_status,
@@ -185,7 +206,7 @@ def get_order_payment(order_id):
 
     return jsonify({
         "order_id": order["order_id"],
-        "total_payment": order["total_payment"],
+        "total_payment": float(order["total_payment"]),
         "payment_status": order["payment_status"],
         "payment_reference": order["payment_reference"],
         "payment_date": order["payment_date"].isoformat() if order["payment_date"] else None
