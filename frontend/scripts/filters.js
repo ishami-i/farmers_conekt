@@ -95,13 +95,8 @@
   // ============= LOAD DISTRICTS FROM district.json =============
   async function loadDistrictsFromJSON() {
     try {
-      // Adjust path based on current page location
-      // From frontend/pages/ we need to go up two levels (../../) to reach the root date folder
-      // From frontend/ we need to go up one level (../)
-      const basePath = window.location.pathname.includes("/pages/")
-        ? "../../"
-        : "../";
-      const response = await fetch(basePath + "data/district.json");
+      // Load districts from backend API instead of trying relative paths
+      const response = await fetch(API_BASE + "/api/data/districts");
 
       if (!response.ok) {
         throw new Error(`Failed to load districts: ${response.status}`);
@@ -368,7 +363,7 @@
             alt="${escapeHTML(product.name)}" 
             class="ecom-product-image"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%2395d5b2%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2224%22%3E🥬%3C/text%3E%3C/svg%3E'"/>
-          <div class="ecom-badge-discount" style="display: ${(product.discount || 0) > 0 ? 'block' : 'none'}">
+          <div class="ecom-badge-discount" style="display: ${(product.discount || 0) > 0 ? "block" : "none"}">
             -${product.discount || 0}%
           </div>
         </div>
@@ -384,7 +379,7 @@
           
           <div class="ecom-product-price-section">
             <span class="ecom-price">${product.price.toLocaleString()} RWF</span>
-            <span class="ecom-unit">per ${product.unit || 'unit'}</span>
+            <span class="ecom-unit">per ${product.unit || "unit"}</span>
           </div>
           
           <div class="ecom-product-footer">
@@ -410,9 +405,9 @@
 
   // Attach listeners for quantity input fields
   function attachQuantityInputListeners() {
-    const qtyInputs = document.querySelectorAll('.ecom-qty-input');
-    qtyInputs.forEach(input => {
-      input.addEventListener('change', function() {
+    const qtyInputs = document.querySelectorAll(".ecom-qty-input");
+    qtyInputs.forEach((input) => {
+      input.addEventListener("change", function () {
         const val = parseInt(this.value) || 1;
         if (val < 1) this.value = 1;
       });
@@ -447,7 +442,7 @@
         unit: p.unit || "kg",
         farmer: p.farmer_name || "Farmer",
       }));
-      
+
       // Update window.allProducts reference
       window.allProducts = allProducts;
     } catch (err) {
@@ -477,7 +472,7 @@
 
   // Export functions for external use if needed
   window.applyFilters = applyAllFilters;
-  window.allProducts = allProducts;  // Expose allProducts to window for quick add to cart
+  window.allProducts = allProducts; // Expose allProducts to window for quick add to cart
   window.filterProducts = {
     setProducts: (products) => {
       allProducts = products;

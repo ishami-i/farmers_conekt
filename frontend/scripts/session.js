@@ -9,7 +9,7 @@
 (function () {
   const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const SESSION_KEY = "userSession";
-  const PROTECTED_PAGES = ["farmer.html", "transporter.html"];
+  const PROTECTED_PAGES = ["farmer.html", "transporter.html", "home.html"];
 
   /**
    * Check if user has an active session
@@ -89,6 +89,14 @@
         redirectToLogin();
         return false;
       }
+
+      // home.html is buyer dashboard; enforce buyer role
+      const currentPage = window.location.pathname.split("/").pop();
+      if (currentPage === "home.html" && session.role !== "buyer") {
+        redirectToLogin();
+        return false;
+      }
+
       return true;
     }
   }

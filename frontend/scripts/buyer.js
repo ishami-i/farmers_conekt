@@ -57,31 +57,42 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Load buyer data first (cart from localStorage)
   loadBuyerData();
   updateCartBadge();
-  
+
   // Load products for everyone (browsing is public)
   loadProductsFromAPI();
 
   const session = getSession();
-  if (session) {
-    // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
-    document.body.classList.add("logged-in");
+  if (!session) {
+    const returnUrl = encodeURIComponent(
+      window.location.pathname + window.location.search,
+    );
+    window.location.href = `./login.html?redirect=${returnUrl}`;
+    return;
+  }
 
-    displayUserInfo();
-    await loadOrdersFromAPI();
-    render();
-    setupSidebarToggle();
+  // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
+  document.body.classList.add("logged-in");
 
-    // Honor a ?tab= URL parameter (e.g. from the cart nav-link).
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get("tab");
-    if (tabParam) {
-      switchTab(tabParam, null);
-      // Clean up the URL without reloading
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  } else {
-    // For non-logged-in users, still render the browse tab
-    render();
+  displayUserInfo();
+  await loadOrdersFromAPI();
+  render();
+  setupSidebarToggle();
+
+  // Honor a ?tab= URL parameter (e.g. from the cart nav-link).
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get("tab");
+  if (tabParam) {
+    switchTab(tabParam, null);
+    // Clean up the URL without reloading
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // Check for payment verification
+  const tx_ref = urlParams.get("tx_ref");
+  if (tx_ref) {
+    verifyPayment(tx_ref);
+    // Clean up the URL
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 });
 
@@ -390,7 +401,7 @@ function renderCart() {
                 <span>Total:</span>
                 <span>${(total + 5000 + Math.round(total * 0.05)).toLocaleString()} RWF</span>
             </div>
-            <button class="checkout-btn" onclick="checkout()"> Proceed to Checkout</button>
+            <button class="checkout-btn" onclick="if (typeof window.checkout === 'function') window.checkout(); else console.error('checkout failed to load');"> Proceed to Checkout</button>
         </div>
     `;
   summary.style.display = "block";
@@ -480,10 +491,10 @@ function renderDashboardOrders() {
 // ============= CART OPERATIONS =============
 
 // Modern quick add to cart for e-commerce
-window.quickAddToCart = function(productId, action) {
+window.quickAddToCart = function (productId, action) {
   const allProducts = window.allProducts || [];
   const product = allProducts.find((p) => p.id === productId);
-  
+
   if (!product) {
     showToast("Product not found", "error");
     return;
@@ -527,7 +538,7 @@ window.quickAddToCart = function(productId, action) {
     updateCartBadge();
     render();
     showToast(`✓ ${product.name} added to cart!`);
-    
+
     // Reset quantity input
     if (qtyInput) qtyInput.value = 1;
     return;
@@ -540,7 +551,7 @@ window.quickAddToCart = function(productId, action) {
 };
 
 // Validate and fix quantity input
-window.validateQuantity = function(productId) {
+window.validateQuantity = function (productId) {
   const qtyInput = document.getElementById(`qty-${productId}`);
   if (qtyInput) {
     const val = parseInt(qtyInput.value) || 1;
@@ -552,7 +563,7 @@ window.validateQuantity = function(productId) {
 function updateCartBadge() {
   const cartCount = document.getElementById("cart-count");
   const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
-  
+
   if (cartCount) {
     cartCount.textContent = totalItems;
     cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
@@ -597,7 +608,8 @@ function removeFromCart(idx) {
   showToast(`${item.name} removed from cart`);
 }
 
-function checkout() {
+window.checkout = function () {
+  console.log("checkout() called - buyer.js loaded successfully");
   if (cart.length === 0) {
     showToast("Your cart is empty");
     return;
@@ -612,7 +624,8 @@ function checkout() {
   }
 
   openPaymentModal();
-}
+};
+window.makingorders = makingorders; // Also expose for potential use
 
 // ============= PAYMENT & ORDER PROCESSING =============
 function openPaymentModal() {
@@ -746,6 +759,13 @@ async function verifyPayment(tx_ref) {
       saveBuyerData();
       await loadOrdersFromAPI();
       render();
+
+      // Keep user on buyer dashboard orders tab after payment callbacks.
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("tab", "orders");
+      currentUrl.searchParams.delete("tx_ref");
+      window.history.replaceState({}, document.title, currentUrl.toString());
+
       switchTab("orders", null);
       closePaymentModal();
     } else {
@@ -821,16 +841,16 @@ function previewAvatar(e) {
 function showToast(msg, type = "success") {
   const t = document.getElementById("toast");
   const msgEl = document.getElementById("toast-msg");
-  
+
   msgEl.textContent = msg;
   t.className = "show"; // Reset classes
-  
+
   if (type === "error") {
     t.style.background = "var(--red)";
   } else {
     t.style.background = "var(--green-mid)";
   }
-  
+
   t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 3200);
 }
