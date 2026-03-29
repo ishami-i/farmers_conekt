@@ -101,27 +101,36 @@ function setupSidebarToggle() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");
 
-  // Create toggle button if it doesn't exist
-  let toggleBtn = document.querySelector(".sidebar-toggle-btn");
+  if (!sidebar || !overlay) return;
+
+  // Reuse the header burger when present; fall back to creating a mobile toggle button.
+  let toggleBtn = document.getElementById("toggle-button");
   if (!toggleBtn) {
-    toggleBtn = document.createElement("button");
-    toggleBtn.className = "sidebar-toggle-btn";
-    toggleBtn.innerHTML = "☰";
-    toggleBtn.setAttribute("aria-label", "Toggle sidebar");
-    const header = document.getElementById("header");
-    header.appendChild(toggleBtn);
+    toggleBtn = document.querySelector(".sidebar-toggle-btn");
+    if (!toggleBtn) {
+      toggleBtn = document.createElement("button");
+      toggleBtn.className = "sidebar-toggle-btn";
+      toggleBtn.innerHTML = "☰";
+      toggleBtn.setAttribute("aria-label", "Toggle sidebar");
+      const header = document.getElementById("header");
+      if (header) header.appendChild(toggleBtn);
+    }
   }
 
   toggleBtn.addEventListener("click", function (e) {
     e.stopPropagation();
-    sidebar.classList.toggle("active");
+    const isActive = sidebar.classList.toggle("active");
     overlay.classList.toggle("active");
+    toggleBtn.classList.toggle("active", isActive);
+    toggleBtn.setAttribute("aria-expanded", isActive ? "true" : "false");
   });
 
   if (overlay) {
     overlay.addEventListener("click", function () {
       sidebar.classList.remove("active");
       overlay.classList.remove("active");
+      toggleBtn.classList.remove("active");
+      toggleBtn.setAttribute("aria-expanded", "false");
     });
   }
 
@@ -130,6 +139,8 @@ function setupSidebarToggle() {
     if (window.innerWidth >= 1024) {
       sidebar.classList.remove("active");
       overlay.classList.remove("active");
+      toggleBtn.classList.remove("active");
+      toggleBtn.setAttribute("aria-expanded", "false");
     }
   });
 }
@@ -138,8 +149,13 @@ function closeSidebarOnMobile() {
   if (window.innerWidth < 1024) {
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("sidebar-overlay");
+    const toggleBtn = document.getElementById("toggle-button");
     sidebar.classList.remove("active");
     overlay.classList.remove("active");
+    if (toggleBtn) {
+      toggleBtn.classList.remove("active");
+      toggleBtn.setAttribute("aria-expanded", "false");
+    }
   }
 }
 
@@ -320,16 +336,6 @@ function updateStats() {
     totalSpentEl.textContent = totalSpent.toLocaleString();
   }
 
-  // Update cart badge
-  const badge = document.getElementById("cart-badge");
-  if (badge) {
-    if (cart.length > 0) {
-      badge.textContent = cart.length;
-      badge.style.display = "inline-block";
-    } else {
-      badge.style.display = "none";
-    }
-  }
 }
 
 function renderCart() {
@@ -562,11 +568,17 @@ window.validateQuantity = function (productId) {
 // Update cart badge with item count
 function updateCartBadge() {
   const cartCount = document.getElementById("cart-count");
+  const sideCartBadge = document.getElementById("cart-badge");
   const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
 
   if (cartCount) {
     cartCount.textContent = totalItems;
     cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
+  }
+
+  if (sideCartBadge) {
+    sideCartBadge.textContent = totalItems;
+    sideCartBadge.style.display = totalItems > 0 ? "inline-block" : "none";
   }
 }
 
