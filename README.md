@@ -38,7 +38,6 @@ Farmer Conekt is a digital platform designed to streamline agricultural trade by
 - Buyers can browse products, search, place orders, and make payments seamlessly.  
 - Transporters receive delivery requests and manage logistics efficiently.  
 - The platform provides a clean, intuitive, and responsive interface for both mobile and web users.
-**Demo Video**: 
 ## 9. Data & Security
 - User authentication and authorization to ensure only registered users access the platform  
 - Role-based access control for farmers, buyers, and transporters  
