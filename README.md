@@ -102,8 +102,8 @@ Farmer Conekt is a digital platform designed to streamline agricultural trade by
 │   ├── district.json
 │   └── locations.json
 │
-├── architectural_diagrams/
-│   └── class_diagram.jpg
+└── architectural_diagrams/
+    └── class_diagram.jpg
 ```
 installation, goes by cloning the repository
 and 
