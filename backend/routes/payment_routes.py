@@ -55,7 +55,7 @@ def initialize_payment():
     # Force buyer dashboard tab to orders so they land in the right place.
     redirect_url = os.getenv(
         "FLUTTERWAVE_REDIRECT_URL",
-        "http://localhost:8000/pages/home.html?tab=orders",
+        "http://localhost:3000/pages/home.html?tab=orders",
     )
 
     payload = {
@@ -166,6 +166,40 @@ def verify_payment(tx_ref):
                 payment_date = %s
             WHERE payment_reference = %s
         """, (db_status, datetime.now(), tx_ref))
+
+        # If payment is successful, decrement product quantities
+        if db_status == "paid":
+            # Get order details to decrement quantities
+            cursor.execute("""
+                SELECT od.product_id, od.quantity
+                FROM order_details od
+                JOIN orders o ON od.order_id = o.order_id
+                WHERE o.payment_reference = %s
+            """, (tx_ref,))
+            order_items = cursor.fetchall()
+
+            for item in order_items:
+                # Decrement product quantity
+                decrement_query = """
+                UPDATE products
+                SET quantity_available = quantity_available - %s
+                WHERE product_id = %s
+                """
+                cursor.execute(decrement_query, (item["quantity"], item["product_id"]))
+
+                # Check if product quantity is now 0 and update status
+                status_check_query = """
+                SELECT quantity_available FROM products WHERE product_id = %s
+                """
+                cursor.execute(status_check_query, (item["product_id"],))
+                result = cursor.fetchone()
+                if result and result['quantity_available'] <= 0:
+                    update_status_query = """
+                    UPDATE products
+                    SET status = 'sold'
+                    WHERE product_id = %s
+                    """
+                    cursor.execute(update_status_query, (item["product_id"],))
 
         connection.commit()
         connection.close()

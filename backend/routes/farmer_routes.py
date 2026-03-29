@@ -321,7 +321,7 @@ def get_farmer_products(farmer_id):
         d.district_name
     FROM products p
     LEFT JOIN districts d ON p.district_id = d.district_id
-    WHERE p.farmer_id = %s
+    WHERE p.farmer_id = %s AND p.status = 'available' AND p.quantity_available > 0
     ORDER BY p.created_at DESC
     """
 

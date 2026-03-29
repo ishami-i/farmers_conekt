@@ -20,8 +20,8 @@ def available_deliveries():
     SELECT
         d.delivery_id,
         o.order_id,
-        o.total_payment,
-        o.payment_status,
+        SUM(od.quantity) AS total_quantity,
+        GROUP_CONCAT(CONCAT(p.product_name, ' (', od.quantity, ' ', p.unit, ')') SEPARATOR ', ') AS products,
         o.status AS order_status,
         u.full_name AS buyer_name,
         d.pickup_location,
@@ -29,9 +29,12 @@ def available_deliveries():
         d.status AS delivery_status
     FROM deliveries d
     JOIN orders o ON d.order_id = o.order_id
+    JOIN order_details od ON o.order_id = od.order_id
+    JOIN products p ON od.product_id = p.product_id
     JOIN buyers b ON o.buyer_id = b.buyer_id
     JOIN users u ON b.user_id = u.user_id
     WHERE d.transporter_id IS NULL
+    GROUP BY d.delivery_id, o.order_id, o.status, u.full_name, d.pickup_location, d.dropoff_location, d.status
     """
 
     cursor.execute(query)
@@ -59,8 +62,8 @@ def my_deliveries():
     SELECT
         d.delivery_id,
         o.order_id,
-        o.total_payment,
-        o.payment_status,
+        SUM(od.quantity) AS total_quantity,
+        GROUP_CONCAT(CONCAT(p.product_name, ' (', od.quantity, ' ', p.unit, ')') SEPARATOR ', ') AS products,
         o.status AS order_status,
         u.full_name AS buyer_name,
         d.pickup_location,
@@ -68,9 +71,12 @@ def my_deliveries():
         d.status AS delivery_status
     FROM deliveries d
     JOIN orders o ON d.order_id = o.order_id
+    JOIN order_details od ON o.order_id = od.order_id
+    JOIN products p ON od.product_id = p.product_id
     JOIN buyers b ON o.buyer_id = b.buyer_id
     JOIN users u ON b.user_id = u.user_id
     WHERE d.transporter_id = %s
+    GROUP BY d.delivery_id, o.order_id, o.status, u.full_name, d.pickup_location, d.dropoff_location, d.status
     """
 
     cursor.execute(query, (transporter_id,))
@@ -133,12 +139,6 @@ def accept_delivery():
         # Update order status to 'shipped'
         cursor.execute("UPDATE orders SET status='shipped' WHERE order_id=%s", (order_id,))
 
-        # Record transporter earning
-        cursor.execute("""
-            INSERT INTO transporter_earnings (transporter_id, delivery_id, order_id, amount, status)
-            VALUES (%s, %s, %s, %s, 'pending')
-        """, (transporter_id, data["delivery_id"], order_id, delivery_fee))
-
         connection.commit()
         return jsonify({"message": "Delivery accepted"})
 
@@ -186,16 +186,10 @@ def update_delivery_status():
 
     cursor.execute(query, (status, data["delivery_id"]))
 
-    # if delivered, also mark order delivered and transporter earning as paid
+    # if delivered, also mark order delivered
     if status == "delivered":
         cursor.execute(
             "UPDATE orders SET status='delivered' WHERE order_id=(SELECT order_id FROM deliveries WHERE delivery_id=%s)",
-            (data["delivery_id"],),
-        )
-
-        # Mark transporter earning as paid
-        cursor.execute(
-            "UPDATE transporter_earnings SET status='paid' WHERE delivery_id=%s",
             (data["delivery_id"],),
         )
 
@@ -218,43 +212,47 @@ def get_transporter_earnings():
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    # Get earnings summary
+    # Get delivery summary
     cursor.execute("""
         SELECT
-            SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_earned,
-            SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_earnings,
-            COUNT(*) as total_deliveries
-        FROM transporter_earnings
+            COUNT(*) as total_deliveries,
+            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_deliveries,
+            SUM(CASE WHEN status = 'in_transit' THEN 1 ELSE 0 END) as pending_deliveries
+        FROM deliveries
         WHERE transporter_id = %s
     """, (transporter_id,))
     summary = cursor.fetchone()
 
-    # Get earnings history
+    # Get delivery history
     cursor.execute("""
         SELECT
-            te.earning_id,
-            te.amount,
-            te.status,
-            te.created_at,
-            te.delivery_id,
+            d.delivery_id,
+            d.status,
+            d.created_at,
+            d.pickup_location,
+            d.dropoff_location,
             o.order_id,
-            o.total_payment
-        FROM transporter_earnings te
-        JOIN orders o ON te.order_id = o.order_id
-        WHERE te.transporter_id = %s
-        ORDER BY te.created_at DESC
+            SUM(od.quantity) AS total_quantity,
+            GROUP_CONCAT(CONCAT(p.product_name, ' (', od.quantity, ' ', p.unit, ')') SEPARATOR ', ') AS products
+        FROM deliveries d
+        JOIN orders o ON d.order_id = o.order_id
+        JOIN order_details od ON o.order_id = od.order_id
+        JOIN products p ON od.product_id = p.product_id
+        WHERE d.transporter_id = %s
+        GROUP BY d.delivery_id, d.status, d.created_at, d.pickup_location, d.dropoff_location, o.order_id
+        ORDER BY d.created_at DESC
         LIMIT 50
     """, (transporter_id,))
-    earnings_history = cursor.fetchall()
+    delivery_history = cursor.fetchall()
 
     connection.close()
 
     return jsonify({
         "summary": {
-            "total_earned": summary["total_earned"] or 0,
-            "pending_earnings": summary["pending_earnings"] or 0,
-            "total_deliveries": summary["total_deliveries"] or 0
+            "total_deliveries": summary["total_deliveries"] or 0,
+            "completed_deliveries": summary["completed_deliveries"] or 0,
+            "pending_deliveries": summary["pending_deliveries"] or 0
         },
-        "earnings_history": earnings_history
+        "delivery_history": delivery_history
     })
 
