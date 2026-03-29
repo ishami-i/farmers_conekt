@@ -427,22 +427,29 @@
         throw new Error("Unexpected product data format");
       }
 
-      allProducts = data.map((p) => ({
-        id: p.product_id,
-        name: p.product_name,
-        category: p.product_category || "Other",
-        harvestTime: p.harvest_date || "",
-        price: Number(p.price_per_unit) || 0,
-        province: "",
-        district: p.district_name || "",
-        image: p.image_url
-          ? p.image_url.startsWith("http")
-            ? p.image_url
-            : `${API_BASE}${p.image_url}`
-          : "",
-        unit: p.unit || "kg",
-        farmer: p.farmer_name || "Farmer",
-      }));
+      allProducts = data.map((p) => {
+        const qty =
+          p.quantity_available !== null && p.quantity_available !== undefined
+            ? Number(p.quantity_available)
+            : "N/A";
+        return {
+          id: p.product_id,
+          name: p.product_name,
+          category: p.product_category || "Other",
+          harvestTime: p.harvest_date || "",
+          quantity: qty === 0 ? 0 : typeof qty === "number" ? qty : "N/A",
+          price: Number(p.price_per_unit) || 0,
+          province: "",
+          district: p.district_name || "",
+          image: p.image_url
+            ? p.image_url.startsWith("http")
+              ? p.image_url
+              : `${API_BASE}${p.image_url}`
+            : "",
+          unit: p.unit || "kg",
+          farmer: p.farmer_name || "Farmer",
+        };
+      });
 
       // Update window.allProducts reference
       window.allProducts = allProducts;

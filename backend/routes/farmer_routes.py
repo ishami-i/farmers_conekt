@@ -18,8 +18,8 @@ def create_farmer_profile():
     cursor = connection.cursor()
 
     query = """
-    INSERT INTO farmers (user_id, district_id, rating, bio)
-    VALUES (%s, %s, 0, %s)
+    INSERT INTO farmers (user_id, district_id, bio)
+    VALUES (%s, %s, %s)
     """
 
     cursor.execute(query, (

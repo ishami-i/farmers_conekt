@@ -113,7 +113,7 @@ function switchTab(tabName, element) {
   };
 
   const subtitles = {
-    dashboard: "Manage deliveries and earnings",
+    dashboard: "Manage deliveries and track progress",
     available: "Accept nearby deliveries",
     mine: "Track delivery progress",
     profile: "Update your contact info",
@@ -135,12 +135,6 @@ function switchTab(tabName, element) {
 function updateStats(deliveries, assigned) {
   document.getElementById("stat-available").textContent = deliveries.length;
   document.getElementById("stat-assigned").textContent = assigned.length;
-  const earnings = assigned.reduce(
-    (sum, d) => sum + (Number(d.total_payment) || 0),
-    0,
-  );
-  document.getElementById("stat-earnings").textContent =
-    earnings.toLocaleString() + " RWF";
 }
 
 async function loadAvailable() {
@@ -187,7 +181,8 @@ function renderAvailable(deliveries) {
 
   container.innerHTML = deliveries
     .map((d) => {
-      const total = Number(d.total_payment || 0).toLocaleString();
+      const quantity = Number(d.total_quantity || 0);
+      const products = d.products || "Various products";
       return `
         <div class="item-card">
           <div class="item-image">📦</div>
@@ -197,10 +192,11 @@ function renderAvailable(deliveries) {
             <div class="item-meta">
               <span>Pickup: ${escapeHTML(d.pickup_location || "—")}</span>
               <span>Dropoff: ${escapeHTML(d.dropoff_location || "—")}</span>
+              <span>Products: ${escapeHTML(products)}</span>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;">
-            <div class="item-price">${total} RWF</div>
+            <div class="item-price">${quantity} units</div>
             <button class="checkout-btn" onclick="acceptDelivery(${d.delivery_id})">Accept</button>
           </div>
         </div>
@@ -226,7 +222,8 @@ function renderAssigned(deliveries) {
 
   container.innerHTML = deliveries
     .map((d) => {
-      const total = Number(d.total_payment || 0).toLocaleString();
+      const quantity = Number(d.total_quantity || 0);
+      const products = d.products || "Various products";
       return `
         <div class="item-card">
           <div class="item-image">🚚</div>
@@ -236,10 +233,11 @@ function renderAssigned(deliveries) {
             <div class="item-meta">
               <span>Pickup: ${escapeHTML(d.pickup_location || "—")}</span>
               <span>Dropoff: ${escapeHTML(d.dropoff_location || "—")}</span>
+              <span>Products: ${escapeHTML(products)}</span>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
-            <div class="item-price">${total} RWF</div>
+            <div class="item-price">${quantity} units</div>
             <div class="status-badge badge-${d.delivery_status || "pending"}">${(d.delivery_status || "pending").replace(/_/g, " ")}</div>
             ${d.delivery_status === "in_transit" ? `<button class="checkout-btn" onclick="markDelivered(${d.delivery_id})">Mark Delivered</button>` : ""}
           </div>
@@ -346,11 +344,24 @@ function saveProfile() {
 }
 
 function loadProfile() {
+  const session = getSession();
   const profile =
     JSON.parse(localStorage.getItem("transporterProfile") || "{}") || {};
-  document.getElementById("profile-name").value = profile.name || "";
+
+  document.getElementById("profile-email").value =
+    (session && session.email) || profile.email || "";
+  document.getElementById("profile-name").value =
+    profile.name || (session && session.full_name) || "";
   document.getElementById("profile-phone").value = profile.phone || "";
   document.getElementById("profile-vehicle").value = profile.vehicle || "";
+
+  if (profile.name) {
+    document.querySelector(".topbar-left h2").textContent =
+      `Welcome, ${profile.name.split(" ")[0]}!`;
+  } else if (session && session.email) {
+    document.querySelector(".topbar-left h2").textContent =
+      `Welcome, ${session.email.split("@")[0]}!`;
+  }
 }
 
 function confirmLogout() {

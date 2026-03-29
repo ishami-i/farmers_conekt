@@ -205,8 +205,8 @@ async function loadOrdersFromAPI() {
       orders = data.map((o) => ({
         id: o.order_id,
         date: o.created_at,
+        item_count: Number(o.item_count) || 0,
         items: [],
-        
         total: Number(o.total_payment) || 0,
         status: o.status || "pending",
       }));
@@ -236,11 +236,14 @@ function displayUserInfo() {
   const session = window.getSession ? window.getSession() : null;
   if (session) {
     const email = session.email;
-    const name = email.split("@")[0];
+    const firstName = email.split("@")[0];
     document.getElementById("buyer-email").textContent = email;
     document.getElementById("profile-email").value = email;
-    document.querySelector(".topbar-left h2").textContent = `Welcome, ${name}!`;
+    document.querySelector(".topbar-left h2").textContent =
+      `Welcome, ${firstName}!`;
   }
+
+  loadProfile();
 }
 
 // ============= TAB SWITCHING =============
@@ -336,7 +339,6 @@ function updateStats() {
   if (totalSpentEl) {
     totalSpentEl.textContent = totalSpent.toLocaleString();
   }
-
 }
 
 function renderCart() {
@@ -436,12 +438,13 @@ function renderOrders() {
   container.innerHTML = filteredOrders
     .map((order) => {
       const statusClass = `badge-${order.status}`;
+      const count = order.item_count || order.items.length || 0;
       return `
             <div class="item-card">
                 <div class="item-image" style="font-size: 1.5rem;">📦</div>
                 <div class="item-details">
                     <div class="item-name">Order #${order.id}</div>
-                    <div class="item-farmer">${order.items.length} item(s)</div>
+                    <div class="item-farmer">${count} item(s)</div>
                     <div class="item-meta">
                         <span>Placed: ${new Date(order.date).toLocaleDateString()}</span>
                     </div>
@@ -475,12 +478,13 @@ function renderDashboardOrders() {
   container.innerHTML = recentOrders
     .map((order) => {
       const statusClass = `badge-${order.status}`;
+      const count = order.item_count || order.items.length || 0;
       return `
             <div class="item-card">
                 <div class="item-image" style="font-size: 1.5rem;">📦</div>
                 <div class="item-details">
                     <div class="item-name">Order #${order.id}</div>
-                    <div class="item-farmer">${order.items.length} item(s)</div>
+                    <div class="item-farmer">${count} item(s)</div>
                     <div class="item-meta">
                         <span>${new Date(order.date).toLocaleDateString()}</span>
                     </div>
@@ -835,7 +839,26 @@ function saveProfile() {
     "buyerProfile",
     JSON.stringify({ name, phone, location }),
   );
+
+  if (name) {
+    document.querySelector(".topbar-left h2").textContent =
+      `Welcome, ${name.split(" ")[0]}!`;
+  }
+
   showToast("Profile updated successfully! ✓");
+}
+
+function loadProfile() {
+  const profile =
+    JSON.parse(localStorage.getItem("buyerProfile") || "{}") || {};
+  document.getElementById("profile-name").value = profile.name || "";
+  document.getElementById("profile-phone").value = profile.phone || "";
+  document.getElementById("profile-location").value = profile.location || "";
+
+  if (profile.name) {
+    document.querySelector(".topbar-left h2").textContent =
+      `Welcome, ${profile.name.split(" ")[0]}!`;
+  }
 }
 
 // ============= UTILITIES =============
