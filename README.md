@@ -39,16 +39,16 @@ Farmer Conekt is a digital platform designed to streamline agricultural trade by
 ├── .gitignore
 │
 ├── backend/
-│   ├── app.py                  # Flask/FastAPI main entrypoint
-│   ├── config.py               # App configuration
-│   ├── __init__.py             # (optional) make backend a package
+│   ├── app.py
+│   ├── config.py             
+│   ├── __init__.py             
 │   │
 │   ├── database/
-│   │   ├── db.py               # DB connection helpers
-│   │   ├── schema.sql          # Schema definition
-│   │   └── seed_data.sql       # Seed data
+│   │   ├── db.py             
+│   │   ├── schema.sql         
+│   │   └── seed_data.sql     
 │   │
-│   ├── routes/                 # All API route blueprints/routers
+│   ├── routes/
 │   │   ├── __init__.py
 │   │   ├── analytics_routes.py
 │   │   ├── auth_routes.py
@@ -58,26 +58,26 @@ Farmer Conekt is a digital platform designed to streamline agricultural trade by
 │   │   ├── planting_routes.py
 │   │   └── transporter_routes.py
 │   │
-│   ├── middleware/             # Cross‑cutting concerns
+│   ├── middleware/             
 │   │   ├── __init__.py
 │   │   └── role_required.py
 │   │
 │   ├── uploads/
-│   │   └── crop_images/        # User-uploaded images
+│   │   └── crop_images/        
 │   │
-│   ├── tests/                  # (recommended) backend tests
-│   └── env/                    # Local venv (usually gitignored)
+│   ├── tests/                 
+│   └── env/             
 │
 ├── frontend/
-│   ├── index.html              # (recommended) main entry, can point to pages/home.html
-│   ├── farmer.html             # Legacy/landing pages (optionally move to pages/)
-│   ├── transporter.html        # "
+│   ├── index.html            
+│   ├── farmer.html             
+│   ├── transporter.html        
 │   │
 │   ├── pages/
 │   │   ├── home.html
 │   │   ├── login.html
 │   │   ├── admin-dashboard.html
-│   │   ├── transporter.html    # Page version
+│   │   ├── transporter.html    
 │   │   └── 404.html
 │   │
 │   ├── scripts/
@@ -94,7 +94,7 @@ Farmer Conekt is a digital platform designed to streamline agricultural trade by
 │   │   ├── buyer.css
 │   │   └── login.css
 │   │
-│   └── assets/                 # (recommended) static assets
+│   └── assets/               
 │       ├── images/
 │       └── icons/
 │
