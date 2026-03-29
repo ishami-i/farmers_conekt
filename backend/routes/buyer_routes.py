@@ -195,10 +195,14 @@ def get_buyer_orders(buyer_id):
     cursor = connection.cursor()
 
     query = """
-    SELECT *
-    FROM orders
-    WHERE buyer_id = %s
-    ORDER BY created_at DESC
+    SELECT
+        o.*,
+        COALESCE(SUM(od.quantity), 0) AS item_count
+    FROM orders o
+    LEFT JOIN order_details od ON o.order_id = od.order_id
+    WHERE o.buyer_id = %s
+    GROUP BY o.order_id
+    ORDER BY o.created_at DESC
     """
 
     cursor.execute(query, (buyer_id,))
