@@ -192,8 +192,8 @@ def upload_product():
 
     product_name = data.get("product_name")
     category = data.get("category")
-    harvest_date = data.get("harvest_date")
-    expiration_date = data.get("expiration_date")
+    harvest_date = data.get("harvest_date") or None
+    expiration_date = data.get("expiration_date") or None
     price = data.get("price")
     unit = data.get("unit")
     quantity = data.get("quantity")
@@ -425,26 +425,59 @@ def mark_order_paid(order_id):
 @role_required("farmer")
 def update_product(product_id):
 
-    data = request.json
+    # Check if it's form data (for image uploads) or JSON
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        data = request.form.to_dict()
+        image = request.files.get("image")
+    else:
+        data = request.json or {}
+        image = None
 
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    query = """
+    # Build update query dynamically
+    update_fields = []
+    update_values = []
+
+    if "price" in data and data["price"] is not None:
+        update_fields.append("price_per_unit=%s")
+        update_values.append(float(data["price"]))
+    if "quantity" in data and data["quantity"] is not None:
+        update_fields.append("quantity_available=%s")
+        update_values.append(int(data["quantity"]))
+    if "description" in data:
+        update_fields.append("description=%s")
+        update_values.append(data["description"])
+    if "harvest_date" in data:
+        update_fields.append("harvest_date=%s")
+        update_values.append(data["harvest_date"] or None)
+    if "expiration_date" in data:
+        update_fields.append("expiration_date=%s")
+        update_values.append(data["expiration_date"] or None)
+
+    # Handle image upload
+    if image:
+        filename = str(uuid.uuid4()) + "_" + image.filename
+        filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        image.save(filepath)
+        image_path = f"/uploads/crop_images/{filename}"
+        update_fields.append("image_url=%s")
+        update_values.append(image_path)
+
+    if not update_fields:
+        connection.close()
+        return jsonify({"error": "No fields to update"}), 400
+
+    query = f"""
     UPDATE products
-    SET price_per_unit=%s,
-        quantity_available=%s,
-        description=%s
+    SET {', '.join(update_fields)}, updated_at=NOW()
     WHERE product_id=%s
     """
 
-    cursor.execute(query, (
-        data["price"],
-        data["quantity"],
-        data["description"],
-        product_id
-    ))
+    update_values.append(product_id)
 
+    cursor.execute(query, update_values)
     connection.commit()
     connection.close()
 
