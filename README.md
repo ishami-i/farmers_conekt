@@ -139,11 +139,17 @@ bash ./set_up.sh
 * Secure payment processing is handled through Flutterwave with encrypted transactions.  
 * Sensitive user data is protected using encryption and secure storage practices.  
 * Input validation and sanitization are applied to prevent vulnerabilities such as SQL injection and XSS.  
-* Secure communication is enforced using HTTPS for all data exchanges.  
+* Secure communication is enforced using HTTPS for all data exchanges.
 
 ---
 
-### 9. Team
+### 9. Demo Links
+-------------------
+For the demo video, check this link:
+For the Demo website: https://farmers-conekt.ineza.tech/
+---
+
+### 10. Team
 --------
 
 * Ishami Irené — https://github.com/ishami-i  
