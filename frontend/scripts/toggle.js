@@ -3,7 +3,6 @@ Toggle script handles only humbuger menu
  */
 
 (function () {
-  // ===== HAMBURGER MENU TOGGLE =====
   const toggleButton = document.getElementById('toggle-button');
   const navMenu = document.getElementById('nav');
   const navLinks = document.querySelectorAll('.nav-links a');
