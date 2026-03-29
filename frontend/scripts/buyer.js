@@ -206,6 +206,7 @@ async function loadOrdersFromAPI() {
         id: o.order_id,
         date: o.created_at,
         items: [],
+        
         total: Number(o.total_payment) || 0,
         status: o.status || "pending",
       }));
