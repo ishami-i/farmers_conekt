@@ -1,6 +1,4 @@
-// ─────────────────────────────────────
-// DATABASE
-// ─────────────────────────────────────
+// database
 var DB = {
   farmers: [], // each farmer: { id, first, last, email, phone, farm, type, password, joinDate }
   buyers: [], // each buyer:  { id, first, last, email, phone, password, joinDate }
@@ -24,9 +22,7 @@ var redirectAfterLogin = urlParams.get("redirect");
 var loginMethod = { farmer: "email", buyer: "email", transporter: "email" };
 var signupMethod = { farmer: "email", buyer: "email", transporter: "email" };
 
-// ─────────────────────────────────────
-// SMALL HELPER FUNCTIONS
-// ─────────────────────────────────────
+// helper functions
 
 // Make a short unique ID
 function makeId() {
@@ -136,9 +132,7 @@ function withLoading(btnId, callback) {
   }, 1300);
 }
 
-// ─────────────────────────────────────
-// EYE BUTTON — show / hide passwords
-// ─────────────────────────────────────
+// show and hide passwords
 document.querySelectorAll(".toggle-pw").forEach(function (btn) {
   btn.addEventListener("click", function () {
     var input = document.getElementById(btn.dataset.target);
@@ -153,9 +147,7 @@ document.querySelectorAll(".toggle-pw").forEach(function (btn) {
   });
 });
 
-// ─────────────────────────────────────
-// PASSWORD STRENGTH METER
-// ─────────────────────────────────────
+// password strength measure
 function watchPasswordStrength(inputId, fillId, labelId, wrapId) {
   document.getElementById(inputId).addEventListener("input", function () {
     var password = this.value;
@@ -196,9 +188,7 @@ watchPasswordStrength("fs-pass", "fs-sf", "fs-sl", "fs-sw");
 watchPasswordStrength("bs-pass", "bs-sf", "bs-sl", "bs-sw");
 watchPasswordStrength("ts-pass", "ts-sf", "ts-sl", "ts-sw");
 
-// ─────────────────────────────────────
-// EMAIL / PHONE TOGGLE ON LOGIN FORMS
-// ─────────────────────────────────────
+// email and phone forms toggle for login
 function setLoginMethod(role, method, clickedBtn) {
   loginMethod[role] = method;
 
@@ -216,7 +206,7 @@ function setLoginMethod(role, method, clickedBtn) {
     method === "phone" ? "block" : "none";
 }
 
-// EMAIL / PHONE TOGGLE ON SIGN-UP FORMS
+// email and phone forms toggle for signup
 function setSignupContact(role, method, clickedBtn) {
   signupMethod[role] = method;
 
@@ -240,9 +230,7 @@ function setSignupContact(role, method, clickedBtn) {
     method === "phone" ? "block" : "none";
 }
 
-// ─────────────────────────────────────
-// SIGN UP
-// ─────────────────────────────────────
+// dign up
 async function doSignup(role) {
   // Gather fields
   var first = document
@@ -449,9 +437,7 @@ async function doSignup(role) {
   );
 }
 
-// ─────────────────────────────────────
-// LOGIN — calls backend auth endpoint
-// ─────────────────────────────────────
+// calling backend auth endpoint while login 
 async function doLogin(role) {
   var method = loginMethod[role];
 
@@ -570,9 +556,7 @@ async function doLogin(role) {
   );
 }
 
-// ─────────────────────────────────────
-// LOGOUT
-// ─────────────────────────────────────
+// logout
 function doLogout() {
   currentUser = null;
   currentRole = null;
@@ -580,10 +564,7 @@ function doLogout() {
   showToast("You have been logged out.", "");
 }
 
-// ─────────────────────────────────────
-// FARMER DASHBOARD
-// ─────────────────────────────────────
-
+// farmer dashbourd
 // Called once after login — fills in the farmer's name, profile, etc.
 function loadFarmerDash() {
   var u = currentUser;
@@ -736,10 +717,7 @@ function refreshFarmerDash() {
           .join("");
 }
 
-// ─────────────────────────────────────
-// ADD / REMOVE CROPS
-// ─────────────────────────────────────
-
+// add and remove crop
 function toggleCropForm() {
   document.getElementById("add-crop-form").classList.toggle("open");
 }
