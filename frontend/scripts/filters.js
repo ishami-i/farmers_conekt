@@ -374,7 +374,8 @@
           
           <div class="ecom-product-meta">
             <span class="ecom-meta-item">📍 ${escapeHTML(product.district || "N/A")}</span>
-            <span class="ecom-meta-item">⏱️ ${escapeHTML(capitalizeFirst(product.harvestTime))}</span>
+            <span class="ecom-meta-item">Harvest time: ${escapeHTML(capitalizeFirst(product.harvestTime))}</span>
+            <span class="ecom-meta-item">Quantity: ${escapeHTML(product.quantity || "N/A")}</span>
           </div>
           
           <div class="ecom-product-price-section">
