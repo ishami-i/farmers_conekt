@@ -123,4 +123,9 @@ bash ./set_up.sh
 - Protection of sensitive user data using encryption and secure storage practices  
 - Validation and sanitization of user inputs to prevent common vulnerabilities (e.g., SQL injection, XSS)  
 - Use of secure communication protocols (HTTPS) for all data exchanges  
-## 11. Team & Acknowledgment
+## 11. Team
+    - Ishami Irené: https://github.com/ishami-i
+    - Kevin Ineza: https://github.com/inezakevin23
+    - Dedine MUkabucyana: https://github.com/Dedine-Mukabucyana
+    - Milliam Mukamukiza: https://github.com/mmukamukiza21
+    - Nganji Jospin: https://github.com/Nganji1
