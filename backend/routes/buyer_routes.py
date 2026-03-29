@@ -55,7 +55,7 @@ def browse_marketplace():
     JOIN districts d ON p.district_id = d.district_id
     JOIN farmers f ON p.farmer_id = f.farmer_id
     JOIN users u ON f.user_id = u.user_id
-    WHERE p.status = 'available'
+    WHERE p.status = 'available' AND p.quantity_available > 0
     """
 
     filters = []
@@ -152,7 +152,7 @@ def place_order():
         cursor.execute(order_query, (buyer_id, total_payment))
         order_id = cursor.lastrowid
 
-        # Insert order details
+        # Insert order details (without decrementing quantity yet)
         for item in items:
             detail_query = """
             INSERT INTO order_details (order_id, product_id, price, quantity)
