@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../styles/login.css" />
   </head>
   <body>
-    <!-- Animated blobs in the background -->
+    
     <div class="bg">
       <div class="leaf-bg"></div>
       <div class="leaf-bg"></div>
@@ -26,7 +26,7 @@
       <div class="leaf-bg"></div>
     </div>
 
-    <!-- Reusable SVG icon shapes (referenced by #id throughout the page) -->
+   
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
       <symbol id="ico-user" viewBox="0 0 24 24">
         <circle cx="12" cy="8" r="4" />
@@ -77,10 +77,7 @@
     </svg>
 
     <div class="page">
-      <!-- ════════════════════════════════
-       SCREEN 1 — ROLE SELECTION
-       First screen the user sees.
-  ════════════════════════════════ -->
+
       <div class="screen active" id="screen-role">
         <div class="role-screen">
           <div class="role-brand">
@@ -117,10 +114,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════════
-       SCREEN 2 — FARMER AUTH
-       Login and sign-up for farmers.
-  ════════════════════════════════ -->
+
       <div class="screen" id="screen-farmer-auth">
         <div class="card">
           <div class="card-header">
@@ -302,7 +296,6 @@
               </div>
             </div>
 
-            <!-- Always collect the secondary contact too -->
             <div class="form-group" id="fs-extra-phone">
               <label>Phone Number</label>
               <div class="input-wrap">
@@ -420,10 +413,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════════
-       SCREEN 3 — BUYER AUTH
-       Login and sign-up for buyers.
-  ════════════════════════════════ -->
+      <!-- Login and sign-up for buyers -->
       <div class="screen" id="screen-buyer-auth">
         <div class="card">
           <div class="card-header">
@@ -692,9 +682,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════════
-       SCREEN 4 — FARMER DASHBOARD
-  ════════════════════════════════ -->
+      <!--— FARMER DASHBOARD-->
       <div class="screen" id="screen-farmer-dash">
         <div class="dashboard">
           <!-- Top bar -->
@@ -942,9 +930,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════════
-       SCREEN 5 — BUYER DASHBOARD
-  ════════════════════════════════ -->
+      <!--— BUYER DASHBOARD -->
       <div class="screen" id="screen-buyer-dash">
         <div class="dashboard">
           <!-- Top bar -->
@@ -1059,10 +1045,7 @@
         </div>
       </div>
 
-      <!-- ════════════════════════════════
-       SCREEN 4 — TRANSPORTER AUTH
-       Login and sign-up for transporters.
-  ════════════════════════════════ -->
+      <!--Login and sign-up for transporters-->
       <div class="screen" id="screen-transporter-auth">
         <div class="card">
           <div class="card-header">
@@ -1252,7 +1235,6 @@
               </div>
             </div>
 
-            <!-- Always collect the secondary contact too -->
             <div class="form-group" id="ts-extra-email" style="display: none">
               <label>Email Address (optional)</label>
               <div class="input-wrap">
@@ -1356,7 +1338,7 @@
         </div>
       </div>
     </div>
-    <!-- end .page -->
+
     <div class="toast" id="toast"></div>
 
     <script src="../scripts/login.js"></script>
