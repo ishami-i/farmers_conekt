@@ -17,54 +17,8 @@
     />
     <link rel="stylesheet" href="../styles/main.css" />
     <link rel="stylesheet" href="../styles/buyer.css" />
-    <style>
-      /* Page layout container */
-      #page-layout {
-        display: flex;
-        flex: 1;
-        position: relative;
-        min-height: calc(100vh - 80px);
-      }
-
-      /* Sidebar is hidden by default (shown only when logged in) */
-      .sidebar {
-        display: none;
-      }
-      body.logged-in .sidebar {
-        display: flex;
-      }
-
-      /* Topbar is hidden by default (shown only when logged in) */
-      #topbar {
-        display: none;
-      }
-      body.logged-in #topbar {
-        display: flex;
-      }
-
-      /* When there is no sidebar, main content takes full width */
-      body:not(.logged-in) .main {
-        margin-left: 0 !important;
-        width: 100% !important;
-      }
-
-      /* Browse tab uses block display; buyer.css hides .tab-content by default */
-      #browse-tab {
-        display: none;
-      }
-      #browse-tab.active {
-        display: block;
-      }
-
-      /* Remove extra padding from browse tab so filters/products
-       keep their own margins from main.css */
-      #browse-tab .filters-section,
-      #browse-tab .products-section {
-        margin-top: 0;
-      }
-    </style>
   </head>
-  <body>
+  <body class="home-page">
     <!-- ===== HEADER ===== -->
     <header id="header">
       <div class="header-content">
@@ -75,57 +29,29 @@
       </div>
       <nav id="nav">
         <ul class="nav-links" id="nav-links" aria-label="Main navigation">
-          <li><a href="./home.html">🏠 Home</a></li>
-
-          <!-- Dashboard link – only visible when logged in -->
-          <li id="dashboard-link" style="display: none">
-            <a
-              href="#"
-              onclick="
-                switchTab('dashboard', null);
-                return false;
-              "
-              >📊 Dashboard</a
-            >
-          </li>
-
           <!-- Cart link – only visible when logged in -->
-          <li id="cart-link" style="display: none">
+          <li id="cart-link">
             <a
+              class="cart-link-anchor"
               href="#"
               onclick="
                 switchTab('cart', null);
                 return false;
               "
             >
-              🛒 Cart <span id="cart-count" class="nav-badge">0</span>
+              <span class="cart-icon-only" aria-hidden="true">🛒</span>
+              <span class="cart-label">🛒 Cart</span>
+              <span id="cart-count" class="nav-badge">0</span>
             </a>
-          </li>
-
-          <!-- Login link – visible when NOT logged in -->
-          <li id="login-link">
-            <a href="./login.html">🔐 Log In</a>
-          </li>
-
-          <!-- Logout link – visible when logged in -->
-          <li id="logout-link" style="display: none">
-            <a
-              href="#"
-              onclick="
-                confirmLogout();
-                return false;
-              "
-              >🚪 Log Out</a
-            >
           </li>
         </ul>
       </nav>
       <button
         class="toggle-button"
         id="toggle-button"
-        aria-label="toggle navigation menu"
+        aria-label="toggle side navigation menu"
         aria-expanded="false"
-        aria-controls="nav-links"
+        aria-controls="sidebar"
       >
         <span class="bar"></span>
         <span class="bar"></span>
@@ -258,7 +184,7 @@
                   class="apply-filters"
                   style="width: auto; padding: 0.75rem 1.5rem"
                 >
-                  🔍 Search
+                   Search
                 </button>
               </div>
 
@@ -625,7 +551,6 @@
 
     <script src="https://checkout.flutterwave.com/v3.js"></script>
     <script src="../scripts/404-handler.js"></script>
-    <script src="../scripts/toggle.js"></script>
     <script src="../scripts/product.js"></script>
     <script src="../scripts/session.js"></script>
     <script src="../scripts/filters.js"></script>
