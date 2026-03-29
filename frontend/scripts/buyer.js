@@ -49,16 +49,10 @@ function getSession() {
 }
 window.getSession = getSession;
 
-// ============= INITIALIZATION =============
-// On DOMContentLoaded, check whether the user is logged in.
-// If logged in, activate the buyer dashboard (sidebar, topbar, tabs).
-// The product-browsing section is always visible to everyone.
+// log in checking 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Load buyer data first (cart from localStorage)
   loadBuyerData();
   updateCartBadge();
-
-  // Load products for everyone (browsing is public)
   loadProductsFromAPI();
 
   const session = getSession();
@@ -70,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  // Mark the page as logged-in so the CSS sidebar/topbar rules apply.
   document.body.classList.add("logged-in");
 
   displayUserInfo();
@@ -78,32 +71,27 @@ document.addEventListener("DOMContentLoaded", async function () {
   render();
   setupSidebarToggle();
 
-  // Honor a ?tab= URL parameter (e.g. from the cart nav-link).
   const urlParams = new URLSearchParams(window.location.search);
   const tabParam = urlParams.get("tab");
   if (tabParam) {
     switchTab(tabParam, null);
-    // Clean up the URL without reloading
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // Check for payment verification
   const tx_ref = urlParams.get("tx_ref");
   if (tx_ref) {
     verifyPayment(tx_ref);
-    // Clean up the URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 });
 
-// ============= SIDEBAR TOGGLE (Mobile) =============
+//  SIDEBAR TOGGLE (Mobile) 
 function setupSidebarToggle() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");
 
   if (!sidebar || !overlay) return;
 
-  // Reuse the header burger when present; fall back to creating a mobile toggle button.
   let toggleBtn = document.getElementById("toggle-button");
   if (!toggleBtn) {
     toggleBtn = document.querySelector(".sidebar-toggle-btn");
@@ -159,9 +147,9 @@ function closeSidebarOnMobile() {
   }
 }
 
-// ============= USER DATA MANAGEMENT =============
+// user data management
+// loading data from local storage
 function loadBuyerData() {
-  // Load cart and orders from localStorage (supporting legacy keys)
   const savedCart =
     localStorage.getItem("buyerCart") ||
     localStorage.getItem("cart") ||
@@ -246,14 +234,12 @@ function displayUserInfo() {
   loadProfile();
 }
 
-// ============= TAB SWITCHING =============
+// tab switching anf hiding rest tabs
 function switchTab(tabName, element) {
-  // Hide all tabs
   document.querySelectorAll(".tab-content").forEach((tab) => {
     tab.style.display = "none";
   });
 
-  // Show selected tab
   const selectedTab = document.getElementById(`${tabName}-tab`);
   if (selectedTab) {
     selectedTab.style.display = "block";
@@ -318,7 +304,7 @@ function makingorders() {
   showToast("Order placed successfully! 🎉");
 }
 
-// ============= RENDERING =============
+// rendering function
 function render() {
   updateStats();
   updateCartBadge();
@@ -499,9 +485,8 @@ function renderDashboardOrders() {
     .join("");
 }
 
-// ============= CART OPERATIONS =============
-
-// Modern quick add to cart for e-commerce
+//  CART OPERATIONS
+// quick add and remove to cart for e-commerce
 window.quickAddToCart = function (productId, action) {
   const allProducts = window.allProducts || [];
   const product = allProducts.find((p) => p.id === productId);
@@ -515,13 +500,10 @@ window.quickAddToCart = function (productId, action) {
   let quantity = parseInt(qtyInput?.value) || 1;
 
   if (action === -1) {
-    // Decrease quantity
     quantity = Math.max(1, quantity - 1);
   } else if (action === 1) {
-    // Increase quantity
     quantity = quantity + 1;
   } else if (action === 0) {
-    // Add to cart with current quantity
     const existingIndex = cart.findIndex((item) => item.id === productId);
 
     if (existingIndex >= 0) {
@@ -644,7 +626,7 @@ window.checkout = function () {
 };
 window.makingorders = makingorders; // Also expose for potential use
 
-// ============= PAYMENT & ORDER PROCESSING =============
+//  Payment and reder processing 
 function openPaymentModal() {
   const modal = document.getElementById("payment-modal");
   if (!modal) return;
@@ -658,7 +640,7 @@ function openPaymentModal() {
   const delivery = 5000;
   const total = subtotal + delivery + tax;
 
-  // Update modal UI
+  // Update UI
   const totalEl = document.getElementById("modal-total-amount");
   if (totalEl) totalEl.textContent = total.toLocaleString() + " RWF";
 
@@ -814,7 +796,7 @@ if (pendingRef) {
 
 // completeOrder replaced by Paystack flow in handlePaymentSubmit
 
-// ============= ORDER FILTERING =============
+// order filtering
 function filterOrders(status) {
   currentOrderFilter = status;
 
@@ -829,7 +811,7 @@ function filterOrders(status) {
   renderOrders();
 }
 
-// ============= PROFILE OPERATIONS =============
+//  Profile
 function saveProfile() {
   const name = document.getElementById("profile-name").value;
   const phone = document.getElementById("profile-phone").value;
@@ -861,7 +843,7 @@ function loadProfile() {
   }
 }
 
-// ============= UTILITIES =============
+// 
 function previewAvatar(e) {
   const file = e.target.files[0];
   if (!file) return;
