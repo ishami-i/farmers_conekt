@@ -24,7 +24,7 @@
 
   const API_BASE = window.API_BASE_URL || "http://localhost:5000";
 
-  // ============= INITIALIZE FILTERS ON PAGE LOAD =============
+  // initialize filters on page load
   document.addEventListener("DOMContentLoaded", async function () {
     await loadProductsFromAPI(); // Load products from backend
     await loadDistrictsFromJSON(); // Load districts
@@ -35,7 +35,7 @@
     applyAllFilters();
   });
 
-  // ============= GLOBAL ORDER FUNCTION =============
+  // Global order function
   window.orderProduct = function (id) {
     const product = allProducts.find((p) => p.id === id);
     if (!product) return;
@@ -92,7 +92,7 @@
     }
   };
 
-  // ============= LOAD DISTRICTS FROM district.json =============
+  //  LOAD DISTRICTS FROM district.json 
   async function loadDistrictsFromJSON() {
     try {
       // Load districts from backend API instead of trying relative paths
@@ -146,7 +146,7 @@
     }
   }
 
-  // ============= POPULATE DISTRICT SELECT DROPDOWN =============
+  // district dropdown mune
   function populateDistrictSelect() {
     const districtSelect = document.getElementById("districtSelect");
 
@@ -179,7 +179,7 @@
     districtSelect.appendChild(fragment);
   }
 
-  // ============= DISTRICT FILTER SETUP =============
+  // district filter setup
   function setupDistrictFilter() {
     const districtSelect = document.getElementById("districtSelect");
 
@@ -199,7 +199,7 @@
     }
   }
 
-  // ============= PRODUCT SEARCH SETUP =============
+  // product search
   function setupSearchInput() {
     const searchInput = document.getElementById("search-products");
 
@@ -212,7 +212,7 @@
     }
   }
 
-  // ============= SEARCH BUTTON SETUP =============
+  // search button
   function setupSearchButton() {
     const searchBtn = document.getElementById("search-btn");
 
@@ -221,7 +221,7 @@
     }
   }
 
-  // ============= PERFORM SEARCH =============
+  // searching 
   function performSearch() {
     const searchInput = document.getElementById("search-products");
 
@@ -229,7 +229,7 @@
       return;
     }
 
-    // Update all filters from DOM to ensure consistency
+    // Update all filters from the DOM to ensure consistency
     updateFiltersFromDOM();
 
     // Update search term
@@ -239,7 +239,7 @@
     applyAllFilters();
   }
 
-  // ============= UPDATE FILTERS FROM DOM =============
+  // updating the DOM fileters
   function updateFiltersFromDOM() {
     const categoryEl = document.getElementById("category-filter");
     const harvestEl = document.getElementById("harvest-time");
@@ -258,7 +258,7 @@
     }
   }
 
-  // ============= APPLY FILTERS BUTTON SETUP =============
+  // apply filter button
   function setupApplyFiltersButton() {
     const applyFiltersBtn = document.getElementById("apply-filters");
 
@@ -279,7 +279,7 @@
     }
   }
 
-  // ============= FILTER PRODUCTS BASED ON CURRENT FILTER STATE =============
+  // filtering product basing on the current state
   function applyAllFilters() {
     filteredProducts = allProducts.filter((product) => {
       // Search filter - search in product name
@@ -332,7 +332,7 @@
     renderProducts(filteredProducts);
   }
 
-  // ============= RENDER PRODUCTS =============
+  // products rendering
   function renderProducts(products) {
     const productsContainer = document.getElementById("products-container");
 
@@ -352,7 +352,7 @@
       return;
     }
 
-    // Generate modern e-commerce product cards HTML
+    // e-commerce product cards HTML
     productsContainer.innerHTML = products
       .map(
         (product) => `
@@ -415,7 +415,7 @@
     });
   }
 
-  // ============= LOAD PRODUCTS FROM THE BACKEND =============
+  // loading products from backend
   async function loadProductsFromAPI() {
     try {
       const response = await fetch(`${API_BASE}/api/buyers/marketplace`);
@@ -461,7 +461,7 @@
     }
   }
 
-  // ============= HELPER FUNCTIONS =============
+  // helper functions
   function escapeHTML(str) {
     if (!str) return "";
     return String(str)
