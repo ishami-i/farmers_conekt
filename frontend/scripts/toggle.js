@@ -1,8 +1,5 @@
 /**
- * Toggle Script
- * Handles:
- * 1. Mobile navigation (hamburger menu)
- * 2. Light/Dark mode toggle
+Toggle script handles only humbuger menu
  */
 
 (function () {
