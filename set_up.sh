@@ -1,120 +1,107 @@
 #!/bin/bash
 
-# the script running the backend and the frontend of this project
-# first check for mysql is installed, if not break the script.
-if ! command -v mysql &> /dev/null
-then
-    echo "MySQL is not installed or not found in the system. Breaking the script."
+set -e
+
+echo "=== Farmer Conekt Setup Script ==="
+
+
+# Configurable variables
+DB_NAME="farmers_conekt"
+DB_USER="my_user"
+DB_PASS="my_password"
+MYSQL_SERVICE="mysql"
+
+# Check MySQL installation
+if ! command -v mysql &> /dev/null; then
+    echo "✗ MySQL is not installed. Please install it first."
     exit 1
 fi
 
-echo "MySQL is installed. Checking if the service is running."
+echo "✓ MySQL is installed."
 
-# Check OS and start MySQL accordingly
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    echo "Detected macOS. Checking MySQL service..."
-    
-    # Try brew services first
-    if command -v brew &> /dev/null && brew services list | grep -q "mysql"; then
-        if ! brew services list | grep -q "mysql.*started"; then
-            echo "MySQL is not running. Starting with brew..."
-            brew services start mysql
-            sleep 2
-            echo "✓ MySQL started successfully."
+# Detect OS
+OS_TYPE="$(uname -s)"
+
+echo "Detected OS: $OS_TYPE"
+
+# Start MySQL depending on OS
+start_mysql_linux() {
+    if command -v systemctl &> /dev/null; then
+        if systemctl is-active --quiet "$MYSQL_SERVICE"; then
+            echo "✓ MySQL is already running."
         else
-            echo "✓ MySQL service is already running."
+            echo "Starting MySQL with systemctl..."
+            sudo systemctl start "$MYSQL_SERVICE"
         fi
+    elif command -v service &> /dev/null; then
+        echo "Starting MySQL with service..."
+        sudo service "$MYSQL_SERVICE" start
     else
-        # Try launchctl for .dmg installation
-        if launchctl list | grep -q "mysql"; then
-            echo "✓ MySQL service is already running."
-        else
-            echo "MySQL is not running. Starting via launchctl..."
-            launchctl start com.oracle.oss.mysql.mysqld
-            sleep 2
-            echo "✓ MySQL started successfully."
-        fi
+        echo "✗ No supported service manager found."
+        exit 1
     fi
+}
+
+start_mysql_macos() {
+    if command -v brew &> /dev/null; then
+        echo "Using Homebrew to manage MySQL..."
+        brew services start mysql || brew services start mysql@8.0
+    else
+        echo "Attempting launchctl..."
+        launchctl load -w /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null || true
+    fi
+}
+
+if [[ "$OS_TYPE" == "Linux" ]]; then
+    start_mysql_linux
+elif [[ "$OS_TYPE" == "Darwin" ]]; then
+    start_mysql_macos
 else
-    # Linux
-    SERVICE_NAME="mysql"
-    if command -v systemctl &> /dev/null
-    then
-        if systemctl is-active --quiet "$SERVICE_NAME"; then
-            echo "✓ MySQL service is already running."
-        else
-            echo "MySQL service is not running. Attempting to start it..."
-            sudo systemctl start "$SERVICE_NAME"
-            if [ $? -eq 0 ]; then
-                echo "✓ MySQL service started successfully."
-            else
-                echo "✗ Failed to start MySQL service. Exiting."
-                exit 1
-            fi
-        fi
-    else
-        # Fallback for older Linux
-        if service "$SERVICE_NAME" status &> /dev/null; then
-            echo "✓ MySQL service is already running."
-        else
-            echo "Starting MySQL service..."
-            sudo service "$SERVICE_NAME" start
-            if [ $? -ne 0 ]; then
-                echo "✗ Failed to start MySQL service. Exiting."
-                exit 1
-            fi
-            echo "✓ MySQL service started successfully."
-        fi
-    fi
+    echo "✗ Unsupported OS: $OS_TYPE"
+    exit 1
 fi
 
-# Wait for MySQL to be ready
-echo "Waiting for MySQL to be ready..."
-sleep 2
+sleep 3
 
-# Create the database user with all permissions, and create the database
-echo "Creating database and user..."
-echo "Running schema (creates database + tables)..."
+# Setup Database
+echo "Setting up database..."
 
-# 1. Run schema.sql (creates farmers_conekt DB + tables)
-mysql -u root < backend/database/schema.sql 2>/dev/null || echo "Schema may already exist, continuing..."
+# Run schema (ignore errors if already exists)
+mysql -u root < backend/database/schema.sql 2>/dev/null || echo "Schema already applied or skipped."
 
-echo "Creating user and granting privileges..."
-
-# 2. Create user + grant access to the SAME database
+# Create user and grant privileges
 mysql -u root <<EOF
-CREATE USER IF NOT EXISTS 'my_user'@'localhost' IDENTIFIED BY 'my_password';
-GRANT ALL PRIVILEGES ON farmers_conekt.* TO 'my_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS $DB_NAME;
+CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';
 FLUSH PRIVILEGES;
 EOF
 
-# Test connection with the new user (optional)
-echo "Testing new user connection..."
-mysql -u my_user -p'my_password' farmers_conekt -e "SELECT 1;" 2>/dev/null && echo "✓ User setup successful" || echo "✗ User setup failed"
+echo "✓ Database and user configured."
 
-echo "Database and user setup completed."
+# Test DB connection
+echo "Testing database connection..."
+mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SELECT 1;" >/dev/null 2>&1 && \
+echo "✓ Database connection successful" || \
+echo "✗ Database connection failed"
 
-# Creating env file for flask and installing the dependencies
-echo "Setting up backend..."
+# Setup Python environment
+echo "Setting up Python environment..."
 
-# Create virtual environment only if it doesn't exist
 if [ ! -d "backend/env" ]; then
-    echo "Creating virtual environment..."
     python3 -m venv backend/env
 fi
 
-# Activate environment
 source backend/env/bin/activate
 
-# Install dependencies from ROOT (important)
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# Start Backend
 cd backend || exit
 
 export FLASK_APP=app.py
 export FLASK_ENV=development
 
 echo "Starting Flask backend..."
-flask run
+flask run --host=0.0.0.0 --port=5000
