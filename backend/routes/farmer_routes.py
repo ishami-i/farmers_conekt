@@ -300,8 +300,25 @@ def get_farmer_products(farmer_id):
     cursor = connection.cursor()
 
     # Include district name so frontend can show user-friendly location info
+    # Coerce dates to yyyy-mm-dd string format to avoid JSON serialization mismatch
     query = """
-    SELECT p.*, d.district_name
+    SELECT 
+        p.product_id,
+        p.farmer_id,
+        p.district_id,
+        p.product_name,
+        p.product_category,
+        DATE_FORMAT(p.harvest_date, '%%Y-%%m-%%d') AS harvest_date,
+        DATE_FORMAT(p.expiration_date, '%%Y-%%m-%%d') AS expiration_date,
+        p.status,
+        p.price_per_unit,
+        p.unit,
+        p.quantity_available,
+        p.description,
+        p.image_url,
+        p.created_at,
+        p.updated_at,
+        d.district_name
     FROM products p
     LEFT JOIN districts d ON p.district_id = d.district_id
     WHERE p.farmer_id = %s
@@ -430,7 +447,7 @@ def update_product(product_id):
         data = request.form.to_dict()
         image = request.files.get("image")
     else:
-        data = request.json or {}
+        data = request.get_json(force=True) or {}
         image = None
 
     connection = get_db_connection()
@@ -479,9 +496,36 @@ def update_product(product_id):
 
     cursor.execute(query, update_values)
     connection.commit()
+
+    # Return updated record so frontend can re-render correctly
+    cursor.execute(
+        """
+        SELECT 
+            p.product_id,
+            p.farmer_id,
+            p.district_id,
+            p.product_name,
+            p.product_category,
+            DATE_FORMAT(p.harvest_date, '%Y-%m-%d') AS harvest_date,
+            DATE_FORMAT(p.expiration_date, '%Y-%m-%d') AS expiration_date,
+            p.status,
+            p.price_per_unit,
+            p.unit,
+            p.quantity_available,
+            p.description,
+            p.image_url,
+            p.created_at,
+            p.updated_at
+        FROM products p
+        WHERE p.product_id = %s
+        """,
+        (product_id,),
+    )
+    updated_product = cursor.fetchone()
+
     connection.close()
 
-    return jsonify({"message": "Product updated"})
+    return jsonify({"message": "Product updated", "product": updated_product})
 
 # allowing farmer to delete their product
 
