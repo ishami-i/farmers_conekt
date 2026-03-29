@@ -130,14 +130,14 @@
     const cartLink = document.getElementById("cart-link");
 
     if (session) {
-      // ✅ User is logged in - show Cart & Logout, hide Login
+      // show Cart & Logout, hide Login
       if (loginLink) loginLink.style.display = "none";
       if (logoutLink) logoutLink.style.display = "block";
       if (dashboardLink) dashboardLink.style.display = "block";
       if (cartLink) cartLink.style.display = "block";
       updateCartBadge();
     } else {
-      // ❌ User NOT logged in - show Login, hide Cart & Logout
+      // show Login, hide Cart & Logout
       if (loginLink) loginLink.style.display = "block";
       if (logoutLink) logoutLink.style.display = "none";
       if (dashboardLink) dashboardLink.style.display = "none";
