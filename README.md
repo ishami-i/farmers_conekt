@@ -145,7 +145,7 @@ bash ./set_up.sh
 
 ### 9. Demo Links
 -------------------
-* For the demo video, check this link:
+* For the demo video, check this link: https://youtu.be/2O-4wheTZtc
 * For the Demo website: https://farmers-conekt.ineza.tech/
 ---
 
