@@ -109,13 +109,11 @@
         const session = getSession();
 
         if (!session) {
-            // ❌ NOT logged in - redirect to login
             alert("Please log in to add items to cart");
             window.location.href = "./login.html?redirect=" + encodeURIComponent(window.location.pathname);
             return;
         }
 
-        // ✅ User is logged in - add to cart
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
         const existingItem = cart.find((item) => item.productId === productId);
