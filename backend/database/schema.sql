@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS farmers (
     farmer_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     district_id INT,
-    rating DECIMAL(2,1),
     bio TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (district_id) REFERENCES districts(district_id) ON DELETE SET NULL
@@ -111,17 +110,6 @@ CREATE TABLE IF NOT EXISTS deliveries (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS reviews (
-    review_id INT AUTO_INCREMENT PRIMARY KEY,
-    farmer_id INT NOT NULL,
-    buyer_id INT NOT NULL,
-    comment TEXT,
-    ratings TINYINT CHECK (ratings BETWEEN 1 AND 5),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (farmer_id) REFERENCES farmers(farmer_id) ON DELETE CASCADE,
-    FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS farmer_earnings (

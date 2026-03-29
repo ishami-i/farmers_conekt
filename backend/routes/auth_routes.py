@@ -56,8 +56,8 @@ def register():
 
     if role == "farmer":
         profile_query = """
-        INSERT INTO farmers (user_id, rating, bio, district_id)
-        VALUES (%s, 0, %s, %s)
+        INSERT INTO farmers (user_id, bio, district_id)
+        VALUES (%s, %s, %s)
         """
         cursor.execute(profile_query, (user_id, data.get("bio", ""), district_id))
         farmer_id = cursor.lastrowid

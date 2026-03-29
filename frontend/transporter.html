@@ -19,22 +19,11 @@
       </div>
       <nav id="nav">
         <ul class="nav-links" id="nav-links" aria-label="Main navigation">
-          <li><a href="./home.html">🏠 Home</a></li>
-          <li><a href="./transporter.html" class="active-nav">Dashboard</a></li>
           <li>
             <a href="./pages/login.html" onclick="confirmLogout()">Log Out</a>
           </li>
         </ul>
       </nav>
-      <button
-        class="light/dark-toggle"
-        id="light-dark-toggle"
-        aria-label="toggle light and dark mode"
-        aria-pressed="false"
-      >
-        <span class="light-mode">Light</span>
-        <span class="dark-mode">Dark</span>
-      </button>
     </header>
 
     <div style="display: flex; min-height: calc(100vh - 80px)">
@@ -120,7 +109,7 @@
         <div class="topbar">
           <div class="topbar-left">
             <h2 id="page-title">Transporter Dashboard</h2>
-            <p id="page-subtitle">Manage deliveries and earn.</p>
+            <p id="page-subtitle">Manage deliveries and track progress.</p>
           </div>
         </div>
 
@@ -137,11 +126,6 @@
                 <div class="stat-value" id="stat-assigned">0</div>
                 <div class="stat-label">Assigned</div>
               </div>
-              <div class="stat-card">
-                <div class="stat-icon">💰</div>
-                <div class="stat-value" id="stat-earnings">0 RWF</div>
-                <div class="stat-label">Potential Earnings</div>
-              </div>
             </div>
           </div>
 
@@ -151,7 +135,7 @@
                 <div>
                   <div class="section-title">Available Deliveries</div>
                   <div class="section-sub">
-                    Accept a delivery to start earning.
+                    Accept a delivery to start transporting.
                   </div>
                 </div>
               </div>

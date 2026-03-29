@@ -237,33 +237,3 @@ def delivery_status(order_id):
     connection.close()
 
     return jsonify(delivery)
-
-# buyer leave a review
-
-@buyer_routes.route("/review", methods=["POST"])
-@jwt_required()
-@role_required("buyer")
-def leave_review():
-
-    data = request.json
-
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
-    query = """
-    INSERT INTO reviews
-    (farmer_id, buyer_id, comment, rating, created_at)
-    VALUES (%s,%s,%s,%s,NOW())
-    """
-
-    cursor.execute(query, (
-        data["farmer_id"],
-        data["buyer_id"],
-        data["comment"],
-        data["rating"]
-    ))
-
-    connection.commit()
-    connection.close()
-
-    return jsonify({"message": "Review submitted"})
